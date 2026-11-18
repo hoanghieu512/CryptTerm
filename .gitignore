@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+*.tsbuildinfo
+
+# test output
+coverage/
+playwright-report/
+test-results/
+
+# Noir build output (rebuilt by scripts)
+circuits/**/target/
+
+# local environment and tooling
+.env
+.env.*
+.netlify/
+.DS_Store
+*.log
+
+# NOTE: .kiro/ is part of the submission and must stay tracked. Do not ignore it.

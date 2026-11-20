@@ -95,3 +95,5 @@ None yet. Fill this section in during the spike.
 Append dated entries as they are found, each with the component, the version, what happened, and the workaround.
 
 - 2026-11-18, `bb.js`: the package is published as `@aztec-foundation/bb.js` (`latest` is `6.0.0`). The old name `@aztec/bb.js` stops at `5.3.0`. The Noir tutorial and Context7 examples still show the old name.
+- 2026-11-19, `@aztec-foundation/bb.js`: the registry `latest` tag moved from `6.0.0` (observed 2026-11-18) to `6.1.0`; re-confirmed 2026-11-20. The pin stays `6.0.0`, so never install by tag and always use the exact version.
+- 2026-11-19, Context7: the libraries `/noir-lang/noir` and `/websites/noir-lang` return "master branch content", not `1.0.0`, which is the pinned version. Where behaviour matters, read the tagged `v1.0.0` source instead.

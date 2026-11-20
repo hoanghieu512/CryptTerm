@@ -1,0 +1,412 @@
+#!/usr/bin/env node
+// Build_Script: compiles circuits/ledger_audit with `nargo`, rewrites the absolute
+// source paths in the compiled JSON to package-relative paths (textual replacement
+// only), and writes the result to src/zk/artifacts/ledger_audit.json, plus
+// ledger_audit.meta.json (nargo version line and sha256 of the REWRITTEN artifact).
+// `nargo` is found through PATH.
+// Nothing is written to src/zk/artifacts/ before every check has passed.
+// Errors go to stderr as `build-circuit: step <name> failed: <reason>`, exit status 1.
+
+import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import {
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
+import { homedir } from 'node:os';
+import { dirname, join, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const circuitDir = join(repoRoot, 'circuits', 'ledger_audit');
+const compiledPath = join(circuitDir, 'target', 'ledger_audit.json');
+const artifactsDir = join(repoRoot, 'src', 'zk', 'artifacts');
+const artifactPath = join(artifactsDir, 'ledger_audit.json');
+const metaPath = join(artifactsDir, 'ledger_audit.meta.json');
+const tmpSuffix = `.tmp-${process.pid}`;
+
+const MAX_BUFFER = 64 * 1024 * 1024;
+const MAX_REASON_CHARS = 2000;
+
+class StepError extends Error {
+  constructor(step, reason) {
+    super(reason);
+    this.step = step;
+  }
+}
+
+let currentStep = 'version';
+
+function tail(text) {
+  const trimmed = String(text ?? '').trim();
+  return trimmed.length > MAX_REASON_CHARS ? `...${trimmed.slice(-MAX_REASON_CHARS)}` : trimmed;
+}
+
+// Runs `nargo <args>` in the circuit package directory. Returns stdout on exit status 0.
+function runNargo(step, args) {
+  const result = spawnSync('nargo', args, {
+    cwd: circuitDir,
+    encoding: 'utf8',
+    maxBuffer: MAX_BUFFER,
+  });
+  const command = `nargo ${args.join(' ')}`;
+  if (result.error) {
+    const code = result.error.code;
+    if (code === 'ENOENT') {
+      throw new StepError(step, `\`nargo\` not found on PATH (${command})`);
+    }
+    throw new StepError(step, `${command}: ${code ?? result.error.message}`);
+  }
+  if (result.signal) {
+    throw new StepError(step, `${command} was killed by signal ${result.signal}`);
+  }
+  if (result.status !== 0) {
+    const detail = tail(result.stderr) || tail(result.stdout);
+    throw new StepError(
+      step,
+      `${command} exited with status ${result.status}${detail ? `: ${detail}` : ''}`,
+    );
+  }
+  return result.stdout;
+}
+
+// ---- Path rewrite -------------------------------------------------------------------
+//
+// nargo writes the absolute path of each package source file into `file_map[*].path`.
+// The rewrite removes the absolute prefix of `circuits/ledger_audit/` from the JSON
+// TEXT, so `/abs/.../circuits/ledger_audit/src/main.nr` becomes `src/main.nr`.
+// The output is produced by textual replacement only. The artifact is never parsed and
+// stringified to produce output, because the 64-bit `hash` field would lose precision.
+// JSON.parse below is a validity check, and the parsed values are only compared.
+
+// JSON-escaped form of a string, without the surrounding quotes (`\` becomes `\\`).
+function jsonEscaped(text) {
+  return JSON.stringify(text).slice(1, -1);
+}
+
+// Distinct forms in which a path can appear in JSON text: native separators and forward
+// slashes (they differ only on Windows), each as plain text and JSON-escaped.
+function pathForms(path) {
+  const slashed = sep === '\\' ? path.replaceAll('\\', '/') : path;
+  return new Set([path, jsonEscaped(path), slashed, jsonEscaped(slashed)]);
+}
+
+// Forms of the package directory WITH its trailing separator, for both the
+// `path.resolve` form and the `fs.realpathSync` form (nargo may canonicalise symlinks,
+// for example `/tmp` vs `/private/tmp` on macOS). Longest first, so a prefix that is a
+// suffix of another (`/tmp/x/` in `/private/tmp/x/`) cannot leave a fragment behind.
+function packagePrefixes() {
+  const prefixes = new Set();
+  for (const base of [resolve(circuitDir), realpathSync(circuitDir)]) {
+    for (const form of pathForms(base + sep)) prefixes.add(form);
+  }
+  return [...prefixes].sort((a, b) => b.length - a.length);
+}
+
+// Forms of the absolute paths that must not survive the rewrite: the repo root and the
+// home directory, each as given by `resolve` and by `realpathSync`.
+function forbiddenForms() {
+  const forms = new Map();
+  const add = (label, path) => {
+    for (const form of pathForms(path)) {
+      // A bare separator or a drive root would match every path; skip such forms.
+      if (form.length > 1 && form.replaceAll(sep, '').replaceAll('/', '') !== '') {
+        forms.set(form, label);
+      }
+    }
+  };
+  const home = homedir();
+  for (const [label, path] of [
+    ['repo root', repoRoot],
+    ['home directory', home],
+  ]) {
+    add(label, resolve(path));
+    try {
+      add(label, realpathSync(path));
+    } catch {
+      // The directory cannot be resolved; the plain form is still checked.
+    }
+  }
+  return forms;
+}
+
+// Raw text of every top-level value of a JSON object text, extracted without parsing
+// (so integers beyond 2^53 are compared as written). Returns Map<key, raw text>.
+// Throws on anything unexpected, including a duplicate top-level key.
+function topLevelRawValues(text) {
+  const values = new Map();
+  let i = 0;
+  const skipSpace = () => {
+    while (i < text.length && ' \t\n\r'.includes(text[i])) i += 1;
+  };
+  const scanString = () => {
+    if (text[i] !== '"') throw new Error(`expected a string at offset ${i}`);
+    const start = i;
+    i += 1;
+    while (i < text.length && text[i] !== '"') i += text[i] === '\\' ? 2 : 1;
+    if (i >= text.length) throw new Error('unterminated string');
+    i += 1;
+    return text.slice(start, i);
+  };
+  const scanValue = () => {
+    const start = i;
+    if (text[i] === '"') {
+      scanString();
+    } else if (text[i] === '{' || text[i] === '[') {
+      let depth = 0;
+      do {
+        const ch = text[i];
+        if (ch === '"') {
+          scanString();
+          continue;
+        }
+        if (ch === '{' || ch === '[') depth += 1;
+        if (ch === '}' || ch === ']') depth -= 1;
+        i += 1;
+      } while (depth > 0 && i < text.length);
+      if (depth !== 0) throw new Error('unterminated object or array');
+    } else {
+      while (i < text.length && !',}] \t\n\r'.includes(text[i])) i += 1;
+    }
+    if (i === start) throw new Error(`empty value at offset ${i}`);
+    return text.slice(start, i);
+  };
+
+  skipSpace();
+  if (text[i] !== '{') throw new Error('not a JSON object');
+  i += 1;
+  skipSpace();
+  if (text[i] === '}') return values;
+  for (;;) {
+    skipSpace();
+    const key = JSON.parse(scanString());
+    skipSpace();
+    if (text[i] !== ':') throw new Error(`expected ':' at offset ${i}`);
+    i += 1;
+    skipSpace();
+    if (values.has(key)) throw new Error('duplicate top-level key');
+    values.set(key, scanValue());
+    skipSpace();
+    if (text[i] === ',') {
+      i += 1;
+      continue;
+    }
+    if (text[i] === '}') return values;
+    throw new Error(`expected ',' or '}' at offset ${i}`);
+  }
+}
+
+// Key-sorted serialisation, used only to compare two parsed values.
+function canonical(value) {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+  if (value !== null && typeof value === 'object') {
+    const body = Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${canonical(value[key])}`);
+    return `{${body.join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+// Returns the rewritten text, or throws StepError('path rewrite', ...).
+function rewritePaths(originalText) {
+  const fail = (reason) => new StepError('path rewrite', reason);
+
+  // Replace each prefix form (longest first) and count the removed bytes independently.
+  let text = originalText;
+  let removedBytes = 0;
+  for (const prefix of packagePrefixes()) {
+    removedBytes += (text.split(prefix).length - 1) * Buffer.byteLength(prefix, 'utf8');
+    text = text.replaceAll(prefix, '');
+  }
+
+  // (a) No absolute repo root or home directory path may remain, in any checked form.
+  for (const [form, label] of forbiddenForms()) {
+    if (text.includes(form)) {
+      throw fail(`rewritten artifact still contains the ${label} path \`${form}\``);
+    }
+  }
+
+  // The size must shrink by exactly the removed prefix bytes.
+  const expectedBytes = Buffer.byteLength(originalText, 'utf8') - removedBytes;
+  if (Buffer.byteLength(text, 'utf8') !== expectedBytes) {
+    throw fail(
+      `rewritten artifact is ${Buffer.byteLength(text, 'utf8')} bytes, expected ${expectedBytes} (removed ${removedBytes})`,
+    );
+  }
+
+  // (b) The rewritten text must still be valid JSON. The parse is a check only.
+  let before;
+  let after;
+  try {
+    before = JSON.parse(originalText);
+    after = JSON.parse(text);
+  } catch {
+    throw fail('rewritten artifact is not valid JSON');
+  }
+
+  // (c) bytecode (string) and abi (object) must be present.
+  if (after === null || typeof after !== 'object' || Array.isArray(after)) {
+    throw fail('rewritten artifact is not a JSON object');
+  }
+  if (typeof after.bytecode !== 'string') {
+    throw fail('rewritten artifact has no `bytecode` string');
+  }
+  if (after.abi === null || typeof after.abi !== 'object' || Array.isArray(after.abi)) {
+    throw fail('rewritten artifact has no `abi` object');
+  }
+
+  // (d) bytecode and abi must equal those of the compile output. Compared on the raw
+  // text of the value (extracted without parsing, so large integers are exact), and
+  // also as parsed values (bytecode string, abi with sorted keys).
+  let rawBefore;
+  let rawAfter;
+  try {
+    rawBefore = topLevelRawValues(originalText);
+    rawAfter = topLevelRawValues(text);
+  } catch (err) {
+    throw fail(`cannot extract raw values: ${err.message}`);
+  }
+  // `hash` holds a 64-bit integer; it is path-independent and must stay exact too.
+  for (const key of ['bytecode', 'abi', 'hash']) {
+    if (rawBefore.get(key) === undefined || rawBefore.get(key) !== rawAfter.get(key)) {
+      throw fail(`\`${key}\` differs between the compile output and the rewritten artifact`);
+    }
+  }
+  if (before.bytecode !== after.bytecode) {
+    throw fail('parsed `bytecode` differs between the compile output and the rewritten artifact');
+  }
+  if (canonical(before.abi) !== canonical(after.abi)) {
+    throw fail('parsed `abi` differs between the compile output and the rewritten artifact');
+  }
+  return text;
+}
+
+// Returns the file bytes, or null if the file does not exist.
+function readIfExists(path) {
+  try {
+    return readFileSync(path);
+  } catch (err) {
+    if (err && err.code === 'ENOENT') return null;
+    throw err;
+  }
+}
+
+function removeQuietly(path) {
+  try {
+    rmSync(path, { force: true });
+  } catch {
+    // Best effort: a leftover temp file must not hide the real error.
+  }
+}
+
+function build() {
+  const tmpFiles = [artifactPath + tmpSuffix, metaPath + tmpSuffix];
+  try {
+    // Step 1: version.
+    currentStep = 'version';
+    const versionOutput = runNargo('version', ['--version']);
+    const nargoVersion = versionOutput.split(/\r?\n/)[0].trimEnd();
+    if (nargoVersion === '') {
+      throw new StepError('version', '`nargo --version` printed no version line');
+    }
+
+    // Step 2: compile. The skip-underconstrained and skip-brillig checks are never passed.
+    currentStep = 'compile';
+    runNargo('compile', ['compile', '--force']);
+
+    // Step 3: read and check the compiled JSON.
+    currentStep = 'artifact missing';
+    const artifactBytes = readIfExists(compiledPath);
+    if (artifactBytes === null) {
+      throw new StepError(
+        'artifact missing',
+        'circuits/ledger_audit/target/ledger_audit.json not found after compilation',
+      );
+    }
+    currentStep = 'artifact invalid';
+    let parsed;
+    try {
+      parsed = JSON.parse(artifactBytes.toString('utf8'));
+    } catch {
+      throw new StepError('artifact invalid', 'compiled artifact is not valid JSON');
+    }
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new StepError('artifact invalid', 'compiled artifact is not a JSON object');
+    }
+    if (typeof parsed.bytecode !== 'string' || parsed.bytecode === '') {
+      throw new StepError('artifact invalid', 'compiled artifact has no `bytecode` string');
+    }
+    if (parsed.abi === null || typeof parsed.abi !== 'object' || Array.isArray(parsed.abi)) {
+      throw new StepError('artifact invalid', 'compiled artifact has no `abi` object');
+    }
+
+    // The rewrite works on text, so the bytes must survive a UTF-8 decode and encode
+    // unchanged (this also keeps the trailing bytes exactly as nargo wrote them).
+    const originalText = artifactBytes.toString('utf8');
+    if (!Buffer.from(originalText, 'utf8').equals(artifactBytes)) {
+      throw new StepError('artifact invalid', 'compiled artifact is not valid UTF-8');
+    }
+
+    // Step 3b: rewrite the absolute source paths by textual replacement, then check.
+    currentStep = 'path rewrite';
+    const rewrittenBytes = Buffer.from(rewritePaths(originalText), 'utf8');
+
+    // Step 4: sha256 over the exact bytes that will be written (the rewritten bytes).
+    currentStep = 'artifact invalid';
+    const artifactSha256 = createHash('sha256').update(rewrittenBytes).digest('hex');
+    const metaBytes = Buffer.from(
+      `${JSON.stringify({ nargoVersion, artifactSha256 }, null, 2)}\n`,
+      'utf8',
+    );
+
+    // Step 5: write temp files, then rename both into place.
+    currentStep = 'write';
+    mkdirSync(artifactsDir, { recursive: true });
+    // Old bytes of the first target, held in memory. The second target needs no copy:
+    // a failed rename leaves it untouched, so only the first file can need a restore.
+    const oldArtifact = readIfExists(artifactPath);
+    writeFileSync(tmpFiles[0], rewrittenBytes);
+    writeFileSync(tmpFiles[1], metaBytes);
+    renameSync(tmpFiles[0], artifactPath);
+    try {
+      renameSync(tmpFiles[1], metaPath);
+    } catch (renameErr) {
+      // Put the first file back as it was before this run.
+      try {
+        if (oldArtifact === null) {
+          rmSync(artifactPath, { force: true });
+        } else {
+          writeFileSync(tmpFiles[0], oldArtifact);
+          renameSync(tmpFiles[0], artifactPath);
+        }
+      } catch (restoreErr) {
+        throw new StepError(
+          'write',
+          `${renameErr.message}; restoring ${artifactPath} also failed: ${restoreErr.message}`,
+        );
+      }
+      throw renameErr;
+    }
+
+    console.log(
+      `build-circuit: wrote src/zk/artifacts/ledger_audit.json (${rewrittenBytes.length} bytes, sha256 ${artifactSha256})`,
+    );
+  } finally {
+    // Step 6: remove leftover temp files of this run.
+    for (const file of tmpFiles) removeQuietly(file);
+  }
+}
+
+try {
+  build();
+} catch (err) {
+  const step = err instanceof StepError ? err.step : currentStep;
+  const reason = err instanceof Error ? err.message : String(err);
+  console.error(`build-circuit: step ${step} failed: ${reason}`);
+  process.exitCode = 1;
+}

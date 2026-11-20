@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:circuit": "cd circuits/ledger_audit && nargo test"
+    "test:circuit": "cd circuits/ledger_audit && nargo test",
+    "build:circuit": "node scripts/build-circuit"
   },
   "dependencies": {
     "@aztec-foundation/bb.js": "6.0.0",

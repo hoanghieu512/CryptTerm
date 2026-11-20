@@ -81,7 +81,7 @@ Rules that apply to every task:
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the five files above. No commit is made if a "Done when" check of tasks 1.1 to 1.6 failed.
     - _Requirements: 1.4, 1.7, 13.1_
 
-- [ ] 2. Circuit package, tests written first, constraints, and all 20 `nargo test` cases passing
+- [x] 2. Circuit package, tests written first, constraints, and all 20 `nargo test` cases passing
   - Build `circuits/ledger_audit` with the 13 required tests against a constraint-free `main`, save the failing run, add the ten constraints, then add the seven extension tests, so the saved first run shows exactly eight failures and five passes.
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.1, 3.2, 3.4, 3.9, 3.11, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 4.10, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 5.10, 5.11, 5.12, 5.13, 5.14, 5.15, 5.16, 5.17, 5.18, 5.19_
 
@@ -163,23 +163,23 @@ Rules that apply to every task:
     - Recorded in: `.kiro/steering/noir.md` "Settled choices".
     - _Requirements: 3.5, 3.11, 2.6, 2.7_
 
-  - [-] 2.11 Commit group 2 files
+  - [x] 2.11 Commit group 2 files
     - Runs after the "Done when" checks of tasks 2.1 to 2.10 pass (all 20 tests pass) and before group 3. Run `git status --short`. Stage by name: `circuits/ledger_audit/Nargo.toml`, `circuits/ledger_audit/src/main.nr`, `circuits/ledger_audit/src/posting.nr`, `circuits/ledger_audit/src/hash.nr`, `circuits/ledger_audit/src/merkle.nr`, `circuits/ledger_audit/src/test_support.nr`, `circuits/ledger_audit/src/tests.nr`, `package.json` (the `test:circuit` script), `docs/spike-results.md`, `.kiro/steering/noir.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json` (the two tracking files also carry the status changes left uncommitted since group 1: group 1 and task 1.7 marked completed). If `nargo` wrote any other non-ignored file under `circuits/ledger_audit/` (for example `Nargo.lock`), list it in the report and stage it by name only if it belongs to the package. `circuits/ledger_audit/target/` is ignored and stays out. `src/zk/artifacts/` stays untouched.
     - Commit with the message `feat(circuit): ledger_audit constraints and 20 nargo tests`. Do not push. Run `git rev-parse --short HEAD` and keep the hash for the hand-over in task 3.1.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 2.8, 5.5_
 
-- [ ] 3. Checkpoint: soundness review gate
+- [x] 3. Checkpoint: soundness review gate
   - The circuit is complete and tested. Nothing downstream of the Artifact starts until huynh gives the written go-ahead. huynh reviews outside Kiro, and no Kiro agent is created for the review.
   - _Requirements: 4.10, 5.5, 13.9_
 
-  - [ ] 3.1 Prepare the hand-over for the soundness review
+  - [x] 3.1 Prepare the hand-over for the soundness review
     - Confirm that `src/zk/artifacts/ledger_audit.json` and `ledger_audit.meta.json` do not exist and that the Build_Script has not been run. Confirm that task 2.11 is done and that `git status --short` shows no uncommitted change under `circuits/ledger_audit/`.
     - Assemble, in the message that ends task 3.2: (0) the group 2 commit hash from `git rev-parse --short HEAD` after the task 2.11 commit, with its subject line, so that huynh reviews a named commit; (1) the paths of `circuits/ledger_audit/Nargo.toml` and every file under `circuits/ledger_audit/src/` (`main.nr`, `posting.nr`, `hash.nr`, `merkle.nr`, `test_support.nr`, `tests.nr`); (2) the constraint table of ten assertions with message and requirement, regenerated from the final source; (3) the complete `nargo test` output with exit status, the date and the `nargo --version` output; (4) the list of each constraint with the test or tests that cover it, regenerated from the final source (constraint 1 `record_count_0_fails`, 2 `record_count_65_fails`, 3 `limit_at_2_pow_40_fails`, 4 `side_value_2_fails`, 5 `review_flag_value_2_fails`, 6 `amount_at_2_pow_40_fails` with `amount_2_pow_40_minus_1_passes` for the inclusive bound, 7 `nonzero_padding_fails` and `padding_nonzero_salt_fails`, 8 `wrong_root_fails`, 9 `unbalanced_by_one_cent_fails`, 10 `over_limit_unflagged_fails`; the hash is pinned by the four `_matches_bb_js` tests); (5) the compiler output of one `cd circuits/ledger_audit && PATH="$HOME/.nargo/bin:$PATH" nargo compile` run (output goes to the git-ignored `target/`, nothing is written to `src/zk/artifacts/`) so the under-constrained-check warnings are visible; (6) the circuit-side UNVERIFIED items with their evidence: U1 (syntax, and whether the numeric-generic helper or the six `halve_*` functions were used, and the `compiler_version` form), U2 (`should_fail_with` matching and the result of the message-swap check), U3 (the Noir sponge equals `bb.js`, shown by the known-answer tests); (7) the known coverage gap: no test sets a non-zero `record_id`, `account`, `side` or `review_flag` in a padding slot (`nonzero_padding_fails` changes only `amount`, `padding_nonzero_salt_fails` changes only `salt`).
     - Done when: the commit hash and items 1 to 7 are collected and ready to report.
     - _Requirements: 4.10, 5.5, 13.9_
 
-  - [ ] 3.2 STOP: soundness review gate, wait for huynh's go-ahead
+  - [x] 3.2 STOP: soundness review gate, wait for huynh's go-ahead
     - The agent must stop here, report the hand-over from task 3.1, and wait for huynh's explicit written reply in the session. No later task may be started or batched with this one. Silence, a passing test run or an unrelated instruction is not a go-ahead.
     - huynh reviews the circuit outside Kiro. Do not create or invoke a soundness-reviewer agent.
     - The go-ahead is required before running the Build_Script, computing the sha256, writing Artifact_Meta or committing the Artifact. None of these happens before it.
@@ -191,46 +191,54 @@ Rules that apply to every task:
   - Starts only after the go-ahead in task 3.2. Compile through a script, write the Artifact and Artifact_Meta atomically, prove the output is stable, test the checksum and version, then commit the two files.
   - _Requirements: 2.1, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9_
 
-  - [ ] 4.1 Write `scripts/build-circuit` and the `build:circuit` script
+  - [x] 4.1 Write `scripts/build-circuit` and the `build:circuit` script
     - Create `scripts/build-circuit` (Node ESM, no extension, `#!/usr/bin/env node`, the repo has `"type": "module"`). Steps: (1) run `nargo --version`, fail with `build-circuit: step version failed: ...` on error; (2) run `nargo compile --force` through `spawnSync` with `cwd` set to `circuits/ledger_audit` and no `--skip-underconstrained-check` or `--skip-brillig-constraints-check`; (3) read `circuits/ledger_audit/target/ledger_audit.json`, fail with `step artifact missing` if absent, check it parses and has `bytecode` and `abi`; (4) compute sha256 over the exact bytes to write; (5) write `ledger_audit.json.tmp-<pid>` and `ledger_audit.meta.json.tmp-<pid>` into `src/zk/artifacts/`, hold the old bytes in memory, `rename` both into place, restore the first file from memory if the second rename fails; (6) a `finally` block removes leftover `.tmp-*` files. Errors go to stderr as `build-circuit: step <name> failed: <reason>` with exit status 1. Nothing is written before every check passes.
     - Artifact_Meta contains exactly two keys in this order, two-space indent, trailing newline: `nargoVersion` (first line of `nargo --version`, trailing whitespace removed) and `artifactSha256` (64 lowercase hex). No timestamp, path or other value.
+    - Amended after task 4.3 (huynh's decision A on U5): after reading `target/ledger_audit.json` as text and BEFORE computing the sha256 (step 4), the script rewrites the absolute source paths by TEXTUAL replacement only. It does not parse and stringify the artifact to produce the output, because the 64-bit `hash` field would lose precision. It replaces every occurrence of the absolute prefix of `circuits/ledger_audit/` (the package directory, with its trailing slash, in the exact form it appears in the JSON text, including any JSON escaping of the path) with the empty string, so `/abs/.../circuits/ledger_audit/src/main.nr` becomes `src/main.nr`. The script then FAILS (step `path rewrite`, nonzero exit, `src/zk/artifacts/` untouched, no tmp files left) if any of these holds: the output still contains the absolute repo path or the home directory path (text checks covering both the plain and the JSON-escaped form of each); the output no longer parses as JSON (the parse is only a validity check and never produces the output); the rewritten text lacks `bytecode` or `abi`; or `bytecode` or `abi` of the rewritten text differs from that of the unrewritten compile output (compare the parsed `bytecode` string and the serialized `abi` object of both texts as an assertion; this is a check, not part of the output). The Meta's `artifactSha256` is computed over the rewritten bytes.
     - Add `"build:circuit": "node scripts/build-circuit"` to `package.json`. The script finds `nargo` through `PATH` and hard-codes no path.
     - Lookup first, recorded in "Lookups": `nargo compile` options and output location in 1.0.0 (U4), Node `spawnSync`, `fs.renameSync`, `crypto.createHash`.
     - Done when: the file exists and `node --check scripts/build-circuit` reports no syntax error. Do not run the script in this task.
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 1.9, 1.10_
 
-  - [ ] 4.2 Run the Build_Script and write the Artifact and Artifact_Meta
+  - [x] 4.2 Run the Build_Script and write the Artifact and Artifact_Meta
     - Run `PATH="$HOME/.nargo/bin:$PATH" npm run build:circuit`. Confirm `src/zk/artifacts/ledger_audit.json` and `src/zk/artifacts/ledger_audit.meta.json` exist, the Meta has exactly the two keys, `nargoVersion` is `nargo version = 1.0.0`, and `artifactSha256` equals `shasum -a 256 src/zk/artifacts/ledger_audit.json`.
     - Record the confirmed `nargo compile` output path (U4) in the Results_Document "Lookups" section, and the Artifact size in bytes.
+    - After the 4.1 amendment, task 4.2 is re-run and its checks are repeated against the rewritten Artifact. The earlier first run contained absolute paths, was never committed, and is replaced. A `grep -c '/Users/' src/zk/artifacts/ledger_audit.json` must now find nothing for the Artifact.
     - Done when: the script exits 0 and the sha256 in the Meta equals the recomputed value.
     - Recorded in: Results_Document "Lookups".
     - _Requirements: 7.2, 7.3, 2.1_
 
-  - [ ] 4.3 Check idempotence and cross-checkout determinism
+  - [x] 4.3 Check idempotence and cross-checkout determinism
     - Run the Build_Script a second time and compare `shasum -a 256` of both files with the first run. Then copy `circuits/`, `scripts/` and `src/zk/artifacts/` into a temporary directory outside the repo with a minimal `package.json` containing `"type": "module"`, run `node scripts/build-circuit` there with `nargo` on `PATH`, and compare again.
     - If the hashes differ between runs or checkouts (U5), STOP and report to huynh the cause. The fallback (strip `file_map` and `debug_symbols`, or accept and document non-determinism) is huynh's decision. Do not edit the Artifact by hand.
+    - Decision (huynh): option A. U5 is resolved by path rewriting in the Build_Script (see the amendment in task 4.1). After the amendment, task 4.3 is re-run in full: the build in the repo, a second run in the repo, and builds from TWO other directories outside the repo. All three sha256 values of the Artifact (and of the Meta) must be EQUAL and are recorded in the Results_Document "Lookups" (rows T4.3-c and following). The earlier rows T4.3-a and T4.3-b stay as the record of the failing result.
     - Done when: the Artifact and Artifact_Meta hashes are identical in all three runs. Record the result in the Results_Document under "Lookups".
-    - _Requirements: 7.5_
+    - _Requirements: 7.2, 7.5_
 
-  - [ ] 4.4 Review the failure behaviour of the Build_Script
+  - [x] 4.4 Review the failure behaviour of the Build_Script
     - Review `scripts/build-circuit` against Requirement 7.4: each failing step (nargo missing, `nargo compile` non-zero, compiled JSON missing) exits non-zero with a message naming the step, and the existing Artifact and Artifact_Meta stay byte-identical with no `.tmp-*` file left. Do one manual run with `nargo` absent from `PATH` (build the `PATH` from the directory of `node` plus `/usr/bin:/bin`, and confirm `command -v nargo` prints nothing first), compare `shasum -a 256` of both files before and after, and list `src/zk/artifacts/` for leftovers. This is a manual check; no automated test is added for it.
     - Done when: the manual run exits non-zero with `step version failed` on standard error and both files are unchanged.
     - _Requirements: 7.4_
 
-  - [ ] 4.5 Write `tests/zk/artifact.test.ts`
+  - [x] 4.5 Write `tests/zk/artifact.test.ts`
     - Example test, runs under `npm test`. Test 7.8: recompute the sha256 of `src/zk/artifacts/ledger_audit.json`; fail when it differs from `artifactSha256` in the Meta, when the Meta is missing, or when the value is not 64 lowercase hex characters. Test 7.9: match `nargoVersion` against `^nargo version = (\S+)$`, take the captured token whole and require it to equal `1.0.0` by string equality. Run it against the committed Meta and against a table of mutated strings that must fail: `nargo version = 1.0.0-beta.1`, `nargo version = 1.0.0+build5`, `nargo version = 1.0.1`, an empty string, a missing value, and a first line in another shape.
+    - Add an example test in the same file (runs under `npm test`, no `nargo` needed) that FAILS if the committed Artifact `src/zk/artifacts/ledger_audit.json` contains the substring `/Users/`, `/home/`, or a Windows drive path (a letter followed by `:\` or `:/`, also in the JSON-escaped form `:\\`). Run it against the committed Artifact and against a table of mutated strings that must be rejected (a string with `/Users/x/proj`, with `/home/ci/work`, with `C:\\Users\\x`, and with `D:/a/b`), plus the clean text, which must be accepted. No comparison of `bytecode` and `abi` with a fresh `nargo compile` is part of the test (no `nargo` in CI). The 7.8 and 7.9 tests stay.
     - Done when: `npx vitest run tests/zk/artifact.test.ts` exits 0.
-    - _Requirements: 7.8, 7.9_
+    - _Requirements: 7.2, 7.8, 7.9_
 
-  - [ ] 4.6 Check tracking and commit the Artifact and Artifact_Meta
+  - [x] 4.6 Check tracking and commit the Artifact and Artifact_Meta
     - Run `git check-ignore circuits/ledger_audit/target/` and confirm it reports the path as ignored. Run `git add src/zk/artifacts/ledger_audit.json src/zk/artifacts/ledger_audit.meta.json` (by name, no `git add -A`) and commit them with a message that states they are the compiled Artifact and Artifact_Meta for `nargo` 1.0.0.
     - Confirm `git ls-files src/zk/artifacts` lists both paths.
     - Done when: both paths are tracked and `circuits/ledger_audit/target/` is ignored.
     - _Requirements: 7.6_
 
-  - [ ] 4.7 Commit group 4 files
+  - [-] 4.7 Commit group 4 files
+    - Before staging, create the section `## Deferred to zk-core` at the END of `docs/spike-results.md` (after "Browser steps for huynh"; keep every existing section untouched; append only). The section is created in this task and reaches the group 4 commit through `docs/spike-results.md`, which this task already stages. Add no placeholder or invented content. It contains one line, "Soundness review passed at commit 9c5e5c8 with no circuit change (huynh, outside Kiro)", then exactly these three items:
+      1. "Padding canonicality: no test sets a non-zero `record_id`, `account`, `side` or `review_flag` in a padding slot (`nonzero_padding_fails` changes only `amount`, `padding_nonzero_salt_fails` changes only `salt`). Not a soundness issue: amount is forced to 0 and every leaf is bound into the signed root. Deferred to zk-core as four extra `nargo` tests (one per field, each alone in a padding slot). They do not change the compiled Artifact."
+      2. "Leaf field order (`leaf_fields`) is not pinned by any `nargo` test. Root parity property P1 (group 6, task 6.9) must catch an order mismatch between TypeScript and the circuit, so P1 must build its inputs through the real Witness_Builder and run `noir.execute` on the committed Artifact. This is a requirement on P1, not a deferral."
+      3. "Boundary tests `record_count = 1` and `limit_cents = 2^40 - 1` (the passing sides of constraints 1 and 3): deferred to zk-core."
     - Task 4.6 already committed the Artifact and Artifact_Meta, so this commit covers the rest of the group. Run `git status --short`. Stage by name: `scripts/build-circuit`, `package.json` (the `build:circuit` script), `tests/zk/artifact.test.ts`, `docs/spike-results.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. Do not stage `src/zk/artifacts/ledger_audit.json` or `src/zk/artifacts/ledger_audit.meta.json` here; if either shows as changed, the Build_Script output changed after task 4.6, so stop and report it instead of committing. Commit with the message `feat(zk): Build_Script with artifact checksum and nargo version tests`. Do not push.
-    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
+    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit). Additionally, `docs/spike-results.md` contains the `## Deferred to zk-core` section with the review line and the three items.
     - _Requirements: 7.1, 7.8, 7.9_
 
 - [ ] 5. SRS size derivation, vendoring, sha256 file and its test, and `verify-srs`
@@ -343,7 +351,7 @@ Rules that apply to every task:
 
   - [ ] 6.9 Write `tests/zk/root-parity.prop.test.ts` (Property 1)
     - **Property 1: Witness_Builder root is accepted by the circuit**
-    - Tag comment `Feature: zk-spike, Property 1: Witness_Builder root is accepted by the circuit`. Seed `20261101`, `numRuns` 100. For every valid witness from `validWitnessArb`, build the inputs with the Witness_Builder and `noir.execute` returns a witness without throwing. Execution only, no proving. Per-test timeout (third argument of `it`) `max(60 s, 5 x numRuns x (T_build + T_exec))`, start at 120 s and adjust after the first measured run.
+    - Tag comment `Feature: zk-spike, Property 1: Witness_Builder root is accepted by the circuit`. Seed `20261101`, `numRuns` 100. For every valid witness from `validWitnessArb`, build the inputs with the Witness_Builder and `noir.execute` returns a witness without throwing. The inputs MUST come from the real Witness_Builder (its own leaf hashing, leaf field order and Merkle root, never hand-built field arrays or constants copied from the Noir tests), and `noir.execute` MUST run on the committed Artifact `src/zk/artifacts/ledger_audit.json` (loaded through `createNoirEnv()`, task 6.3), so that a leaf field order mismatch between TypeScript and `leaf_fields` in the circuit makes the property fail (huynh's soundness review note; the order is not pinned by any `nargo` test). Execution only, no proving. Per-test timeout (third argument of `it`) `max(60 s, 5 x numRuns x (T_build + T_exec))`, start at 120 s and adjust after the first measured run.
     - Done when: `npx vitest run tests/zk/root-parity.prop.test.ts` exits 0 and prints the seed.
     - **Validates: Requirements 3.8, 6.2**
     - _Requirements: 3.8, 6.2, 6.7_
@@ -638,6 +646,7 @@ Rules that apply to every task:
 - Nothing is pushed by any task; huynh pushes. No task amends, rebases, force-pushes or rewrites history, or skips hooks. A fix after a commit, including a circuit change after the soundness review, goes in a new commit.
 - The deploy in task 9.4 publishes the local `dist/` folder and needs no commit before it.
 - Task 10.9 sits before task 10.8 in the document so that no existing task id changes.
+- Artifact path rewrite (huynh's decision A on U5, after task 4.3): the Build_Script rewrites the absolute source paths in `file_map` to package-relative paths by textual replacement, so builds from different directories are identical. Requirement 7.2 carries the one-sentence addition; `bytecode` and `abi` are copied unchanged. Tasks 4.1, 4.2, 4.3 and 4.5 are amended accordingly.
 
 ## Task Dependency Graph
 

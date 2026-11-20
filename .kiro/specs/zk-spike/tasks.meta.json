@@ -229,6 +229,158 @@
         "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
         "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
         "timestamp": 1795186150809
+      },
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795186216811
+      }
+    ],
+    "2. Circuit package, tests written first, constraints, and all 20 `nargo test` cases passing": [
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795186216992
+      }
+    ],
+    "3.1 Prepare the hand-over for the soundness review": [
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795186226393
+      },
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795186423703
+      }
+    ],
+    "3.2 STOP: soundness review gate, wait for huynh's go-ahead": [
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795186423978
+      },
+      {
+        "executionId": "105d5e27-bfde-476d-a7f5-b19664faaa90",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795187028464
+      }
+    ],
+    "3. Checkpoint: soundness review gate": [
+      {
+        "executionId": "105d5e27-bfde-476d-a7f5-b19664faaa90",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795187028680
+      }
+    ],
+    "4.1 Write `scripts/build-circuit` and the `build:circuit` script": [
+      {
+        "executionId": "105d5e27-bfde-476d-a7f5-b19664faaa90",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795187121581
+      },
+      {
+        "executionId": "105d5e27-bfde-476d-a7f5-b19664faaa90",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795187397083
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795189411897
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795190068510
+      }
+    ],
+    "4.2 Run the Build_Script and write the Artifact and Artifact_Meta": [
+      {
+        "executionId": "105d5e27-bfde-476d-a7f5-b19664faaa90",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795187397312
+      },
+      {
+        "executionId": "105d5e27-bfde-476d-a7f5-b19664faaa90",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795187503222
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795190068806
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795190396052
+      }
+    ],
+    "4.3 Check idempotence and cross-checkout determinism": [
+      {
+        "executionId": "105d5e27-bfde-476d-a7f5-b19664faaa90",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795187503427
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795189411691
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795190396364
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795192478768
+      }
+    ],
+    "4.4 Review the failure behaviour of the Build_Script": [
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795192479131
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795192717899
+      }
+    ],
+    "4.5 Write `tests/zk/artifact.test.ts`": [
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795192718128
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795192877116
+      }
+    ],
+    "4.6 Check tracking and commit the Artifact and Artifact_Meta": [
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795192877303
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795192939143
+      }
+    ],
+    "4.7 Commit group 4 files": [
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795192939393
       }
     ]
   }

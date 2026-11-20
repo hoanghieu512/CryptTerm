@@ -88,7 +88,92 @@ const vk = await backend.getVerificationKey();        // Uint8Array
 
 ## Settled choices
 
-None yet. Fill this section in during the spike.
+Circuit-side choices, settled by task 2.10 (2026-11-20) from `circuits/ledger_audit/src/` and checked by the `_matches_bb_js` tests. `src/zk` must use the same values. The size, SRS and single-thread items are placeholders until the later groups measure them.
+
+### Hash_Variant
+
+Poseidon2 on BN254 through `std::hash::poseidon2_permutation` (state width 4, rate 3). The capacity element `state[3]` starts at `len * 2^64` (`len` is the number of input fields), inputs are added into `state[0..2]` three at a time, the permutation runs after each block, and the output is `state[0]`. This is the `poseidon2Hash` convention of `@aztec-foundation/bb.js` 6.0.0. Field elements are 32-byte big-endian in bb.js. Decision D3: the sponge is written in-repo in `hash.nr` (no `noir-lang/poseidon` dependency, no git dependency). Exactly two call shapes exist:
+
+| Function | Permutations | Definition | Equals bb.js |
+|----------|--------------|------------|--------------|
+| `node_hash(left, right)` | 1 | `permute([left, right, 0, 2 * 2^64])[0]` | `poseidon2Hash([left, right])` |
+| `leaf_hash(f: [Field; 6])` | 2 | `s = permute([f0, f1, f2, 6 * 2^64])`, then `permute([s0 + f3, s1 + f4, s2 + f5, s3])[0]` | `poseidon2Hash([f0..f5])` |
+
+Do not use the Noir stdlib `Poseidon2Hasher`: it differs from bb.js for lengths that are multiples of 3 (see the quirks log).
+
+### Leaf and field encodings
+
+- Leaf field order: `[record_id, account, side, amount, review_flag, salt]` (`leaf_fields()` in `posting.nr`). `side`, `amount` and `review_flag` are cast to `Field`.
+- `record_id` and `account`: unsigned integer 0 to 2^64 - 1, decimal string in the circuit inputs, 32-byte big-endian when hashed in TypeScript. `salt`: unsigned integer 0 to 2^248 - 1 (31 bytes). Leading zeros are not representable.
+- In `posting.nr` all three are declared `Field`. **The circuit does not range-check them.** The 2^64 and 2^248 limits are enforced only by the TypeScript Witness_Builder (`FieldRangeError`, Requirement 3.10). Do not assume a circuit-side check.
+- Padding_Posting: all six fields zero (`padding_posting()`), so its leaf is `PAD_LEAF`. Side D and flag N are valid encodings, so no extra value is needed. The circuit forces every slot at index `>= record_count` to equal it in all six fields.
+- Numeric values: `side` D = 0, C = 1. `review_flag` N = 0, Y = 1.
+
+### Merkle layout
+
+64 leaves, depth 6 (`N` and `DEPTH` in `main.nr`, `static_assert(1 << DEPTH == N)`). Slot `i` is leaf `i` at position `i` of level 0, and every slot is hashed, real or padding. Parent `j` of level `l + 1` is `node_hash(level_l[2j], level_l[2j + 1])` (left child `2j`, right child `2j + 1`). The root is level 6. `merkle.nr` uses one numeric-generic `halve<IN, OUT>` helper, which compiled on 1.0.0, so the six `halve_*` fallbacks were not needed. All-padding levels, computed with bb.js `poseidon2Hash`, level `l + 1 = node(level l, level l)`:
+
+| Level | Value |
+|-------|-------|
+| 0 (`PAD_LEAF`) | `0x0286f724918d0f8663988824651273d4703d44b1cef1a9a31e4d1f6e0d35e8f8` |
+| 1 | `0x1b3d40de538ba8f1f0c867584f556a4e9fff88f9581752f57e1cf361e50096ce` |
+| 2 | `0x1e6fb0e72009de192abf34a6ba4452d2d8ce769cc1cb65de11981dc03de0691f` |
+| 3 | `0x2ed442569f7fb84df1cc04358a8b1b250f00273f6c72e08aba24ee6e6e8d3ab3` |
+| 4 | `0x1e3f41304522a00121bac973d7762885b97c8b7387a4ece55cece1da229d2e00` |
+| 5 | `0x1bf3a1577da89a0905233c0977ae02c54d2f72decab4ecdd12f829db4ae903e9` |
+| 6 (`EMPTY_ROOT`) | `0x22d28221a316eb2b0ae742ae204890369a507e2d66bd93314f8f56c697af75c8` |
+
+### Noir integer types
+
+| Value | Noir type | Note |
+|-------|-----------|------|
+| `merkle_root` | `Field` (public) | |
+| `record_count` | `u32` (public) | 0 and 65 are encodable, so both bounds are testable. |
+| `limit_cents` | `u64` (public) | |
+| `side`, `review_flag` | `u8` | Value 2 is encodable, so the explicit checks are testable. |
+| `amount` | `u64` | `AMOUNT_BOUND` = 2^40 (exclusive). |
+| `record_id`, `account`, `salt` | `Field` | As declared in `posting.nr`. Not range-checked in the circuit. |
+| `debit_total`, `credit_total` | `u64` | Each amount is below 2^40 after constraint 6, so each sum is below 2^46 and cannot overflow. |
+
+No signed integer, float or `unconstrained` function. `||` and `&&` do not exist in Noir 1.0.0: the circuit uses `|` and `&` on `bool`.
+
+### Constraints, in `main` order
+
+Messages are string literals, unique, and none is a substring of another. In nargo 1.0.0, matching in `#[test(should_fail_with = "...")]` is a case-insensitive substring match.
+
+| # | Constraint | Message |
+|---|------------|---------|
+| 1 | `record_count >= 1` | `RECORD COUNT BELOW 1` |
+| 2 | `record_count <= N` | `RECORD COUNT ABOVE CAPACITY` |
+| 3 | `limit_cents < 2^40` | `LIMIT OUT OF RANGE` |
+| 4 | per slot: `side <= 1` | `SIDE NOT D OR C` |
+| 5 | per slot: `review_flag <= 1` | `FLAG NOT Y OR N` |
+| 6 | per slot: `amount < 2^40` | `AMOUNT OUT OF RANGE` |
+| 7 | per slot: `i < record_count`, or all six fields zero | `PADDING SLOT NOT NEUTRAL` |
+| 8 | root of all 64 leaves equals `merkle_root` | `MERKLE ROOT MISMATCH` |
+| 9 | sum of D amounts equals sum of C amounts (`u64`) | `DEBITS NOT EQUAL TO CREDITS` |
+| 10 | for `i < record_count`: `amount <= limit_cents` or `review_flag == 1` | `OVER LIMIT WITHOUT REVIEW FLAG` |
+
+Range checks (3 to 6) run before any sum or comparison that relies on them.
+
+### Known-answer vectors
+
+Copied from `circuits/ledger_audit/src/tests.nr`. All are field elements, big-endian hex. `leaf(...)` is `leaf_hash` and `node(...)` is `node_hash`.
+
+| Name | Inputs | Output |
+|------|--------|--------|
+| `PAD_LEAF` | `leaf([0, 0, 0, 0, 0, 0])` | `0x0286f724918d0f8663988824651273d4703d44b1cef1a9a31e4d1f6e0d35e8f8` |
+| `LEAF_A` | `leaf([1, 1000000000000001, 0, 250000, 1, 987654321])` | `0x259c4874e82dc29fd6b1cf8be4d604bceaebdd7c7c2a9a4052444cfc9d25a1ad` |
+| `LEAF_B` | `leaf([2, 1000000000000002, 1, 250000, 0, 123456789])` | `0x00a9e776d5c445c897eb24ef60bd057ef514d00fcb40bcf89a6d7cde29f5b1e8` |
+| `NODE_A` | `node(LEAF_A, LEAF_B)` | `0x2f83e3c909349719e9cb57a5d79a7a0989f971c02246fe6fc9d47e882b600af4` |
+| `NODE_SMALL` | `node(7, 8)` | `0x1f7a903ff6ebf6088f018bef42d630d28cc499eec89bec2ba6cc2763da3b957c` |
+| `EMPTY_ROOT` | root of 64 `PAD_LEAF` leaves (levels 1 to 6 of `node(x, x)`) | `0x22d28221a316eb2b0ae742ae204890369a507e2d66bd93314f8f56c697af75c8` |
+
+### Not yet measured
+
+- Circuit sizes and the chosen SRS point count: recorded by group 5 (task 5.x), not yet measured.
+- SRS files, URL, byte range and sha256: recorded by group 5, not yet recorded.
+- Single-thread answer and settings (`threads: 1`, no cross-origin isolation): recorded by the worker tasks (group 7), not yet measured.
 
 ## Version quirks log
 
@@ -97,3 +182,4 @@ Append dated entries as they are found, each with the component, the version, wh
 - 2026-11-18, `bb.js`: the package is published as `@aztec-foundation/bb.js` (`latest` is `6.0.0`). The old name `@aztec/bb.js` stops at `5.3.0`. The Noir tutorial and Context7 examples still show the old name.
 - 2026-11-19, `@aztec-foundation/bb.js`: the registry `latest` tag moved from `6.0.0` (observed 2026-11-18) to `6.1.0`; re-confirmed 2026-11-20. The pin stays `6.0.0`, so never install by tag and always use the exact version.
 - 2026-11-19, Context7: the libraries `/noir-lang/noir` and `/websites/noir-lang` return "master branch content", not `1.0.0`, which is the pinned version. Where behaviour matters, read the tagged `v1.0.0` source instead.
+- 2026-11-19, Noir stdlib `1.0.0`: `noir_stdlib/src/hash/mod.nr` and `poseidon2.nr` at tag `v1.0.0` expose only `std::hash::poseidon2_permutation` publicly, and the `Poseidon2Hasher` sponge is `pub(crate)`. Its sponge also differs from `bb.js` `poseidon2Hash` for input lengths that are multiples of 3, and the leaf hash takes six fields, which is exactly that case. Workaround (decision D3): the sponge is written in-repo in `circuits/ledger_audit/src/hash.nr` on top of the permutation, and a scratch test checked it against the six provisional vectors from the design (task 2.2, 2026-11-20).

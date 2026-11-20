@@ -1,0 +1,235 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "0. Commit the spec files and the steering edits": [
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157164857
+      },
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157260095
+      }
+    ],
+    "1.1 Check the installed toolchain versions": [
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157277054
+      },
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157326436
+      }
+    ],
+    "1.2 Check the five packages against the npm registry": [
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157326917
+      },
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157423170
+      }
+    ],
+    "1.3 Add the pinned dependencies and run `npm ls`": [
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157423831
+      },
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157518809
+      }
+    ],
+    "1.4 Write `tests/zk/pins.test.ts`": [
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157519349
+      },
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157617351
+      }
+    ],
+    "1.5 Create the Results_Document skeleton and record the toolchain output": [
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157618001
+      },
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157786634
+      }
+    ],
+    "1.6 Add the first version quirks entries to `.kiro/steering/noir.md`": [
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157787234
+      },
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157824113
+      }
+    ],
+    "1.7 Commit group 1 files": [
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157824743
+      },
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157884807
+      }
+    ],
+    "1. Toolchain check, dependency pins and Results_Document skeleton": [
+      {
+        "executionId": "a85a0e2d-e12d-4fc7-a664-8ae89562cf21",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795157885380
+      }
+    ],
+    "2.1 Create the Noir package skeleton": [
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795160838547
+      },
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795161156318
+      }
+    ],
+    "2.2 Write the hash and Merkle modules": [
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795161156649
+      },
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795180370895
+      }
+    ],
+    "2.3 Write `src/test_support.nr`": [
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795180371553
+      },
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795182584734
+      }
+    ],
+    "2.4 Write the 13 required tests in `src/tests.nr`": [
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795182585009
+      },
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795182995824
+      }
+    ],
+    "2.5 Run the tests against the constraint-free skeleton and save the output": [
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795182996064
+      },
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795183232586
+      }
+    ],
+    "2.6 Add the ten constraints to `main`": [
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795183232891
+      },
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795184578598
+      }
+    ],
+    "2.7 Run the 13 required tests with the constraints and check message matching": [
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795184578895
+      },
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795184687963
+      }
+    ],
+    "2.8 Add the seven extension tests": [
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795184688712
+      },
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795185080570
+      }
+    ],
+    "2.9 Record the final run and inspect the circuit source": [
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795185080905
+      },
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795185347223
+      }
+    ],
+    "2.10 Record the circuit-side settled choices in `noir.md`": [
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795185347502
+      },
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795186150407
+      }
+    ],
+    "2.11 Commit group 2 files": [
+      {
+        "executionId": "44858bc2-ce13-4eee-928c-865a922c2f6e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795186150809
+      }
+    ]
+  }
+}

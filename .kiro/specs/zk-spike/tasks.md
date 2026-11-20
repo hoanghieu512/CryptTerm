@@ -2,7 +2,7 @@
 
 ## Overview
 
-This plan builds the real `ledger_audit` circuit test-first, hands it to huynh for a soundness review, commits the compiled Artifact and the vendored SRS, proves in a Web Worker on a temporary spike page, and deploys a non-production build so that huynh can measure the two gates. The spec files are committed before task 1.1 and each group except group 3 ends with its own commit (see the commit policy below); nothing is pushed. The order of the ten top-level groups is binding. Each group starts only after the previous one is done.
+This plan builds the real `ledger_audit` circuit test-first, hands it to huynh for a soundness review, commits the compiled Artifact and the vendored SRS, proves in a Web Worker on a temporary spike page, and deploys a non-production build so that huynh can measure the two gates. The spec files are committed before task 1.1 and each group except group 3 ends with its own commit (see the commit policy below), which from group 2 on also carries the two task-tracking files `tasks.md` and `tasks.meta.json`; nothing is pushed. The order of the ten top-level groups is binding. Each group starts only after the previous one is done.
 
 Rules that apply to every task:
 
@@ -10,31 +10,36 @@ Rules that apply to every task:
 - Lookup first. Before writing any Noir, `Nargo.toml`, `noir_js` or `bb.js` code or configuration, look up each API in Context7 (`/noir-lang/noir`, `/websites/noir-lang`), in the tagged `v1.0.0` source, or in the published package source and types. Do not write from memory. Record one row per lookup (topic, source, version) in the "Lookups" section of `docs/spike-results.md`. Where Context7 and the npm registry disagree on a package name or version, the registry wins and a dated entry goes into the version quirks log in `.kiro/steering/noir.md`.
 - No browser automation tool is installed or run. No `public/_headers` is created. No signing code or private key is added. No batch data reaches any network request or `console.*`.
 - Commit policy, part 1 (commit points). Before task 1.1 (task 0), commit the spec files (`.kiro/specs/zk-spike/`) and the two existing steering edits (`.kiro/steering/security.md` and `.kiro/steering/tech.md`) with the message "docs(spec): add zk-spike requirements, design and tasks". At the end of each group except group 3, after that group's "Done when" checks pass, commit that group's files with a conventional commit message that names the group (the last sub-task of each group, "Commit group N files"; for example "feat(circuit): ledger_audit constraints and 20 nargo tests" for group 2). The group 2 commit happens BEFORE the soundness gate (group 3), so the review has a commit hash. Group 3 changes no files and has no commit. Tasks 4.6 and 5.6 stay as written.
-- Commit policy, part 2 (how to commit). Stage files by name, never with `git add -A` or `git add .`. Run `git status --short` before each commit and commit only the files that belong to the group. Ignored output such as `node_modules/`, `dist/` and `circuits/**/target/` stays out. Make no commit when a "Done when" check of the group failed. A group's commit contains only files not already committed by tasks 4.6 or 5.6; if nothing remains for the group after those, say so in the task and skip the empty commit.
+- Commit policy, part 2 (how to commit). Stage files by name, never with `git add -A` or `git add .`. Run `git status --short` before each commit and commit only the files that belong to the group, plus the two task-tracking files named in part 4. Ignored output such as `node_modules/`, `dist/` and `circuits/**/target/` stays out. Make no commit when a "Done when" check of the group failed. A group's own files exclude the files already committed by tasks 4.6 or 5.6; the group-end commit stages the remaining group files and the two tracking files (part 4). If no group file remains after tasks 4.6 or 5.6, the tracking files still go in that commit.
 - Commit policy, part 3 (history). Never push; huynh pushes. Never amend, rebase, force or rewrite history, and never skip hooks. A fix after a commit goes in a new commit.
+- Commit policy, part 4 (task tracking files). Every group-end commit task (2.11, 4.7, 5.7, 6.13, 7.16, 8.6, 9.9 and 10.9) also stages, by name, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`, in addition to the group's own files. This starts with group 2. The group 2 commit also carries the status changes left uncommitted since group 1 (group 1 and task 1.7 marked completed).
+  - `tasks.meta.json` is tracked and is never added to `.gitignore`.
+  - The two files change whenever a task status changes. The orchestrator marks a commit task in progress before it runs, so the committed `tasks.md` shows that commit task as in progress; the completion marks written after a commit land in the next group-end commit. That is expected and is not a failure of the commit task's done check.
+  - The mid-group commits in tasks 4.6 and 5.6 stage only the Artifact files and the SRS files, as written (no tracking files).
+  - Task 0 and task 1.7 are already done and stay as written.
 - Do not edit `requirements.md`, `design.md`, `.config.kiro` or any steering file other than `.kiro/steering/noir.md`.
 - Property tests are required, carry a fixed seed in the source, and are tagged with a comment `Feature: zk-spike, Property <n>: <text>`. When a property finds a real bug, add a regression example test and append an entry to `tests/PBT-LOG.md` (date, property name, seed, shrunk counterexample, root cause, fix).
 
 ## Tasks
 
-- [-] 0. Commit the spec files and the steering edits
+- [x] 0. Commit the spec files and the steering edits
   - Bookkeeping task before task 1.1. Run `git status --short` first and confirm the only changes are `.kiro/specs/zk-spike/` and the two steering edits `.kiro/steering/security.md` and `.kiro/steering/tech.md`. If anything else is changed, leave it out and mention it in the report.
   - Stage by name: `git add .kiro/specs/zk-spike/requirements.md .kiro/specs/zk-spike/design.md .kiro/specs/zk-spike/tasks.md .kiro/specs/zk-spike/.config.kiro .kiro/steering/security.md .kiro/steering/tech.md`. Commit with the message `docs(spec): add zk-spike requirements, design and tasks`. Do not push.
   - Done when: `git log --oneline -1` shows `docs(spec): add zk-spike requirements, design and tasks` and `git status --short` shows no remaining change under `.kiro/specs/zk-spike/`, `.kiro/steering/security.md` or `.kiro/steering/tech.md`.
   - _Requirements: 1.1_
 
-- [ ] 1. Toolchain check, dependency pins and Results_Document skeleton
+- [x] 1. Toolchain check, dependency pins and Results_Document skeleton
   - Confirm the installed toolchain, add the five pinned dependencies, test the pins, and create `docs/spike-results.md` with its headings and an empty gate table.
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 13.1, 13.7_
 
-  - [ ] 1.1 Check the installed toolchain versions
+  - [x] 1.1 Check the installed toolchain versions
     - Run `PATH="$HOME/.nargo/bin:$PATH" nargo --version`, `~/.bb/bb --version`, `node --version` and `npm --version`. Compare each with the pin table in `.kiro/steering/noir.md` (`nargo` 1.0.0, `bb` 6.0.0). Keep the full unmodified output for task 1.5.
     - If `nargo` is not installed or its version is not `1.0.0`, STOP before writing any circuit code and report to huynh the installed version (or that `nargo` is missing) and the expected version `1.0.0`.
     - Done when: the three-line `nargo --version` output shows `nargo version = 1.0.0` and `~/.bb/bb --version` prints `6.0.0`.
     - Recorded in: Results_Document header section (task 1.5).
     - _Requirements: 1.1, 1.2_
 
-  - [ ] 1.2 Check the five packages against the npm registry
+  - [x] 1.2 Check the five packages against the npm registry
     - Run `npm view <package> dist-tags` and `npm view <package>@<pinned version> version dist.tarball` for `@noir-lang/noir_js`, `@noir-lang/acvm_js`, `@noir-lang/noirc_abi`, `@noir-lang/types` (pin `1.0.0`) and `@aztec-foundation/bb.js` (pin `6.0.0`). The registry is authoritative over Context7.
     - Check that `@aztec/bb.js` is not on the dependency list and will not be installed.
     - If a package name or the pinned version does not exist, leave that package out of `package.json` and STOP: report the package name, the pinned version and the registry result to huynh.
@@ -42,7 +47,7 @@ Rules that apply to every task:
     - Recorded in: Results_Document header section (task 1.5).
     - _Requirements: 1.5, 1.6, 1.7_
 
-  - [ ] 1.3 Add the pinned dependencies and run `npm ls`
+  - [x] 1.3 Add the pinned dependencies and run `npm ls`
     - Run `npm install --save-exact @noir-lang/noir_js@1.0.0 @noir-lang/acvm_js@1.0.0 @noir-lang/noirc_abi@1.0.0 @noir-lang/types@1.0.0 @aztec-foundation/bb.js@6.0.0`. Edit `package.json` and `package-lock.json` through npm only.
     - Open `package.json` and confirm the five entries read exactly `1.0.0` and `6.0.0` with no `^`, `~`, `latest`, range operator or tag.
     - Run `npm ls @noir-lang/noir_js @aztec-foundation/bb.js` and `npm ls @noir-lang/noir_js @noir-lang/acvm_js @noir-lang/noirc_abi @noir-lang/types @aztec-foundation/bb.js`. Run `npm ls @aztec/bb.js` and confirm it reports no installed package.
@@ -51,12 +56,12 @@ Rules that apply to every task:
     - Recorded in: Results_Document header section (task 1.5).
     - _Requirements: 1.1, 1.3, 1.4, 1.5, 1.7_
 
-  - [ ] 1.4 Write `tests/zk/pins.test.ts`
+  - [x] 1.4 Write `tests/zk/pins.test.ts`
     - Example test, runs under `npm test`. Read `package.json`; assert each of the five pins matches `/^\d+\.\d+\.\d+$/` and equals the required version (`1.0.0` for the four `@noir-lang` packages, `6.0.0` for `@aztec-foundation/bb.js`), and that `@aztec/bb.js` is in neither `dependencies` nor `devDependencies`.
     - Done when: `npx vitest run tests/zk/pins.test.ts` exits 0.
     - _Requirements: 1.4, 1.7_
 
-  - [ ] 1.5 Create the Results_Document skeleton and record the toolchain output
+  - [x] 1.5 Create the Results_Document skeleton and record the toolchain output
     - Create `docs/spike-results.md` with these sections in order: header (deploy URL and deploy date left empty, version table, "Toolchain check output"), "Gate table", "Cold_Run procedure", "Tests written first", "Lookups", "Invalid-witness report", "Spike-only files", "Browser steps for huynh".
     - Under "Toolchain check output" paste the full unmodified output of `nargo --version`, `~/.bb/bb --version`, `node --version`, `npm --version`, both `npm ls` commands from task 1.3, and the `npm view` results from task 1.2. Fill the version table rows for `nargo`, the four `@noir-lang` packages, `@aztec-foundation/bb.js`, Vite and Node from that output.
     - Create the "Gate table" with the two data rows (Normal_Gate, Throttled_Gate) and these columns: target, Cold_Run total (ms), WASM INIT (ms), WITNESS PREP (ms), EXECUTE (ms), PROVE (ms), VERIFY (ms), proof size (bytes), Chrome version, machine, pass or fail. Leave every measured cell and the pass or fail cell empty.
@@ -65,13 +70,13 @@ Rules that apply to every task:
     - Recorded in: `docs/spike-results.md`.
     - _Requirements: 1.1, 1.10, 13.1, 13.3, 13.7, 13.8_
 
-  - [ ] 1.6 Add the first version quirks entries to `.kiro/steering/noir.md`
+  - [x] 1.6 Add the first version quirks entries to `.kiro/steering/noir.md`
     - Append to the "Version quirks log" two entries dated `2026-11-19`: (a) `@aztec-foundation/bb.js` `latest` moved from 6.0.0 to 6.1.0 while the pin stays 6.0.0; (b) the Context7 libraries `/noir-lang/noir` and `/websites/noir-lang` reflect `master`, not 1.0.0, so tagged `v1.0.0` source is used where behaviour matters. Each entry names the package, the Context7 value and the registry value where applicable.
     - Done when: the two entries are present in `.kiro/steering/noir.md` and no other part of that file changed.
     - Recorded in: `.kiro/steering/noir.md`.
     - _Requirements: 1.8_
 
-  - [ ] 1.7 Commit group 1 files
+  - [x] 1.7 Commit group 1 files
     - Run `git status --short`. Stage by name: `package.json`, `package-lock.json`, `tests/zk/pins.test.ts`, `docs/spike-results.md` and `.kiro/steering/noir.md`. Commit with the message `chore(deps): pin noir_js and bb.js, add toolchain check and results skeleton`. Do not push.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the five files above. No commit is made if a "Done when" check of tasks 1.1 to 1.6 failed.
     - _Requirements: 1.4, 1.7, 13.1_
@@ -80,7 +85,7 @@ Rules that apply to every task:
   - Build `circuits/ledger_audit` with the 13 required tests against a constraint-free `main`, save the failing run, add the ten constraints, then add the seven extension tests, so the saved first run shows exactly eight failures and five passes.
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.1, 3.2, 3.4, 3.9, 3.11, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 4.10, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 5.10, 5.11, 5.12, 5.13, 5.14, 5.15, 5.16, 5.17, 5.18, 5.19_
 
-  - [ ] 2.1 Create the Noir package skeleton
+  - [x] 2.1 Create the Noir package skeleton
     - Create `circuits/ledger_audit/Nargo.toml` (`[package]` name `ledger_audit`, type `bin`, `authors = [""]`, `compiler_version = "=1.0.0"`, no `[dependencies]`), `circuits/ledger_audit/src/main.nr` and `circuits/ledger_audit/src/posting.nr`. Leave `circuits/ledger_audit/.gitkeep` as it is.
     - `main.nr`: `global N: u32 = 64`, `global DEPTH: u32 = 6` with `static_assert(1 << DEPTH == N)`, `global AMOUNT_BOUND: u64 = 1099511627776`, and `main(merkle_root: pub Field, record_count: pub u32, limit_cents: pub u64, postings: [Posting; N])` with no return value and an empty body. `64` appears only in the definition of `N`.
     - `posting.nr`: `Posting { record_id: Field, account: Field, side: u8, amount: u64, review_flag: u8, salt: Field }`, the side constants D = 0 and C = 1, the flag constants N = 0 and Y = 1, `padding_posting()` (all six fields zero), `is_padding()` and `leaf_fields()` returning `[record_id, account, side as Field, amount as Field, review_flag as Field, salt]`.
@@ -89,7 +94,7 @@ Rules that apply to every task:
     - Done when: `cd circuits/ledger_audit && PATH="$HOME/.nargo/bin:$PATH" nargo compile` reaches the end of compilation with no error. Unused-variable warnings are expected.
     - _Requirements: 2.2, 2.4, 2.5, 2.6, 2.7, 4.9, 1.9, 1.10_
 
-  - [ ] 2.2 Write the hash and Merkle modules
+  - [x] 2.2 Write the hash and Merkle modules
     - Create `circuits/ledger_audit/src/hash.nr` with `node_hash(left, right)` (one `std::hash::poseidon2_permutation` of `[left, right, 0, 2 * 2^64]`, element 0) and `leaf_hash(f: [Field; 6])` (permute `[f0, f1, f2, 6 * 2^64]`, then permute `[s0 + f3, s1 + f4, s2 + f5, s3]`, element 0), per decision D3. No `noir-lang/poseidon` dependency.
     - Create `circuits/ledger_audit/src/merkle.nr` with `compute_root(leaves: [Field; N])`: leaf index `i` is position `i` at level 0, parent `j` at level `l + 1` is `node_hash(level_l[2j], level_l[2j + 1])`, six reductions to one root. Prefer one numeric-generic `halve` helper with `static_assert(IN == 2 * OUT, ...)`; if inference does not work in 1.0.0, use the six helpers `halve_64`, `halve_32`, `halve_16`, `halve_8`, `halve_4`, `halve_2`.
     - Add `mod hash;` and `mod merkle;` to `main.nr`.
@@ -98,14 +103,14 @@ Rules that apply to every task:
     - Done when: `nargo compile` reaches the end of compilation with no error.
     - _Requirements: 2.3, 3.1, 3.2, 3.4, 3.9, 1.9, 1.10_
 
-  - [ ] 2.3 Write `src/test_support.nr`
+  - [x] 2.3 Write `src/test_support.nr`
     - Create `circuits/ledger_audit/src/test_support.nr` with `LIMIT: u64 = 1000000`, `base_postings(real: u32) -> [Posting; N]` (slots `2k` and `2k + 1` are a debit and a credit of the same amount `100000 + k`, `review_flag` 0, `record_id = 100000 + i`, `account = 1000000000000000 + i`, `salt = 7000000 + i`, slots from `real` upward are `padding_posting()`), `root_of(postings)` (leaves through `leaf_hash`, then `compute_root`) and `with_slot(postings, i, posting)`.
     - Add `mod test_support;` to `main.nr`.
     - Lookup first, recorded in "Lookups": array mutation and loop syntax in Noir 1.0.0.
     - Done when: `nargo compile` reaches the end of compilation with no error.
     - _Requirements: 5.6, 5.13, 1.9, 1.10_
 
-  - [ ] 2.4 Write the 13 required tests in `src/tests.nr`
+  - [x] 2.4 Write the 13 required tests in `src/tests.nr`
     - Create `circuits/ledger_audit/src/tests.nr` and `mod tests;` in `main.nr`. Tests take no arguments and call `main(root_of(p), count, LIMIT, p)`.
     - Eight `_fails` tests, each with `#[test(should_fail_with = "<message>")]` and its own message, the message of the one constraint it targets: `unbalanced_by_one_cent_fails` (`DEBITS NOT EQUAL TO CREDITS`), `over_limit_unflagged_fails` (`OVER LIMIT WITHOUT REVIEW FLAG`), `amount_at_2_pow_40_fails` (`AMOUNT OUT OF RANGE`), `nonzero_padding_fails` (`PADDING SLOT NOT NEUTRAL`), `wrong_root_fails` (`MERKLE ROOT MISMATCH`), `record_count_0_fails` (`RECORD COUNT BELOW 1`), `record_count_65_fails` (`RECORD COUNT ABOVE CAPACITY`), `limit_at_2_pow_40_fails` (`LIMIT OUT OF RANGE`). Five `_passes` tests with `#[test]`: `valid_batch_passes`, `over_limit_flagged_passes`, `amount_2_pow_40_minus_1_passes`, `amount_equal_limit_unflagged_passes`, `record_count_64_passes`.
     - Build each witness exactly as the design's test table and Requirements 5.6 to 5.18 describe, so that only the targeted constraint can reject it: `unbalanced_by_one_cent_fails` changes slot 0 by one cent and recomputes the root; `over_limit_unflagged_fails` has slot 0 debit `LIMIT + 1` flag N and slot 1 credit `LIMIT + 1` flag Y; `amount_at_2_pow_40_fails` has slot 0 debit 2^40 flag Y, slot 1 credit 2^40 - 1 flag Y, slot 2 credit 1; `nonzero_padding_fails` sets slot 10 to a debit of amount 5 and slot 1 credit to amount + 5; `wrong_root_fails` uses `root_of(p) + 1`; `record_count_0_fails` uses 64 padding slots and count 0; `record_count_65_fails` uses `base_postings(64)` and count 65; `limit_at_2_pow_40_fails` uses `LIMIT = 2^40`.
@@ -114,7 +119,7 @@ Rules that apply to every task:
     - Done when: `nargo compile` succeeds and `--list-tests` prints exactly the 13 names above, no others.
     - _Requirements: 5.1, 5.2, 5.6, 5.7, 5.8, 5.9, 5.10, 5.11, 5.12, 5.13, 5.14, 5.15, 5.16, 5.17, 5.18, 1.9, 1.10_
 
-  - [ ] 2.5 Run the tests against the constraint-free skeleton and save the output
+  - [x] 2.5 Run the tests against the constraint-free skeleton and save the output
     - Run `cd circuits/ledger_audit && PATH="$HOME/.nargo/bin:$PATH" nargo --version` and then `PATH="$HOME/.nargo/bin:$PATH" npm run test:circuit` (without `--deny-warnings`). Capture the complete unmodified output, the exit status and the date.
     - Expected: exactly the eight `_fails` tests reported failed, the five `_passes` tests reported passed, exit status non-zero. The extension tests must not exist yet.
     - If any `_fails` test passes, correct that test so it fails against the skeleton, and repeat the run before adding any constraint. If a test does not compile, fix it first.
@@ -123,45 +128,45 @@ Rules that apply to every task:
     - Recorded in: Results_Document "Tests written first".
     - _Requirements: 5.3, 5.4, 5.19_
 
-  - [ ] 2.6 Add the ten constraints to `main`
+  - [x] 2.6 Add the ten constraints to `main`
     - In `circuits/ledger_audit/src/main.nr`, add the assertions in this order, each with a unique literal message (no f-strings, no message that is a substring of another): (1) `record_count >= 1` `RECORD COUNT BELOW 1`; (2) `record_count <= N` `RECORD COUNT ABOVE CAPACITY`; (3) `limit_cents < AMOUNT_BOUND` `LIMIT OUT OF RANGE`; then per slot over all 64 slots (4) `side <= 1` `SIDE NOT D OR C`, (5) `review_flag <= 1` `FLAG NOT Y OR N`, (6) `amount < AMOUNT_BOUND` `AMOUNT OUT OF RANGE`, (7) for `i >= record_count` all six fields zero `PADDING SLOT NOT NEUTRAL`; then (8) `compute_root` over all 64 leaves equals `merkle_root` `MERKLE ROOT MISMATCH`; (9) `debit_total == credit_total` with `u64` sums over all 64 slots `DEBITS NOT EQUAL TO CREDITS`; (10) for `i < record_count` `(amount <= limit_cents) | (review_flag == 1)` `OVER LIMIT WITHOUT REVIEW FLAG`.
     - Range checks run before any sum. No `unconstrained` function, no signed integer, no float, no field-element comparison on an unchecked value.
     - Lookup first, recorded in "Lookups": `assert` with a message, `u64` overflow behaviour, loops with a comparison on a loop index and `u32`, conditional accumulation syntax.
     - Done when: `nargo compile` reaches the end of compilation with no error.
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 4.10, 2.8, 1.9, 1.10_
 
-  - [ ] 2.7 Run the 13 required tests with the constraints and check message matching
+  - [x] 2.7 Run the 13 required tests with the constraints and check message matching
     - Run `PATH="$HOME/.nargo/bin:$PATH" npm run test:circuit`.
     - Check U2: temporarily swap the expected messages of two `_fails` tests, confirm both now fail, then restore them and rerun. If `should_fail_with` cannot match an assertion message in 1.0.0 for a test, declare that test with `#[test(should_fail)]` and record the reason in "Lookups" of `docs/spike-results.md`.
     - Done when: all 13 named tests pass, none fail, none skipped, exit status 0.
     - Recorded in: Results_Document "Lookups" for any `#[test(should_fail)]` fallback.
     - _Requirements: 5.2, 5.5, 4.10, 2.8_
 
-  - [ ] 2.8 Add the seven extension tests
+  - [x] 2.8 Add the seven extension tests
     - Add to `circuits/ledger_audit/src/tests.nr` only now, after the written-first output is saved: `side_value_2_fails` (`SIDE NOT D OR C`), `review_flag_value_2_fails` (`FLAG NOT Y OR N`), `padding_nonzero_salt_fails` (`PADDING SLOT NOT NEUTRAL`; `base_postings(10)`, count 10, slot 10 with `salt` 1 and every other field 0, balanced, root of the supplied slots), and the four known-answer tests `leaf_hash_matches_bb_js` (`LEAF_A`, `LEAF_B`), `node_hash_matches_bb_js` (`NODE_A`, `NODE_SMALL`), `padding_leaf_matches_bb_js` (`PAD_LEAF`) and `empty_root_matches_bb_js` (`EMPTY_ROOT`), with the provisional vectors from the design's Q1 table. Each failing extension test rejects only its own constraint (the root is the root of the supplied slots).
     - Run `PATH="$HOME/.nargo/bin:$PATH" npm run test:circuit`.
     - If a known-answer test fails, fix the sponge in `hash.nr` first. If the permutation itself differs between the ACVM and `bb.js` (U3), STOP: report to huynh the variants tried, the input vectors, the output of each side and the package versions, and adopt no other hash until huynh approves it.
     - Done when: 20 tests pass, none fail, none skipped, exit status 0.
     - _Requirements: 3.2, 3.3, 3.11, 2.8, 4.5, 1.9, 1.10_
 
-  - [ ] 2.9 Record the final run and inspect the circuit source
+  - [x] 2.9 Record the final run and inspect the circuit source
     - Run `PATH="$HOME/.nargo/bin:$PATH" npm run test:circuit` and `cd circuits/ledger_audit && PATH="$HOME/.nargo/bin:$PATH" nargo compile`. Save the final `nargo test` output, exit status and date as a "Final run (all constraints, 20 tests)" subsection under "Tests written first" in `docs/spike-results.md`.
     - Inspect the source under `circuits/ledger_audit/src/` for: no `unconstrained` function; no `i8`, `i16`, `i32`, `i64` or float type for `amount`, `limit_cents` or `record_count`; `N` is the only capacity constant and the literal 64 appears nowhere else. Record the three findings in the Results_Document under "Tests written first".
     - Done when: `nargo compile` exits 0 with zero errors, all 20 tests pass, and the inspection findings are recorded.
     - Recorded in: Results_Document "Tests written first".
     - _Requirements: 2.1, 2.2, 4.8, 4.9, 5.5_
 
-  - [ ] 2.10 Record the circuit-side settled choices in `noir.md`
+  - [x] 2.10 Record the circuit-side settled choices in `noir.md`
     - Fill the "Settled choices" section of `.kiro/steering/noir.md` with: the Hash_Variant name (Poseidon2 on BN254 through `poseidon2_permutation`, state width 4, rate 3, initial capacity `len * 2^64`, output `state[0]`, the `bb.js` `poseidon2Hash` convention) and its parameters; the Leaf field order `[record_id, account, side, amount, review_flag, salt]`; the field encoding of `record_id` and `account` (unsigned integer 0 to 2^64 - 1, 32-byte big-endian in the hash) and of `salt` (0 to 2^248 - 1); the Padding_Posting (all six fields zero, leaf `PAD_LEAF`); the numeric values `side` D = 0 and C = 1 and `review_flag` N = 0 and Y = 1; the Merkle layout (leaf index `i` at position `i`, left is `2j`, right is `2j + 1`, root at level 6); the inner-node hash; the Noir integer types per value; the six known-answer vectors in full.
     - Compute the five intermediate all-padding levels with a throwaway `node --input-type=module -e` run from the repository root using `bb.js` `poseidon2Hash` (no repo file is created) and record them in full.
     - Done when: every item above is present in `.kiro/steering/noir.md`, and the six vectors there equal the values in `tests.nr`.
     - Recorded in: `.kiro/steering/noir.md` "Settled choices".
     - _Requirements: 3.5, 3.11, 2.6, 2.7_
 
-  - [ ] 2.11 Commit group 2 files
-    - Runs after the "Done when" checks of tasks 2.1 to 2.10 pass (all 20 tests pass) and before group 3. Run `git status --short`. Stage by name: `circuits/ledger_audit/Nargo.toml`, `circuits/ledger_audit/src/main.nr`, `circuits/ledger_audit/src/posting.nr`, `circuits/ledger_audit/src/hash.nr`, `circuits/ledger_audit/src/merkle.nr`, `circuits/ledger_audit/src/test_support.nr`, `circuits/ledger_audit/src/tests.nr`, `package.json` (the `test:circuit` script), `docs/spike-results.md` and `.kiro/steering/noir.md`. If `nargo` wrote any other non-ignored file under `circuits/ledger_audit/` (for example `Nargo.lock`), list it in the report and stage it by name only if it belongs to the package. `circuits/ledger_audit/target/` is ignored and stays out. `src/zk/artifacts/` stays untouched.
+  - [-] 2.11 Commit group 2 files
+    - Runs after the "Done when" checks of tasks 2.1 to 2.10 pass (all 20 tests pass) and before group 3. Run `git status --short`. Stage by name: `circuits/ledger_audit/Nargo.toml`, `circuits/ledger_audit/src/main.nr`, `circuits/ledger_audit/src/posting.nr`, `circuits/ledger_audit/src/hash.nr`, `circuits/ledger_audit/src/merkle.nr`, `circuits/ledger_audit/src/test_support.nr`, `circuits/ledger_audit/src/tests.nr`, `package.json` (the `test:circuit` script), `docs/spike-results.md`, `.kiro/steering/noir.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json` (the two tracking files also carry the status changes left uncommitted since group 1: group 1 and task 1.7 marked completed). If `nargo` wrote any other non-ignored file under `circuits/ledger_audit/` (for example `Nargo.lock`), list it in the report and stage it by name only if it belongs to the package. `circuits/ledger_audit/target/` is ignored and stays out. `src/zk/artifacts/` stays untouched.
     - Commit with the message `feat(circuit): ledger_audit constraints and 20 nargo tests`. Do not push. Run `git rev-parse --short HEAD` and keep the hash for the hand-over in task 3.1.
-    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files above.
+    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 2.8, 5.5_
 
 - [ ] 3. Checkpoint: soundness review gate
@@ -224,8 +229,8 @@ Rules that apply to every task:
     - _Requirements: 7.6_
 
   - [ ] 4.7 Commit group 4 files
-    - Task 4.6 already committed the Artifact and Artifact_Meta, so this commit covers the rest of the group. Run `git status --short`. Stage by name: `scripts/build-circuit`, `package.json` (the `build:circuit` script), `tests/zk/artifact.test.ts` and `docs/spike-results.md`. Do not stage `src/zk/artifacts/ledger_audit.json` or `src/zk/artifacts/ledger_audit.meta.json` here; if either shows as changed, the Build_Script output changed after task 4.6, so stop and report it instead of committing. Commit with the message `feat(zk): Build_Script with artifact checksum and nargo version tests`. Do not push.
-    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files above.
+    - Task 4.6 already committed the Artifact and Artifact_Meta, so this commit covers the rest of the group. Run `git status --short`. Stage by name: `scripts/build-circuit`, `package.json` (the `build:circuit` script), `tests/zk/artifact.test.ts`, `docs/spike-results.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. Do not stage `src/zk/artifacts/ledger_audit.json` or `src/zk/artifacts/ledger_audit.meta.json` here; if either shows as changed, the Build_Script output changed after task 4.6, so stop and report it instead of committing. Commit with the message `feat(zk): Build_Script with artifact checksum and nargo version tests`. Do not push.
+    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 7.1, 7.8, 7.9_
 
 - [ ] 5. SRS size derivation, vendoring, sha256 file and its test, and `verify-srs`
@@ -275,8 +280,8 @@ Rules that apply to every task:
     - _Requirements: 14.1_
 
   - [ ] 5.7 Commit group 5 files
-    - Task 5.6 already committed `.gitattributes` and the SRS files (`g1.dat`, `g2.dat`, `srs.sha256.json`), so this commit covers the rest of the group. Run `git status --short`. Stage by name: `src/zk/srs.ts`, `src/zk/srs-assets.ts`, `tests/zk/srs.test.ts`, `scripts/verify-srs.ts` (or `scripts/verify-srs.mjs` if task 5.5 renamed it), `.kiro/steering/noir.md` and `docs/spike-results.md`, plus `tsconfig.json` or a Vite client types declaration file only if task 5.3 changed one. Do not stage the SRS files or `.gitattributes` here. Commit with the message `feat(zk): vendored SRS prefix, size derivation, sha256 test and verify-srs`. Do not push.
-    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files above.
+    - Task 5.6 already committed `.gitattributes` and the SRS files (`g1.dat`, `g2.dat`, `srs.sha256.json`), so this commit covers the rest of the group. Run `git status --short`. Stage by name: `src/zk/srs.ts`, `src/zk/srs-assets.ts`, `tests/zk/srs.test.ts`, `scripts/verify-srs.ts` (or `scripts/verify-srs.mjs` if task 5.5 renamed it), `.kiro/steering/noir.md`, `docs/spike-results.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`, plus `tsconfig.json` or a Vite client types declaration file only if task 5.3 changed one. Do not stage the SRS files or `.gitattributes` here. Commit with the message `feat(zk): vendored SRS prefix, size derivation, sha256 test and verify-srs`. Do not push.
+    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 14.1, 14.2, 14.8_
 
 - [ ] 6. Witness_Builder, hashing wrapper, encoder, and the default-run tests that gate correctness
@@ -366,8 +371,8 @@ Rules that apply to every task:
     - _Requirements: 3.8, 6.2, 6.3, 6.4, 6.8_
 
   - [ ] 6.13 Commit group 6 files
-    - Run `git status --short`. Stage by name: `src/zk/field.ts`, `src/zk/posting.ts`, `src/zk/errors.ts`, `src/zk/hash.ts`, `src/zk/merkle.ts`, `src/zk/circuit-inputs.ts`, `src/zk/witness-builder.ts`, `tests/support/pbt.ts`, `tests/support/zk-env.ts`, `tests/support/zk-arbitraries.ts`, `tests/zk/hash-kat.test.ts`, `tests/zk/witness-builder.test.ts`, `tests/zk/circuit-inputs.test.ts`, `tests/zk/root-parity.prop.test.ts`, `tests/zk/one-cent-change.prop.test.ts`, `tests/zk/amount-range.prop.test.ts`, `docs/spike-results.md` and `.kiro/steering/noir.md`. If task 6.12 added a regression example test or a `tests/PBT-LOG.md` entry, stage those files by name too. Commit with the message `feat(zk): witness builder, hashing wrapper and default-run property tests`. Do not push.
-    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files above.
+    - Run `git status --short`. Stage by name: `src/zk/field.ts`, `src/zk/posting.ts`, `src/zk/errors.ts`, `src/zk/hash.ts`, `src/zk/merkle.ts`, `src/zk/circuit-inputs.ts`, `src/zk/witness-builder.ts`, `tests/support/pbt.ts`, `tests/support/zk-env.ts`, `tests/support/zk-arbitraries.ts`, `tests/zk/hash-kat.test.ts`, `tests/zk/witness-builder.test.ts`, `tests/zk/circuit-inputs.test.ts`, `tests/zk/root-parity.prop.test.ts`, `tests/zk/one-cent-change.prop.test.ts`, `tests/zk/amount-range.prop.test.ts`, `docs/spike-results.md`, `.kiro/steering/noir.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. If task 6.12 added a regression example test or a `tests/PBT-LOG.md` entry, stage those files by name too. Commit with the message `feat(zk): witness builder, hashing wrapper and default-run property tests`. Do not push.
+    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 3.8, 6.2, 6.3, 6.4_
 
 - [ ] 7. Spike worker and page, plus the proof smoke test and the proof test split
@@ -464,8 +469,8 @@ Rules that apply to every task:
     - _Requirements: 8.1, 8.5, 8.6, 8.7, 8.8, 8.9, 8.10, 8.13, 8.14, 8.15, 8.16, 9.2, 9.7, 9.8, 10.1, 10.3, 10.4_
 
   - [ ] 7.16 Commit group 7 files
-    - Run `git status --short`. Stage by name: `src/zk/gzip.ts`, `src/zk/prover.ts`, `src/zk/artifact.ts`, `src/zk/spike-witness.ts`, `src/zk/spike-protocol.ts`, `src/zk/spike-report.ts`, `src/zk/spike-view.ts`, `src/zk/spike-worker.ts`, `src/zk/spike.ts`, `spike.html`, `tests/zk/spike-witness.test.ts`, `tests/zk/proof-isolation.test.ts`, `tests/zk/srs-wiring.test.ts`, `tests/zk/proof/proof-smoke.test.ts`, `vite.config.ts`, `vitest.proof.config.ts`, `package.json`, `tsconfig.json`, `docs/spike-results.md` and `.kiro/steering/noir.md`. Commit with the message `feat(zk): spike worker and page, proof smoke test and test:proof split`. Do not push.
-    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files above. No commit is made if `npm run test:proof` or `npm test` failed in this group.
+    - Run `git status --short`. Stage by name: `src/zk/gzip.ts`, `src/zk/prover.ts`, `src/zk/artifact.ts`, `src/zk/spike-witness.ts`, `src/zk/spike-protocol.ts`, `src/zk/spike-report.ts`, `src/zk/spike-view.ts`, `src/zk/spike-worker.ts`, `src/zk/spike.ts`, `spike.html`, `tests/zk/spike-witness.test.ts`, `tests/zk/proof-isolation.test.ts`, `tests/zk/srs-wiring.test.ts`, `tests/zk/proof/proof-smoke.test.ts`, `vite.config.ts`, `vitest.proof.config.ts`, `package.json`, `tsconfig.json`, `docs/spike-results.md`, `.kiro/steering/noir.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. Commit with the message `feat(zk): spike worker and page, proof smoke test and test:proof split`. Do not push.
+    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit). No commit is made if `npm run test:proof` or `npm test` failed in this group.
     - _Requirements: 6.5, 8.1, 8.2_
 
 - [ ] 8. Spike build mode, dist check script and the spike `_redirects` decision (D4)
@@ -503,8 +508,8 @@ Rules that apply to every task:
     - _Requirements: 7.7, 11.2, 12.4, 12.5, 12.6_
 
   - [ ] 8.6 Commit group 8 files
-    - Run `git status --short`. Stage by name: `vite.config.ts`, `scripts/check-spike-dist`, `package.json` and `docs/spike-results.md`. `public/_redirects` and `netlify.toml` are not changed by this group, and `public/_headers` must not exist. `dist/` is ignored and stays out. Commit with the message `feat(build): spike build mode, dist check and spike redirects`. Do not push.
-    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files above.
+    - Run `git status --short`. Stage by name: `vite.config.ts`, `scripts/check-spike-dist`, `package.json`, `docs/spike-results.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. `public/_redirects` and `netlify.toml` are not changed by this group, and `public/_headers` must not exist. `dist/` is ignored and stays out. Commit with the message `feat(build): spike build mode, dist check and spike redirects`. Do not push.
+    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 11.2, 12.4, 12.5_
 
 - [ ] 9. Deploy and Results_Document
@@ -563,8 +568,8 @@ Rules that apply to every task:
     - _Requirements: 10.7, 12.7, 12.11, 13.7, 13.8, 14.7_
 
   - [ ] 9.9 Commit group 9 files
-    - Runs after the STOP in task 9.3 and after tasks 9.4 to 9.8. The Results_Document is not declared complete here (task 10.7 does that). Run `git status --short`. Stage by name: `docs/spike-results.md`. No other file belongs to this group (`dist/` is ignored; no source file changes in group 9). Commit with the message `docs(spike): deploy record and results document sections`. Do not push.
-    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to `docs/spike-results.md`.
+    - Runs after the STOP in task 9.3 and after tasks 9.4 to 9.8. The Results_Document is not declared complete here (task 10.7 does that). Run `git status --short`. Stage by name: `docs/spike-results.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. `docs/spike-results.md` is the only group file besides the two tracking files (`dist/` is ignored; no source file changes in group 9). Commit with the message `docs(spike): deploy record and results document sections`. Do not push.
+    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 13.1, 13.2, 13.7_
 
 - [ ] 10. Spike-only unit tests and the proof properties, before the Results_Document is declared complete
@@ -613,8 +618,8 @@ Rules that apply to every task:
     - _Requirements: 13.1, 13.8, 13.9, 12.6, 10.1, 10.3, 10.4, 10.5_
 
   - [ ] 10.9 Commit group 10 files
-    - Placed after task 10.7 and before the final stop task 10.8; the number 10.9 keeps every existing id unchanged. Run `git status --short`. Stage by name: `tests/zk/spike-report.test.ts`, `tests/zk/spike-view.test.ts`, `tests/zk/results-document.test.ts`, `tests/zk/proof/proof.prop.test.ts`, `tests/zk/proof/proof-tamper.prop.test.ts` and `docs/spike-results.md`. If task 10.6 fixed a defect, also stage by name the files it changed (for example `src/zk/spike-view.ts` or `src/zk/spike-report.ts`, a regression test, `tests/PBT-LOG.md`). Commit with the message `test(zk): spike-only unit tests, proof properties and completed results document`. Do not push.
-    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files above. No commit is made if a "Done when" check of tasks 10.1 to 10.7 failed.
+    - Placed after task 10.7 and before the final stop task 10.8; the number 10.9 keeps every existing id unchanged. Run `git status --short`. Stage by name: `tests/zk/spike-report.test.ts`, `tests/zk/spike-view.test.ts`, `tests/zk/results-document.test.ts`, `tests/zk/proof/proof.prop.test.ts`, `tests/zk/proof/proof-tamper.prop.test.ts`, `docs/spike-results.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. If task 10.6 fixed a defect, also stage by name the files it changed (for example `src/zk/spike-view.ts` or `src/zk/spike-report.ts`, a regression test, `tests/PBT-LOG.md`). Commit with the message `test(zk): spike-only unit tests, proof properties and completed results document`. Do not push.
+    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit). No commit is made if a "Done when" check of tasks 10.1 to 10.7 failed.
     - _Requirements: 6.5, 6.6, 13.9_
 
   - [ ] 10.8 STOP: hand over to huynh for the browser steps
@@ -629,7 +634,7 @@ Rules that apply to every task:
 - `nargo` lives under `~/.nargo/bin` and `bb` under `~/.bb`. The agent shell may not load huynh's profile, so every `nargo` command is run as `PATH="$HOME/.nargo/bin:$PATH" nargo ...` from `circuits/ledger_audit`.
 - The order of the groups is binding. Nothing downstream of the Artifact starts before the go-ahead in task 3.2.
 - The Results_Document is declared complete only after group 10 (task 10.7). The browser-dependent entries in `.kiro/steering/noir.md` (the `crossOriginIsolated` yes or no answer, and the browser observation that replaces the "Unverified" `execute` bullet) can only be finished after huynh fills in the measurements, so they are outside this plan.
-- Commit points: task 0 (before task 1.1, the spec files and the two steering edits), and the last sub-task of each group except group 3: 1.7, 2.11 (before the soundness gate, so the review has a commit hash), 4.7, 5.7, 6.13, 7.16, 8.6, 9.9 and 10.9 (after task 10.7 and before the stop task 10.8). Group 3 changes no files and has no commit. Task 4.6 commits the Artifact and Artifact_Meta and task 5.6 commits the SRS files with `.gitattributes`, so tasks 4.7 and 5.7 commit only the rest of their groups. Files are staged by name, with no `git add -A` or `git add .`.
+- Commit points: task 0 (before task 1.1, the spec files and the two steering edits), and the last sub-task of each group except group 3: 1.7, 2.11 (before the soundness gate, so the review has a commit hash), 4.7, 5.7, 6.13, 7.16, 8.6, 9.9 and 10.9 (after task 10.7 and before the stop task 10.8). Group 3 changes no files and has no commit. From group 2 on, every group-end commit (2.11, 4.7, 5.7, 6.13, 7.16, 8.6, 9.9 and 10.9) also stages the two tracking files `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`; both are tracked and never ignored, and the group 2 commit also carries the status changes left uncommitted since group 1. The mid-group commits in tasks 4.6 and 5.6 do not stage them. Task 4.6 commits the Artifact and Artifact_Meta and task 5.6 commits the SRS files with `.gitattributes`, so tasks 4.7 and 5.7 commit only the rest of their groups plus the two tracking files. Files are staged by name, with no `git add -A` or `git add .`.
 - Nothing is pushed by any task; huynh pushes. No task amends, rebases, force-pushes or rewrites history, or skips hooks. A fix after a commit, including a circuit change after the soundness review, goes in a new commit.
 - The deploy in task 9.4 publishes the local `dist/` folder and needs no commit before it.
 - Task 10.9 sits before task 10.8 in the document so that no existing task id changes.

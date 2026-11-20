@@ -41,7 +41,7 @@ These rules apply to every change. If a task seems to need breaking one, stop an
 
 - The circuit must range-check every amount, including every padding slot, so that field arithmetic cannot wrap and no amount can be negative.
 - The circuit must bind padding. Every slot from 0 to `N - 1` is hashed into the Merkle tree as a leaf, whether it is real or padding. For slots at index `>= record_count`, the circuit must force amount 0 and a neutral flag and side, so that padding cannot change either sum or the limit rule.
-- `record_count` must be constrained to at most `N`. Real postings are exactly the slots below `record_count`.
+- `record_count` must be constrained to `1 <= record_count <= N`. Real postings are exactly the slots below `record_count`.
 - `side` is exactly D or C. `flag` is exactly Y or N. Constrain these explicitly and do not trust the witness.
 - Comparisons on field elements need a prior range check, or they prove nothing.
 - Every constraint needs a failing `nargo test`. A circuit change that alters constraints goes through the soundness-reviewer agent before it is accepted.

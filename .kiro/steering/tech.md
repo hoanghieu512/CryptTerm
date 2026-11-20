@@ -57,7 +57,7 @@ All code in the repo is written by Kiro. Do not paste code from other assistants
   3. The sum of `D` amounts equals the sum of `C` amounts.
   4. For every real posting, `amount <= limit_cents` or the review flag is `Y`.
   5. Slots with index `>= record_count` are padding (amount 0, no flag effect).
-- Also constrain: `side` is exactly one of D or C, `flag` is exactly one of Y or N, and `record_count <= N`. Constrain booleans explicitly. Do not assume the witness is well-formed.
+- Also constrain: `side` is exactly one of D or C, `flag` is exactly one of Y or N, and `1 <= record_count <= N`. Constrain booleans explicitly. Do not assume the witness is well-formed.
 - Signature verification stays outside the circuit. The circuit only binds private data to the signed root.
 - Soundness rules:
   - No constraint may depend on a value the prover chooses freely and the verifier does not check.

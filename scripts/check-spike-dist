@@ -1,0 +1,71 @@
+#!/usr/bin/env node
+// Checks dist/ after `vite build --mode spike`. Exit 1 and print the offending paths when
+// a file is outside the allow-list or a required file is missing. Reads dist/ only.
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { dirname, join, relative, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const distDir = join(repoRoot, 'dist');
+const REDIRECTS = '/  /spike.html  200\n';
+const ASSET_EXT = ['.js', '.wasm', '.dat', '.json', '.css'];
+
+function listFiles(dir) {
+  const out = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...listFiles(full));
+    else out.push(full);
+  }
+  return out;
+}
+
+function fail(lines) {
+  for (const line of lines) console.error(`check-spike-dist: ${line}`);
+  process.exit(1);
+}
+
+let files;
+try {
+  files = listFiles(distDir).map((f) => ({
+    path: relative(distDir, f).split(sep).join('/'),
+    size: statSync(f).size,
+  }));
+} catch {
+  fail(['dist/ is missing or unreadable, run npm run build:spike first']);
+}
+
+const offending = [];
+for (const { path } of files) {
+  const inAssets = path.startsWith('assets/') && !path.slice(7).includes('/');
+  const okAsset = inAssets && ASSET_EXT.some((e) => path.endsWith(e));
+  if (path === 'spike.html' || path === '_redirects' || okAsset) continue;
+  offending.push(path);
+}
+
+const names = files.map((f) => f.path);
+const assets = names.filter((n) => n.startsWith('assets/')).map((n) => n.slice(7));
+const missing = [];
+if (!names.includes('spike.html')) missing.push('spike.html');
+if (!names.includes('_redirects')) missing.push('_redirects');
+if (!assets.some((n) => /worker.*\.js$/.test(n))) missing.push('a worker script (assets/*worker*.js)');
+if (assets.filter((n) => /^ledger_audit.*\.json$/.test(n)).length !== 1) missing.push('exactly one assets/ledger_audit*.json');
+if (assets.filter((n) => n.endsWith('.dat')).length !== 2) missing.push('exactly two assets/*.dat files');
+if (!assets.some((n) => /^acvm_js.*\.wasm$/.test(n))) missing.push('assets/acvm_js*.wasm');
+if (!assets.some((n) => /^noirc_abi.*\.wasm$/.test(n))) missing.push('assets/noirc_abi*.wasm');
+const wrongRedirects =
+  names.includes('_redirects') && readFileSync(join(distDir, '_redirects'), 'utf8') !== REDIRECTS;
+
+const total = files.reduce((sum, f) => sum + f.size, 0);
+console.log(`check-spike-dist: ${files.length} files, ${total} bytes`);
+for (const f of [...files].sort((a, b) => b.size - a.size).slice(0, 8)) {
+  console.log(`  ${String(f.size).padStart(10)}  ${f.path}`);
+}
+
+const problems = [
+  ...offending.map((p) => `not allowed in dist/: ${p}`),
+  ...missing.map((m) => `required file missing: ${m}`),
+  ...(wrongRedirects ? [`_redirects must be exactly ${JSON.stringify(REDIRECTS)}`] : []),
+];
+if (problems.length > 0) fail(problems);
+console.log('check-spike-dist: PASS');

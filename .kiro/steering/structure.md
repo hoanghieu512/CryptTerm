@@ -121,3 +121,9 @@ Requirements trace to tests. Each acceptance criterion names the test or propert
 - `LICENSE` is MIT unless huynh chooses Apache-2.0.
 - `README.md` states the trust model, including that the demo key is public by design, and explains how to reproduce the samples.
 - Keep the `.kiro/` directory under version control and do not add it to `.gitignore`. It is part of the submission.
+
+## Evidence before status
+
+- A task is marked completed only after its "Done when" check has been run in this session, and the report quotes the actual command and its output (`git log -1 --oneline` for commits, `ls` or a file listing for created files, the test summary line for tests).
+- Never report a commit hash, a file, a size or a command output that was not produced in this session.
+- If a sub-agent is ever used, its claims are verified on disk before the status changes.

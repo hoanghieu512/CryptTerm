@@ -392,7 +392,7 @@ Rules that apply to every task:
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 3.8, 6.2, 6.3, 6.4, 7.2, 7.4_
 
-- [ ] 7. Spike worker and page, plus the proof smoke test and the proof test split
+- [x] 7. Spike worker and page, plus the proof smoke test and the proof test split
   - Add the prover wrappers, the synthetic witness, the proof run configuration and the one-proof smoke test, then the worker, the view model and the page.
   - _Requirements: 6.1, 6.5, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9, 8.10, 8.11, 8.12, 8.13, 8.14, 8.15, 8.16, 9.1, 9.2, 9.3, 9.4, 9.7, 9.8, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 14.2, 14.7, 14.8_
 
@@ -485,7 +485,7 @@ Rules that apply to every task:
     - Done when: `npm run typecheck` and `npm test` exit 0.
     - _Requirements: 8.1, 8.5, 8.6, 8.7, 8.8, 8.9, 8.10, 8.13, 8.14, 8.15, 8.16, 9.2, 9.7, 9.8, 10.1, 10.3, 10.4_
 
-  - [-] 7.16 Commit group 7 files
+  - [x] 7.16 Commit group 7 files
     - Run `git status --short`. Stage by name: `src/zk/gzip.ts`, `src/zk/prover.ts`, `src/zk/artifact.ts`, `src/zk/spike-witness.ts`, `src/zk/spike-protocol.ts`, `src/zk/spike-report.ts`, `src/zk/spike-view.ts`, `src/zk/spike-worker.ts`, `src/zk/spike-classify.ts`, `src/zk/spike.ts`, `spike.html`, `tests/zk/spike-witness.test.ts`, `tests/zk/proof-isolation.test.ts`, `tests/zk/srs-wiring.test.ts`, `tests/zk/proof/proof-smoke.test.ts`, `vite.config.ts`, `vitest.proof.config.ts`, `package.json`, `tsconfig.json`, `docs/spike-results.md`, `.kiro/steering/noir.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. Commit with the message `feat(zk): spike worker and page, proof smoke test and test:proof split`. Do not push.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit). No commit is made if `npm run test:proof` or `npm test` failed in this group.
     - _Requirements: 6.5, 8.1, 8.2_
@@ -494,30 +494,30 @@ Rules that apply to every task:
   - Select the spike build with `vite build --mode spike`, keep the default build free of spike files, and add the dist allow-list check.
   - _Requirements: 7.7, 11.1, 11.2, 11.4, 12.4, 12.5, 12.6_
 
-  - [ ] 8.1 Add the spike mode to `vite.config.ts`
+  - [x] 8.1 Add the spike mode to `vite.config.ts`
     - Change the config to `defineConfig(({ mode }) => ...)` with `const spike = mode === 'spike'`. In spike mode: `plugins` holds only an inline `spikeRedirects()` plugin that emits `_redirects` containing `/  /spike.html  200`; `publicDir: false` (so `public/_redirects` and `public/samples/` are not copied); `build.rolldownOptions.input` is `'spike.html'`. In default mode: the React plugin, `publicDir: 'public'`, no `input` override. Both modes: `worker: { format: 'es' }` and `build.target: 'esnext'`. Keep the `test` block from task 7.5. Do not edit `public/_redirects` and do not create `public/_headers`.
     - Lookup first, recorded in "Lookups": `build.rolldownOptions.input`, `worker.format`, `publicDir`, plugin `generateBundle` or emit-file API in Vite 8 (L12).
     - Done when: `npm run typecheck` exits 0.
     - _Requirements: 11.2, 11.4, 12.4, 12.6, 1.9, 1.10_
 
-  - [ ] 8.2 Write `scripts/check-spike-dist`
+  - [x] 8.2 Write `scripts/check-spike-dist`
     - Node ESM script, no extension. Lists `dist/` recursively and exits 1, printing the offending paths, on any file outside this allow-list: `spike.html`, `_redirects`, and under `assets/` files ending `.js`, `.wasm`, `.dat`, `.json`, `.css`. It also fails on any other `.html` (including `index.html`), on `_headers`, on any `*.map`, and when a required file is missing: `spike.html`, a worker script, one `ledger_audit*.json`, two `.dat` files, the `acvm_js` and `noirc_abi` WASM files. It prints the sizes of the largest files.
     - The allow-list must accept the `.js` chunk names that the spike build references: `main.worker-*.js` and `thread.worker-*.js` (bb.js worker chunks), `barretenberg-*.js` and `barretenberg-threads-*.js` (bb.js chunks), `spike-*.js` (page chunk) and `spike-worker-*.js` (worker chunk), besides `acvm_js_bg-*.wasm`, `noirc_abi_wasm_bg-*.wasm`, `g1-*.dat`, `g2-*.dat` and `ledger_audit-*.json`. The build output measured in task 7.15 was 12 files and about 16.4 MiB (17,145,966 bytes), with no `index.html`.
     - Done when: `node --check scripts/check-spike-dist` reports no syntax error.
     - _Requirements: 11.2, 12.5, 12.6_
 
-  - [ ] 8.3 Add the `build:spike` and `check:spike-dist` scripts
+  - [x] 8.3 Add the `build:spike` and `check:spike-dist` scripts
     - Add `"build:spike": "tsc --noEmit && vite build --mode spike"` and `"check:spike-dist": "node scripts/check-spike-dist"` to `package.json`. Leave `build` and `test` unchanged.
     - Done when: both scripts appear in `package.json` and `npm run typecheck` exits 0.
     - _Requirements: 11.2, 12.4_
 
-  - [ ] 8.4 Build the default app and inspect `dist/`
+  - [x] 8.4 Build the default app and inspect `dist/`
     - Run `npm run build`. Then inspect `dist/`: `find dist -iname '*spike*'` prints nothing and the search tool finds no file containing `SYNTHETIC DEMO DATA`. Confirm `build.target` is `'esnext'` in `vite.config.ts` by reading it.
     - Done when: `npm run build` exits 0 and both inspections are clean. Record the result in the Results_Document "Spike-only files" section.
     - Recorded in: Results_Document "Spike-only files".
     - _Requirements: 11.1, 11.4_
 
-  - [ ] 8.5 Build the spike without `nargo` on `PATH` and run the dist check
+  - [x] 8.5 Build the spike without `nargo` on `PATH` and run the dist check
     - Build `PATH` from the directory of `node` plus `/usr/bin:/bin` so that `command -v nargo` prints nothing, then run `npm run build:spike` and `npm run check:spike-dist` under that `PATH`.
     - Inspect `dist/`: it contains `spike.html` and no `index.html`; `_redirects` reads `/  /spike.html  200`; no `_headers`; the worker chunk contains no Node-only imports (search for `node:` and `from "fs"`; if present, add `resolve.conditions: ['browser', 'module', 'import']` in spike mode, U8); two `.dat` files exist under `dist/assets/` and an `ledger_audit*.json` and the two `.wasm` files; the `bb.js` chunks may contain the ceremony host strings in their code, which are never reached with `skipSrsInit: true`, and `tests/zk/srs-wiring.test.ts` guards that option. If `?no-inline` did not emit real files or `publicDir: false` plus the emitted `_redirects` failed (U9), use `assetsInlineLimit: 0` in spike mode or a build plugin that copies the files.
     - Check `netlify.toml` has no `Cross-Origin-Opener-Policy` or `Cross-Origin-Embedder-Policy` and is unchanged (`git diff --stat netlify.toml`).
@@ -525,7 +525,7 @@ Rules that apply to every task:
     - Recorded in: Results_Document "Lookups".
     - _Requirements: 7.7, 11.2, 12.4, 12.5, 12.6_
 
-  - [ ] 8.6 Commit group 8 files
+  - [-] 8.6 Commit group 8 files
     - Run `git status --short`. Stage by name: `vite.config.ts`, `scripts/check-spike-dist`, `package.json`, `docs/spike-results.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. `public/_redirects` and `netlify.toml` are not changed by this group, and `public/_headers` must not exist. `dist/` is ignored and stays out. Commit with the message `feat(build): spike build mode, dist check and spike redirects`. Do not push.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 11.2, 12.4, 12.5_
@@ -643,7 +643,7 @@ Rules that apply to every task:
 
   - [ ] 10.9 Commit group 10 files
     - Placed after task 10.7 and before the final stop task 10.8; the number 10.9 keeps every existing id unchanged. Run `git status --short`. Stage by name: `tests/zk/spike-report.test.ts`, `tests/zk/spike-view.test.ts`, `tests/zk/results-document.test.ts`, `tests/zk/proof/proof.prop.test.ts`, `tests/zk/proof/proof-tamper.prop.test.ts`, `docs/spike-results.md`, `.kiro/specs/zk-spike/design.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. If task 10.6 fixed a defect, also stage by name the files it changed (for example `src/zk/spike-view.ts` or `src/zk/spike-report.ts`, a regression test, `tests/PBT-LOG.md`). Commit with the message `test(zk): spike-only unit tests, proof properties and completed results document`. Do not push.
-    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit). No commit is made if a "Done when" check of tasks 10.1 to 10.7 failed.
+    - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit). No commit is made unless the "Done when" checks of tasks 10.1 to 10.7 and of task 10.10 (the design sections say the path-rewrite behaviour, U5 is Resolved, and `validate_spec_format` on `design.md` reports no issues) all passed.
     - _Requirements: 6.5, 6.6, 13.9, 7.2, 7.5_
 
   - [ ] 10.8 STOP: hand over to huynh for the browser steps

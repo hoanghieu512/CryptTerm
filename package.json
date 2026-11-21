@@ -8,6 +8,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:spike": "tsc --noEmit && vite build --mode spike",
+    "check:spike-dist": "node scripts/check-spike-dist",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

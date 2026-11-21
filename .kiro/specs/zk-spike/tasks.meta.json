@@ -864,6 +864,233 @@
         "executionId": "f6ee1b11-86a8-43d2-ba17-d2a077d3dbeb",
         "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
         "timestamp": 1795255298746
+      },
+      {
+        "executionId": "f6ee1b11-86a8-43d2-ba17-d2a077d3dbeb",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795255408242
+      }
+    ],
+    "7. Spike worker and page, plus the proof smoke test and the proof test split": [
+      {
+        "executionId": "f6ee1b11-86a8-43d2-ba17-d2a077d3dbeb",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795255408620
+      }
+    ],
+    "8.1 Add the spike mode to `vite.config.ts`": [
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263218319
+      },
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263244835
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265417381
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265493664
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265674898
+      }
+    ],
+    "8.2 Write `scripts/check-spike-dist`": [
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263243676
+      },
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263278564
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265422892
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265681583
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265760786
+      }
+    ],
+    "8.3 Add the `build:spike` and `check:spike-dist` scripts": [
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263279510
+      },
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263294442
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265428210
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265767813
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265787961
+      }
+    ],
+    "8.4 Build the default app and inspect `dist/`": [
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263295958
+      },
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263316570
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265433240
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265793465
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265839832
+      }
+    ],
+    "8.5 Build the spike without `nargo` on `PATH` and run the dist check": [
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263317697
+      },
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263347231
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265437089
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265845848
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795266950252
+      }
+    ],
+    "8.6 Commit group 8 files": [
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263348656
+      },
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263367060
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265443029
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795266959243
+      }
+    ],
+    "8. Spike build mode, dist check script and the spike `_redirects` decision (D4)": [
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263368325
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265455247
+      }
+    ],
+    "9.1 Rebuild the spike and check `dist/` before any deploy": [
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263381191
+      },
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263406114
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265443751
+      }
+    ],
+    "9.2 Read the Netlify power overview and report the deploy target": [
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263407159
+      },
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263438682
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265449192
+      }
+    ],
+    "9.3 STOP: deploy confirmation, wait for huynh to confirm the site and account": [
+      {
+        "executionId": "15180379-87e5-4014-801e-a1b5c8cbc8ee",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795263439694
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795265449882
       }
     ]
   }

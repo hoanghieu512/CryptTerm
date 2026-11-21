@@ -1,7 +1,7 @@
 import fc from 'fast-check';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Hasher, LeafFields } from '../../src/zk/hash';
-import type { Posting } from '../../src/zk/posting';
+import type { Posting } from '../../src/ledger/posting';
 import { buildCircuitInputs } from '../../src/zk/witness-builder';
 import { PROPERTY_SEEDS, runProperty } from '../support/pbt';
 import { validWitnessArb } from '../support/zk-arbitraries';

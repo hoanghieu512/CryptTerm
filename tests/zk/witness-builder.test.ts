@@ -4,11 +4,11 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { CircuitInputs } from '../../src/zk/circuit-inputs';
 import { FieldRangeError } from '../../src/zk/errors';
 import type { PostingFieldName } from '../../src/zk/errors';
-import { CAPACITY, FIELD_MODULUS, ID_MAX, SALT_BOUND } from '../../src/zk/field';
+import { CAPACITY, FIELD_MODULUS, ID_MAX, SALT_BOUND } from '../../src/ledger/field';
 import type { Hasher, LeafFields } from '../../src/zk/hash';
 import { merkleRoot } from '../../src/zk/merkle';
-import { PADDING_POSTING, leafInputs } from '../../src/zk/posting';
-import type { Posting } from '../../src/zk/posting';
+import { PADDING_POSTING, leafInputs } from '../../src/ledger/posting';
+import type { Posting } from '../../src/ledger/posting';
 import { assembleCircuitInputs, buildCircuitInputs } from '../../src/zk/witness-builder';
 import type { BuiltInputs } from '../../src/zk/witness-builder';
 import { createHasherEnv } from '../support/zk-env';
@@ -236,7 +236,7 @@ describe('witness-builder', () => {
         const specifiers = [...code.matchAll(/from\s+'([^']+)'/g)].map((m) => m[1] ?? '');
         expect(specifiers.length).toBeGreaterThan(0);
         for (const specifier of specifiers) {
-          expect(specifier.startsWith('./')).toBe(true);
+          expect(specifier.startsWith('./') || specifier.startsWith('../ledger/')).toBe(true);
           expect(specifier).not.toMatch(/bb\.js|bb-js|@aztec/);
         }
       }

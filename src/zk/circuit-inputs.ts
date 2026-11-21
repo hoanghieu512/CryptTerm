@@ -8,8 +8,8 @@
 // There is no `bigint`, and `abiEncode` rejects numbers above 2^53 - 1, so every integer and field
 // element is a decimal string (design Q2, E-3). This file only formats; it validates nothing and
 // computes nothing (range checks are in `witness-builder.ts`).
-import type { Cents, Posting } from './posting';
-import { CAPACITY } from './field';
+import type { Cents, Posting } from '../ledger/posting';
+import { CAPACITY } from '../ledger/field';
 
 // These are `type` aliases and not `interface`s on purpose. `InputMap` is
 // `{ [key: string]: InputValue }`. A type alias of an object literal type is assignable to an index

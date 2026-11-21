@@ -13,8 +13,8 @@
 //
 // The Merkle root is not stored here. WITNESS PREP computes it at run time with the bb.js hashing.
 // All money values are bigint cents.
-import { FLAG_NO, FLAG_YES, SIDE_CREDIT, SIDE_DEBIT } from './posting';
-import type { Cents, Posting } from './posting';
+import { FLAG_NO, FLAG_YES, SIDE_CREDIT, SIDE_DEBIT } from '../ledger/posting';
+import type { Cents, Posting } from '../ledger/posting';
 import type { WitnessInput } from './witness-builder';
 
 export interface SpikeWitness extends WitnessInput {

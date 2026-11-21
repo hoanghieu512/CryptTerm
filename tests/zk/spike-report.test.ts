@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { AMOUNT_BOUND_CENTS } from '../../src/zk/field';
-import { FLAG_NO, FLAG_YES, SIDE_CREDIT, SIDE_DEBIT } from '../../src/zk/posting';
-import type { Posting } from '../../src/zk/posting';
+import { AMOUNT_BOUND_CENTS } from '../../src/ledger/field';
+import { FLAG_NO, FLAG_YES, SIDE_CREDIT, SIDE_DEBIT } from '../../src/ledger/posting';
+import type { Posting } from '../../src/ledger/posting';
 import {
   collectTexts,
   containsWholeToken,

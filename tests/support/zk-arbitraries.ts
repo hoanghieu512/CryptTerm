@@ -16,15 +16,15 @@
 // 999999999999) so they can never be a PAN of 13 or more digits, and salts are random numbers.
 // Nothing here prints anything.
 import fc from 'fast-check';
-import { AMOUNT_BOUND_CENTS, CAPACITY, FIELD_MODULUS, ID_MAX, SALT_BOUND } from '../../src/zk/field';
+import { AMOUNT_BOUND_CENTS, CAPACITY, FIELD_MODULUS, ID_MAX, SALT_BOUND } from '../../src/ledger/field';
 import {
   FLAG_NO,
   FLAG_YES,
   PADDING_POSTING,
   SIDE_CREDIT,
   SIDE_DEBIT,
-} from '../../src/zk/posting';
-import type { Cents, Posting, ReviewFlag, Side } from '../../src/zk/posting';
+} from '../../src/ledger/posting';
+import type { Cents, Posting, ReviewFlag, Side } from '../../src/ledger/posting';
 
 // ---------------------------------------------------------------------------------------------
 // Types

@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { AMOUNT_BOUND_CENTS } from '../../src/zk/field';
-import { SIDE_CREDIT, SIDE_DEBIT } from '../../src/zk/posting';
-import type { Posting } from '../../src/zk/posting';
+import { AMOUNT_BOUND_CENTS } from '../../src/ledger/field';
+import { SIDE_CREDIT, SIDE_DEBIT } from '../../src/ledger/posting';
+import type { Posting } from '../../src/ledger/posting';
 import { SPIKE_WITNESS } from '../../src/zk/spike-witness';
 import { buildCircuitInputs } from '../../src/zk/witness-builder';
 import { createHasherEnv, createNoirEnv } from '../support/zk-env';

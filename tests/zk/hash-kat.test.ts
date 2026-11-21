@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { bytes32ToField, fieldToBytes32, FIELD_MODULUS } from '../../src/zk/field';
+import { bytes32ToField, fieldToBytes32, FIELD_MODULUS } from '../../src/ledger/field';
 import type { Hasher } from '../../src/zk/hash';
 import { merkleLevels, merkleRoot } from '../../src/zk/merkle';
 import { createHasherEnv } from '../support/zk-env';

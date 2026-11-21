@@ -7,7 +7,7 @@
 // The two call shapes (leaf: six inputs, node: two inputs) are the ones that equal the Noir
 // sponge in `circuits/ledger_audit/src/hash.nr`. See `.kiro/steering/noir.md` "Settled choices".
 
-import { bytes32ToField, fieldToBytes32 } from './field';
+import { bytes32ToField, fieldToBytes32 } from '../ledger/field';
 
 /**
  * The part of `Barretenberg` (async API, `@aztec-foundation/bb.js` 6.0.0) that hashing needs.

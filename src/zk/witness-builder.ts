@@ -14,11 +14,11 @@
 import { toCircuitInputs } from './circuit-inputs';
 import type { CircuitInputs } from './circuit-inputs';
 import { FieldRangeError } from './errors';
-import { AMOUNT_BOUND_CENTS, CAPACITY, FIELD_MODULUS, ID_MAX, SALT_BOUND } from './field';
+import { AMOUNT_BOUND_CENTS, CAPACITY, FIELD_MODULUS, ID_MAX, SALT_BOUND } from '../ledger/field';
 import type { Hasher } from './hash';
 import { merkleRoot as computeMerkleRoot } from './merkle';
-import { PADDING_POSTING, leafInputs } from './posting';
-import type { Cents, Posting } from './posting';
+import { PADDING_POSTING, leafInputs } from '../ledger/posting';
+import type { Cents, Posting } from '../ledger/posting';
 
 export interface WitnessInput {
   /** Real postings only, 1 to 64. Padding is added by `buildCircuitInputs`. */

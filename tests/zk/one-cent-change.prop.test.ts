@@ -1,8 +1,8 @@
 import fc from 'fast-check';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { AMOUNT_BOUND_CENTS, CAPACITY } from '../../src/zk/field';
-import { PADDING_POSTING } from '../../src/zk/posting';
-import type { Posting } from '../../src/zk/posting';
+import { AMOUNT_BOUND_CENTS, CAPACITY } from '../../src/ledger/field';
+import { PADDING_POSTING } from '../../src/ledger/posting';
+import type { Posting } from '../../src/ledger/posting';
 import { assembleCircuitInputs, buildCircuitInputs } from '../../src/zk/witness-builder';
 import { PROPERTY_SEEDS, runProperty } from '../support/pbt';
 import {

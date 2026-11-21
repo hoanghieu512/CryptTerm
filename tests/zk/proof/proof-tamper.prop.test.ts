@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { AMOUNT_BOUND_CENTS, FIELD_MODULUS, bytes32ToField, fieldToBytes32 } from '../../../src/zk/field';
+import { AMOUNT_BOUND_CENTS, FIELD_MODULUS, bytes32ToField, fieldToBytes32 } from '../../../src/ledger/field';
 import { acirBytes, executeCircuit, proveCircuit, verifyProofWithVk } from '../../../src/zk/prover';
 import { buildCircuitInputs } from '../../../src/zk/witness-builder';
 import { PROPERTY_SEEDS, runProperty } from '../../support/pbt';

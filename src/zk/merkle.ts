@@ -5,7 +5,7 @@
 // Layout recorded in `.kiro/steering/noir.md` "Settled choices", defined by
 // `circuits/ledger_audit/src/merkle.nr`.
 
-import { CAPACITY } from './field';
+import { CAPACITY } from '../ledger/field';
 import type { Hasher } from './hash';
 
 /**

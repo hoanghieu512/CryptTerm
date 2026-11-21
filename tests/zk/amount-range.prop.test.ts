@@ -1,9 +1,9 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { FieldRangeError } from '../../src/zk/errors';
-import { AMOUNT_BOUND_CENTS, CAPACITY, FIELD_MODULUS } from '../../src/zk/field';
+import { AMOUNT_BOUND_CENTS, CAPACITY, FIELD_MODULUS } from '../../src/ledger/field';
 import type { Hasher } from '../../src/zk/hash';
-import type { Posting } from '../../src/zk/posting';
+import type { Posting } from '../../src/ledger/posting';
 import { assembleCircuitInputs } from '../../src/zk/witness-builder';
 import { PROPERTY_SEEDS, runProperty } from '../support/pbt';
 import {

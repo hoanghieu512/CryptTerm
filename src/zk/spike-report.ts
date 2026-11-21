@@ -8,9 +8,9 @@
 //
 // Nothing here writes to `console.*`: the report is shown as page text only (Requirement 9.7).
 // No DOM or worker globals, no network. Every function is pure and none echoes a posting value.
-import { AMOUNT_BOUND_CENTS } from './field';
-import { FLAG_YES } from './posting';
-import type { Posting } from './posting';
+import { AMOUNT_BOUND_CENTS } from '../ledger/field';
+import { FLAG_YES } from '../ledger/posting';
+import type { Posting } from '../ledger/posting';
 import type { ErrorShape, LeakField } from './spike-protocol';
 import type { SpikeWitness } from './spike-witness';
 

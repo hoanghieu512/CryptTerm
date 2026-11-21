@@ -9,7 +9,7 @@
 import { BackendType, Barretenberg } from '@aztec-foundation/bb.js';
 import type { Noir } from '@noir-lang/noir_js';
 import type { InputMap } from '@noir-lang/noirc_abi';
-import { bytes32ToField } from './field';
+import { bytes32ToField } from '../ledger/field';
 import { base64ToBytes, gunzip } from './gzip';
 import { initSrs } from './srs';
 import type { SrsBytes } from './srs';

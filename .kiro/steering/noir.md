@@ -67,18 +67,27 @@ Record these in the sections below once the spike settles them. Do not leave the
 
 Sources: the Noir "web app with NoirJS" tutorial (it targets `1.0.0-beta.20`, so only the call shapes are used), plus the published type definitions and source of `@noir-lang/noir_js@1.0.0` and `@aztec-foundation/bb.js@6.0.0`.
 
+The path this project uses is the low-level `circuitProve` and `circuitVerify` path, as written in `src/zk/prover.ts` (task 7.8, 2026-11-21):
+
 ```ts
+import { BackendType, Barretenberg } from '@aztec-foundation/bb.js';
 import { Noir } from '@noir-lang/noir_js';
-import { Barretenberg, UltraHonkBackend } from '@aztec-foundation/bb.js';
 
 const noir = new Noir(circuit);                       // circuit = compiled nargo JSON
 const { witness } = await noir.execute(inputs);       // UNVERIFIED: believed to throw on a failed constraint
-const api = await Barretenberg.new({ threads: 1 });   // single-threaded, no COOP/COEP needed
-const backend = new UltraHonkBackend(circuit.bytecode, api);
-const { proof, publicInputs } = await backend.generateProof(witness);
-const ok = await backend.verifyProof({ proof, publicInputs });
-const vk = await backend.getVerificationKey();        // Uint8Array
+                                                      // (witness is GZIPPED; proveCircuit gunzips it)
+const api = await Barretenberg.new({ backend: BackendType.Wasm, threads: 1, skipSrsInit: true });
+await initSrs(api, srs);                              // srs.ts: api.srsInitSrs({ pointsBuf: g1, numPoints, g2Point: g2 })
+const acir = await gunzip(base64ToBytes(circuit.bytecode));
+// proveCircuit(api, acir, witness) calls api.circuitProve({ circuit: { name, bytecode: acir,
+//   verificationKey: new Uint8Array(0) }, witness: await gunzip(witness), settings: PROOF_SETTINGS })
+const { proof, publicInputs, vk, proofSizeBytes } = await proveCircuit(api, acir, witness);
+// proof, publicInputs: Uint8Array[] (32 bytes per field); vk = response.vk.bytes; proofSizeBytes = 32 * proof.length
+const ok = await verifyProofWithVk(api, vk, publicInputs, proof);  // api.circuitVerify({ verificationKey: vk, ... })
 ```
+
+- **Why not `UltraHonkBackend`:** its `generateProof` passes an empty verification key and discards the key that bb.js computes, and its `verifyProof` recomputes the key with `circuitComputeVk`, which builds a prover instance again (bb.js 6.0.0 `src/barretenberg/backend.ts`, design L1). The low-level calls return the computed `vk.bytes` from the prove call and verify against a given key, so verification stays separate from proving, as a shipped verifier would behave.
+- **Proof size convention:** `proofSizeBytes = 32 * proof.length`. Public inputs are not counted. Node run of task 7.7: 458 proof fields, 14656 bytes.
 
 - **Unverified, test first in the spike:** that `noir.execute` throws when a constraint fails. Neither Context7 nor the `noir_js` 1.0.0 type definitions state it. The first tamper case (unbalanced batch) depends on it. Before any UI code relies on it, write a test that executes the circuit with an unbalanced witness and records what happens (a thrown error, or a witness that fails later at proof time) and the exact error shape. Replace this bullet with the result.
 - **Observed in Node, 2026-11-21 (task 6.7; browser observation pending huynh's run, so the "Unverified" bullet above stays):** `noir.execute` THROWS at the failed constraint and returns no witness. Checked for the unbalanced, wrong-root and over-limit-unflagged witnesses on `noir_js` 1.0.0. The thrown value is a plain `Error` with own properties `stack`, `message`, `callStack` (opcode location strings), `rawAssertionPayload` (`{ selector, data }`), `acirFunctionId`, `brilligFunctionId` and `noirCallStack` (source text and `path:line:column`). `message` is `Circuit execution failed: ` plus the fixed assertion text (for example `Circuit execution failed: DEBITS NOT EQUAL TO CREDITS`), and neither the message nor any own property contained a `record_id`, `account`, `amount` or `salt` value. Errors from `abiEncode` are a different path and can echo values (E-3). Details: `docs/spike-results.md` "Node pre-check (task 6.7)", test `tests/zk/circuit-inputs.test.ts`.
@@ -89,7 +98,7 @@ const vk = await backend.getVerificationKey();        // Uint8Array
 
 ## Settled choices
 
-Circuit-side choices, settled by task 2.10 (2026-11-20) from `circuits/ledger_audit/src/` and checked by the `_matches_bb_js` tests. `src/zk` must use the same values. The size, SRS and single-thread items are placeholders until the later groups measure them.
+Circuit-side choices, settled by task 2.10 (2026-11-20) from `circuits/ledger_audit/src/` and checked by the `_matches_bb_js` tests. `src/zk` must use the same values. The circuit size, SRS and single-thread items below were recorded by tasks 5.1, 5.2 and 7.8; the single-thread item is a Node result, and the browser answer is pending huynh's Cold_Run.
 
 ### Hash_Variant
 
@@ -183,7 +192,11 @@ Copied from `circuits/ledger_audit/src/tests.nr`. All are field elements, big-en
   - `g1.dat`: source `https://crs.aztec-cdn.foundation/g1.dat`, mirror `https://crs.aztec-labs.com/g1.dat`, byte range `bytes=0-2097151` (HTTP 206, `Content-Range: bytes 0-2097151/6400000000`), 2097152 bytes, sha256 `50d2f4e9567be2b8e382cedfd078b96a3428a94597b7e88c4116e105d578ce77`. The first point is the generator (1, 2).
   - `g2.dat`: source `https://crs.aztec-cdn.foundation/g2.dat`, mirror `https://crs.aztec-labs.com/g2.dat`, whole file (no byte range), 128 bytes, sha256 `01797bfc4de5a96f0e516a9ea4537d18786dc30cb991aca4274c95822b69c32f`.
   - The mirror returned byte-identical content for both files. The independent re-verification script is `scripts/verify-srs.ts` (task 5.5).
-- Single-thread answer and settings (`threads: 1`, no cross-origin isolation): recorded by the worker tasks (group 7), not yet measured.
+- Single-thread answer and settings (`threads: 1`, no cross-origin isolation), recorded by task 7.8 from the first full proof, task 7.7 (2026-11-21). NODE results only (Node 24.14.1, macOS, Intel i9-9980HK, 16 logical CPUs). Node answer: YES, single-thread (`threads: 1`) completes a proof and verifies it. The browser answer on `crossOriginIsolated` false is PENDING huynh's step 4 in "Browser steps for huynh" (Cold_Run). Nothing here is a browser or worker result.
+  - Settings that made the Node proof work (`createBb` and `initSrs` in `src/zk/`): `Barretenberg.new({ backend: BackendType.Wasm, threads: 1, skipSrsInit: true })`, then `srsInitSrs` through `initSrs` with the vendored prefix (`pointCount` 32768, 2 MiB `g1.dat` and 128 byte `g2.dat` from `src/zk/artifacts/srs/`). `skipSrsInit: true` keeps bb.js from downloading the SRS. No COOP/COEP headers and no `SharedArrayBuffer` were involved in Node. Proof settings are `PROOF_SETTINGS` (see the circuit size item above).
+  - Node measurements: `T_prove` 2.6 to 2.9 s (larger of runs 2 and 3: 2939.3 ms), `T_verify` about 20 ms (21.1 ms), `verified` true. Proof size 14656 bytes (`32 * proof.length`, 458 fields, public inputs not included). The public inputs came back as `[merkle_root, record_count, limit_cents]`.
+  - `N` = 32768 is enough and minimal: the full prove with 32768 points succeeded, and the same prove with the first 16384 points threw `prover trying to get too many points in MemBn254CrsFactory! 16384 vs 32768`. No Grumpkin SRS is needed. Details: `docs/spike-results.md` rows `T7.7-a` to `T7.7-i`.
+  - Worker setting `worker: { format: 'es' }` in `vite.config.ts`: planned in the design (browser worker build, task 8.1), not set yet. It applies when set.
 
 ## Version quirks log
 

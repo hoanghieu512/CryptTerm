@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRYPTTERM ZK SPIKE</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #000;
+        color: #33ff66;
+        font-family: ui-monospace, Menlo, Consolas, monospace;
+        font-size: 16px;
+        line-height: 1.4;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      main {
+        max-width: 80ch;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: bold;
+      }
+      .demo-label {
+        margin: 0 0 1rem;
+        color: #ffcc33;
+      }
+      .controls {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+      button {
+        background: #000;
+        color: #33ff66;
+        border: 1px solid #33ff66;
+        padding: 0.4rem 1rem;
+        font: inherit;
+        cursor: pointer;
+      }
+      button:disabled {
+        color: #1c7a3a;
+        border-color: #1c7a3a;
+        cursor: not-allowed;
+      }
+      #status {
+        margin: 0;
+        font-weight: bold;
+      }
+      #detail {
+        margin: 0 0 1rem;
+      }
+      table {
+        border-collapse: collapse;
+        margin: 1rem 0;
+      }
+      th,
+      td {
+        padding: 0.1rem 1.5rem 0.1rem 0;
+        text-align: left;
+        font-weight: normal;
+        vertical-align: top;
+      }
+      td {
+        text-align: right;
+      }
+      tr.secondary th,
+      tr.secondary td {
+        color: #1c7a3a;
+      }
+      tr.secondary th {
+        padding-left: 2ch;
+      }
+      .quoted {
+        text-transform: uppercase;
+      }
+      pre {
+        margin: 0 0 1rem;
+        padding: 0.5rem;
+        border: 1px solid #1c7a3a;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        text-transform: uppercase;
+      }
+      .raw-label {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <!--
+        Static shell. Only four strings are written here: the title, the DEMO DATA label and the two
+        button labels. They equal the COPY values TITLE, DEMO_LABEL, RUN and INVALID_WITNESS in
+        src/zk/spike-view.ts, and the page script overwrites them from the copy table at run time.
+        Every other visible string comes from the page script.
+      -->
+      <h1 id="title">CRYPTTERM ZK SPIKE</h1>
+      <p id="demo-label" class="demo-label">DEMO DATA</p>
+      <div class="controls">
+        <button id="run" type="button">RUN</button>
+        <button id="invalid-witness" type="button">INVALID WITNESS</button>
+      </div>
+      <p id="status" aria-live="polite"></p>
+      <p id="detail" hidden></p>
+      <table id="timings" hidden>
+        <tbody id="timings-body"></tbody>
+      </table>
+      <section id="invalid-results">
+        <div id="raw-error-block" hidden>
+          <p id="raw-error-label" class="raw-label"></p>
+          <pre id="raw-error"></pre>
+        </div>
+        <div id="raw-proof-error-block" hidden>
+          <p id="raw-proof-error-label" class="raw-label"></p>
+          <pre id="raw-proof-error"></pre>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/src/zk/spike.ts"></script>
+  </body>
+</html>

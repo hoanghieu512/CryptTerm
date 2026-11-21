@@ -292,7 +292,7 @@ Rules that apply to every task:
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 14.1, 14.2, 14.8_
 
-- [ ] 6. Witness_Builder, hashing wrapper, encoder, and the default-run tests that gate correctness
+- [x] 6. Witness_Builder, hashing wrapper, encoder, and the default-run tests that gate correctness
   - Build the TypeScript hashing, Merkle, validation and input-map modules with their test support, then the default-run properties and example tests, then measure the default run.
   - _Requirements: 2.4, 2.5, 2.9, 3.1, 3.2, 3.4, 3.7, 3.8, 3.9, 3.10, 3.11, 6.1, 6.2, 6.3, 6.4, 6.7, 6.8, 7.2, 7.4, 7.5_
 
@@ -387,7 +387,7 @@ Rules that apply to every task:
     - Recorded in: Results_Document "Lookups" (Default-run measurement).
     - _Requirements: 3.8, 6.2, 6.3, 6.4, 6.8_
 
-  - [-] 6.13 Commit group 6 files
+  - [x] 6.13 Commit group 6 files
     - Run `git status --short`. Stage by name: `src/zk/field.ts`, `src/zk/posting.ts`, `src/zk/errors.ts`, `src/zk/hash.ts`, `src/zk/merkle.ts`, `src/zk/circuit-inputs.ts`, `src/zk/witness-builder.ts`, `tests/support/pbt.ts`, `tests/support/zk-env.ts`, `tests/support/zk-arbitraries.ts`, `tests/zk/hash-kat.test.ts`, `tests/zk/witness-builder.test.ts`, `tests/zk/circuit-inputs.test.ts`, `tests/zk/root-parity.prop.test.ts`, `tests/zk/one-cent-change.prop.test.ts`, `tests/zk/amount-range.prop.test.ts`, `scripts/build-circuit`, `tests/zk/artifact.test.ts`, `docs/spike-results.md`, `.kiro/steering/noir.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`, plus `package.json` only if task 6.0 changed it. If task 6.12 added a regression example test or a `tests/PBT-LOG.md` entry, stage those files by name too. Commit with the message `feat(zk): witness builder, hashing wrapper and default-run property tests`. Do not push.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 3.8, 6.2, 6.3, 6.4, 7.2, 7.4_
@@ -396,44 +396,44 @@ Rules that apply to every task:
   - Add the prover wrappers, the synthetic witness, the proof run configuration and the one-proof smoke test, then the worker, the view model and the page.
   - _Requirements: 6.1, 6.5, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9, 8.10, 8.11, 8.12, 8.13, 8.14, 8.15, 8.16, 9.1, 9.2, 9.3, 9.4, 9.7, 9.8, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 14.2, 14.7, 14.8_
 
-  - [ ] 7.1 Write `src/zk/gzip.ts`
+  - [x] 7.1 Write `src/zk/gzip.ts`
     - `gunzip(bytes)` using `DecompressionStream('gzip')` and `base64ToBytes(s)`. Needed because `circuitProve` takes the uncompressed ACIR and witness.
     - Lookup first, recorded in "Lookups": `DecompressionStream` availability in Node 24 and browsers.
     - Done when: `npm run typecheck` exits 0.
     - _Requirements: 8.2, 1.9, 1.10_
 
-  - [ ] 7.2 Write `src/zk/prover.ts`
+  - [x] 7.2 Write `src/zk/prover.ts`
     - Exports `PROOF_SETTINGS` (`ipaAccumulation: false`, `oracleHashType: 'poseidon2'`, `disableZk: false`, `optimizedSolidityVerifier: false`), `createBb(srs)` (`Barretenberg.new({ backend: BackendType.Wasm, threads: 1, skipSrsInit: true })` then `api.srsInitSrs(...)`), `acirBytes(artifact)`, `executeCircuit(noir, inputs)`, `proveCircuit(api, acir, witness)` (`circuitProve` with an empty verification key and the gunzipped witness; returns proof, public inputs and the computed key), `verifyProofWithVk(api, vk, publicInputs, proof)` (`circuitVerify`) and `circuitSizes(api, acir)`. Proof size is `32 * proof.length` bytes. No UI code. Every `Barretenberg.new(` call passes `skipSrsInit: true`.
     - Lookup first, recorded in "Lookups": `circuitProve`, `circuitVerify`, `circuitStats` request and response types, and `BackendType.Wasm` (L1, L4, L5).
     - Done when: `npm run typecheck` exits 0.
     - _Requirements: 8.2, 8.12, 14.7, 1.9, 1.10_
 
-  - [ ] 7.3 Write `src/zk/artifact.ts`
+  - [x] 7.3 Write `src/zk/artifact.ts`
     - `ARTIFACT_URL` through `import artifactUrl from './artifacts/ledger_audit.json?url&no-inline'` and `loadArtifactFromUrl(url)` that fetches (same origin, GET, no body) and parses. Check U9: that `?url&no-inline` combine; if not, use the alternative the Vite docs lookup supports and record it.
     - Lookup first, recorded in "Lookups": Vite `?url` and `?no-inline` handling (L12).
     - Done when: `npm run typecheck` exits 0.
     - _Requirements: 8.11, 10.2, 1.9, 1.10_
 
-  - [ ] 7.4 Write `src/zk/spike-witness.ts` and `tests/zk/spike-witness.test.ts`
+  - [x] 7.4 Write `src/zk/spike-witness.ts` and `tests/zk/spike-witness.test.ts`
     - `spike-witness.ts`: first line a comment containing `SYNTHETIC DEMO DATA`. 64 postings from a fixed formula (no randomness): `recordId = 100000001 + i`, `account = 900000000000 + 7919 * i` (12 digits), `salt = 5000000000 + 104729 * i`; 32 pairs with slot `2k` debit and `2k + 1` credit of the same amount `150000 + 12345 * k`, except pairs with `k % 8 == 7` use `1250000 + k` with `reviewFlag` 1 on both slots; `limitCents` 1000000; `recordCount` 64; the Merkle root is not committed. The constant is frozen.
     - `tests/zk/spike-witness.test.ts` (runs under `npm test`): executes in Node through `noir.execute` without error (8.3); the first line contains `SYNTHETIC DEMO DATA` (8.4); every `recordId`, `account`, `amountCents` and `salt` is at least 100000; every account has exactly 12 digits so it cannot be a PAN; every amount is below 2^40; slot 0 amount plus 1 cent is still at most the limit; the file contains no key material (10.6).
     - Done when: `npx vitest run tests/zk/spike-witness.test.ts` exits 0.
     - _Requirements: 8.3, 8.4, 9.1, 10.6_
 
-  - [ ] 7.5 Exclude `tests/zk/proof/**` from the default run
+  - [x] 7.5 Exclude `tests/zk/proof/**` from the default run
     - In `vite.config.ts` add `exclude: [...configDefaults.exclude, 'tests/zk/proof/**']` to the `test` block, importing `configDefaults` from `vitest/config`. Do not change anything else in the file in this task.
     - Look up the Vitest 5.1.1 `exclude` behaviour first and record it in "Lookups" (L16).
     - The directory `tests/zk/proof/` gets its first file in task 7.7, where `npx vitest list` is run to confirm it prints no file under `tests/zk/proof/`.
     - Done when: the `exclude` line is present and `npx vitest run` still passes.
     - _Requirements: 6.1, 1.9, 1.10_
 
-  - [ ] 7.6 Write `vitest.proof.config.ts` and the `test:proof` script
+  - [x] 7.6 Write `vitest.proof.config.ts` and the `test:proof` script
     - Create `vitest.proof.config.ts` at the repository root: `environment: 'node'`, `include: ['tests/zk/proof/**/*.test.ts']`, `exclude: [...configDefaults.exclude]`, `testTimeout` and `hookTimeout` equal to a named constant `PROOF_TEST_TIMEOUT_MS` (placeholder `900_000` until task 7.7 measures), `fileParallelism: false`. Add `"test:proof": "vitest run --config vitest.proof.config.ts"` to `package.json` (`test` stays exactly `vitest run`). Add `vitest.proof.config.ts` to `tsconfig.json` `include`.
     - Check that `fileParallelism: false` is accepted in a `defineConfig` `test` block in Vitest 5.1.1; record the result.
     - Done when: `npm run typecheck` exits 0.
     - _Requirements: 6.1, 6.5_
 
-  - [ ] 7.7 Write `tests/zk/proof/proof-smoke.test.ts` and run the first proof
+  - [x] 7.7 Write `tests/zk/proof/proof-smoke.test.ts` and run the first proof
     - Example test, run only by `npm run test:proof`. Uses `createProverEnv()` and the Spike_Witness: builds inputs, executes, proves with `threads: 1` and the committed SRS, verifies with the key returned by the prove, asserts verification is true, asserts the decoded public inputs equal `[merkle_root, record_count, limit_cents]` in that order (U11), prints `T_prove` and `T_verify` in milliseconds and nothing else. Add the minimality probe: the same prove with the first `N / 2` points, expected to throw an error whose message contains `too many points` (U10).
     - Run `npm run test:proof`.
     - If the prove fails with a Grumpkin-SRS error (U7, D2), STOP and ask huynh: vendoring a 4 MiB Grumpkin file (`grumpkin_g1_v2.dat`) is a second binary file and a user decision.
@@ -442,51 +442,51 @@ Rules that apply to every task:
     - Done when: `npm run test:proof` exits 0 and `npx vitest list` shows no file under `tests/zk/proof/`.
     - _Requirements: 14.2, 14.8, 8.3, 8.12, 6.5_
 
-  - [ ] 7.8 Update `noir.md` with the API path and the single-thread evidence
+  - [x] 7.8 Update `noir.md` with the API path and the single-thread evidence
     - In `.kiro/steering/noir.md` "API as looked up", replace the `UltraHonkBackend` snippet for this project with the low-level `circuitProve` and `circuitVerify` path from `prover.ts` and state why (verification stays separate from proving; the proof size convention `32 * proof.length`). In "Settled choices", record the settings that made the Node single-thread proof work (`backend: BackendType.Wasm`, `threads: 1`, `skipSrsInit: true`, `srsInitSrs` with the vendored prefix, worker `format: 'es'` when set) and state that the browser answer on `crossOriginIsolated` false is pending huynh's step 4 in "Browser steps for huynh".
     - Done when: the three edits are present in `noir.md` and no other section changed.
     - Recorded in: `.kiro/steering/noir.md`.
     - _Requirements: 3.6, 1.9_
 
-  - [ ] 7.9 Write `tests/zk/proof-isolation.test.ts`
-    - Example test, runs under `npm test`. Fails when: (1) a file under `tests/` outside `tests/zk/proof/` contains `circuitProve`, `circuitVerify`, `createProverEnv` or `UltraHonkBackend`; (2) a file under `tests/zk/proof/` does not end in `.test.ts`, or a file there that imports `fast-check` does not end in `.prop.test.ts`; (3) `vite.config.ts` does not contain the string `tests/zk/proof/**`; (4) `package.json` has no `test:proof` script, the `test` script is not exactly `vitest run`, or `test:proof` does not contain `--config vitest.proof.config.ts`; (5) `vitest.proof.config.ts` is missing.
+  - [x] 7.9 Write `tests/zk/proof-isolation.test.ts`
+    - Example test, runs under `npm test`. Fails when: (1) a file under `tests/` outside `tests/zk/proof/` contains `circuitProve`, `circuitVerify` or `UltraHonkBackend`, or contains `createProverEnv` (a call, an import or any other mention) unless the file is `tests/support/zk-env.ts` (which defines it per task 6.3 and may mention it in comments); the isolation test file itself is excluded from this scan, because it contains these strings as the patterns it searches for. The `createProverEnv` exception exists because the definition lives in `tests/support/zk-env.ts` per task 6.3 (found when task 6.3 ran); (2) a file under `tests/zk/proof/` does not end in `.test.ts`, or a file there that imports `fast-check` does not end in `.prop.test.ts`; (3) `vite.config.ts` does not contain the string `tests/zk/proof/**`; (4) `package.json` has no `test:proof` script, the `test` script is not exactly `vitest run`, or `test:proof` does not contain `--config vitest.proof.config.ts`; (5) `vitest.proof.config.ts` is missing.
     - Done when: `npx vitest run tests/zk/proof-isolation.test.ts` exits 0.
     - _Requirements: 6.1_
 
-  - [ ] 7.10 Write `tests/zk/srs-wiring.test.ts`
+  - [x] 7.10 Write `tests/zk/srs-wiring.test.ts`
     - Example test, runs under `npm test`. Reads every file under `src/zk/` and fails when a `Barretenberg.new(` call does not pass `skipSrsInit: true`. Also fails when a file under `src/zk/` contains the strings `crs.aztec-cdn.foundation` or `crs.aztec-labs.com`.
     - Done when: `npx vitest run tests/zk/srs-wiring.test.ts` exits 0.
     - _Requirements: 14.7_
 
-  - [ ] 7.11 Write `src/zk/spike-protocol.ts`
+  - [x] 7.11 Write `src/zk/spike-protocol.ts`
     - Types `Stage` (`WASM INIT`, `WITNESS PREP`, `EXECUTE`, `PROVE`, `VERIFY`), `FailReason`, `PageToWorker` (`run`, `run-invalid`) and `WorkerToPage` (`stage-start`, `stage-end` with floored milliseconds, `init-detail`, `done` with `proofBytes` and `workerIsolated`, `failed` with stage, reason, `have`, `need`, `field`, `slot`, `invalid-report`). No message carries a posting, leaf, root, limit, salt or error message string, except `invalid-report`.
     - Done when: `npm run typecheck` exits 0.
     - _Requirements: 8.2, 8.9, 9.2, 10.1_
 
-  - [ ] 7.12 Write `src/zk/spike-report.ts`
+  - [x] 7.12 Write `src/zk/spike-report.ts`
     - `describeError` (`typeofThrown`, `ctorName` or null, `ownPropertyNames` through `Object.getOwnPropertyNames` or null, `message` or null), `containsWholeToken` (case-insensitive, delimiters are any character other than a letter or digit), `findLeakedFields(texts, postings)` (decimal and `0x` lowercase hexadecimal forms of `amount`, `salt`, `account`, `record_id` of every posting; texts are the message, every own string value, strings inside own arrays and `JSON.stringify` of other plain-object own properties) and `modifyFirstSlotByOneCent(spikeWitness)` (returns a copy with slot 0 amount plus 1; never mutates the original). Nothing writes to `console.*`.
     - Done when: `npm run typecheck` exits 0.
     - _Requirements: 9.1, 9.2, 9.4, 9.7_
 
-  - [ ] 7.13 Write `src/zk/spike-view.ts`
+  - [x] 7.13 Write `src/zk/spike-view.ts`
     - The copy table (uppercase, one table is the only source of visible strings: `FAIL_FETCH`, `FAIL_SRS_HASH`, `FAIL_SRS_REJECTED`, `FAIL_FIELD_RANGE`, `FAIL_CONSTRAINT`, `FAIL_SRS_TOO_SMALL`, `FAIL_PROOF_REJECTED`, `TIMEOUT`, plus the other labels) and the pure reducer `reduce(state, event)` with states `idle`, `running`, `succeeded`, `failed`, `timedOut`. Behaviour: controls disabled while running; a second `run` event ignored; completed stage rows kept on failure; `TOTAL` and proof size absent on failure; the success view never contains `FAILED`; status and error text at most 10 words, uppercase, naming the stage or invariant; `FAILED <STAGE>: <REASON>` template; the permanent `DEMO DATA` label; the invalid-witness labels from the design.
     - Done when: `npm run typecheck` exits 0.
     - _Requirements: 8.5, 8.9, 8.10, 8.13, 8.14, 8.15, 8.16, 9.2, 9.8_
 
-  - [ ] 7.14 Write `src/zk/spike-worker.ts`
+  - [x] 7.14 Write `src/zk/spike-worker.ts`
     - Module worker (no `window`). Stages run strictly in sequence in one `async` function: WASM INIT (fetch artifact, `g1.dat`, `g2.dat` from the same origin; initialise `acvm_js` and `noirc_abi` WASM with the `?url` imports through `init({ module_or_path: url })`; `createBb`; verify SRS sha256 against the manifest; `srsInitSrs`; gunzip the ACIR; send `init-detail` messages that are not part of the stage sum), WITNESS PREP (`buildCircuitInputs` on the Spike_Witness), EXECUTE, PROVE (`threads: 1`), VERIFY (key from PROVE). Stage times are floored `performance.now()` differences. The failure classifier maps errors to a `FailReason` and sends no raw message; an error containing `too many points` becomes `SRS_TOO_SMALL` with `have` and `need`. Send `workerIsolated` from `crossOriginIsolated`. On `run-invalid`: use `modifyFirstSlotByOneCent`, rebuild leaves and root, call `noir.execute` exactly once in `try/catch`, build the `InvalidReport`, and if a witness was returned load the SRS, attempt one proof and verify any proof returned. Only the stage names and millisecond values may reach `console.*`, and nothing is stored in web storage, IndexedDB, cookies or the Cache API. No `fetch` carries a body or a data-derived URL.
     - Lookup first, recorded in "Lookups": Vite worker constructor and `?url` imports (L12), `acvm_js` and `noirc_abi` `init` signature (L7), `bb.js` browser build behaviour (L1).
     - Done when: `npm run typecheck` exits 0.
     - _Requirements: 8.1, 8.2, 8.8, 8.11, 8.12, 9.1, 9.2, 9.3, 9.4, 9.7, 9.8, 10.1, 10.2, 10.3, 10.4, 14.7, 14.8, 1.9, 1.10_
 
-  - [ ] 7.15 Write `src/zk/spike.ts` and `spike.html`
+  - [x] 7.15 Write `src/zk/spike.ts` and `spike.html`
     - `spike.html` at the repository root: static shell with `CRYPTTERM ZK SPIKE`, the permanent `DEMO DATA` label, the `RUN` and `INVALID WITNESS` controls, result areas; loads `/src/zk/spike.ts`. The string `SYNTHETIC DEMO DATA` does not appear in it.
     - `src/zk/spike.ts`: plain DOM. Takes `t0 = performance.now()` immediately before `new Worker(new URL('./spike-worker.ts', import.meta.url), { type: 'module' })`; updates the status line synchronously on each `stage-start` (within 250 ms); computes `TOTAL = Math.ceil(performance.now() - t0)` when `done` arrives; shows the five timings, `TOTAL`, `PROOF SIZE (BYTES)`, and `CROSS ORIGIN ISOLATED (PAGE)` and `(WORKER)` as `TRUE` or `FALSE`; disables both controls from worker creation until it finishes, fails or times out; maps worker `error` and `messageerror` to a failure of the running stage; shows the invalid-witness values as text (raw message in a `<pre>` with CSS `text-transform: uppercase`); starts a 120 s timer for `run-invalid` that terminates the worker and shows `FAILED INVALID WITNESS RUN: TIMEOUT` with controls usable again. No `console.*` of data, no web storage, no network call other than the worker's same-origin loads.
     - Done when: `npm run typecheck` and `npm test` exit 0.
     - _Requirements: 8.1, 8.5, 8.6, 8.7, 8.8, 8.9, 8.10, 8.13, 8.14, 8.15, 8.16, 9.2, 9.7, 9.8, 10.1, 10.3, 10.4_
 
-  - [ ] 7.16 Commit group 7 files
-    - Run `git status --short`. Stage by name: `src/zk/gzip.ts`, `src/zk/prover.ts`, `src/zk/artifact.ts`, `src/zk/spike-witness.ts`, `src/zk/spike-protocol.ts`, `src/zk/spike-report.ts`, `src/zk/spike-view.ts`, `src/zk/spike-worker.ts`, `src/zk/spike.ts`, `spike.html`, `tests/zk/spike-witness.test.ts`, `tests/zk/proof-isolation.test.ts`, `tests/zk/srs-wiring.test.ts`, `tests/zk/proof/proof-smoke.test.ts`, `vite.config.ts`, `vitest.proof.config.ts`, `package.json`, `tsconfig.json`, `docs/spike-results.md`, `.kiro/steering/noir.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. Commit with the message `feat(zk): spike worker and page, proof smoke test and test:proof split`. Do not push.
+  - [-] 7.16 Commit group 7 files
+    - Run `git status --short`. Stage by name: `src/zk/gzip.ts`, `src/zk/prover.ts`, `src/zk/artifact.ts`, `src/zk/spike-witness.ts`, `src/zk/spike-protocol.ts`, `src/zk/spike-report.ts`, `src/zk/spike-view.ts`, `src/zk/spike-worker.ts`, `src/zk/spike-classify.ts`, `src/zk/spike.ts`, `spike.html`, `tests/zk/spike-witness.test.ts`, `tests/zk/proof-isolation.test.ts`, `tests/zk/srs-wiring.test.ts`, `tests/zk/proof/proof-smoke.test.ts`, `vite.config.ts`, `vitest.proof.config.ts`, `package.json`, `tsconfig.json`, `docs/spike-results.md`, `.kiro/steering/noir.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. Commit with the message `feat(zk): spike worker and page, proof smoke test and test:proof split`. Do not push.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit). No commit is made if `npm run test:proof` or `npm test` failed in this group.
     - _Requirements: 6.5, 8.1, 8.2_
 
@@ -502,6 +502,7 @@ Rules that apply to every task:
 
   - [ ] 8.2 Write `scripts/check-spike-dist`
     - Node ESM script, no extension. Lists `dist/` recursively and exits 1, printing the offending paths, on any file outside this allow-list: `spike.html`, `_redirects`, and under `assets/` files ending `.js`, `.wasm`, `.dat`, `.json`, `.css`. It also fails on any other `.html` (including `index.html`), on `_headers`, on any `*.map`, and when a required file is missing: `spike.html`, a worker script, one `ledger_audit*.json`, two `.dat` files, the `acvm_js` and `noirc_abi` WASM files. It prints the sizes of the largest files.
+    - The allow-list must accept the `.js` chunk names that the spike build references: `main.worker-*.js` and `thread.worker-*.js` (bb.js worker chunks), `barretenberg-*.js` and `barretenberg-threads-*.js` (bb.js chunks), `spike-*.js` (page chunk) and `spike-worker-*.js` (worker chunk), besides `acvm_js_bg-*.wasm`, `noirc_abi_wasm_bg-*.wasm`, `g1-*.dat`, `g2-*.dat` and `ledger_audit-*.json`. The build output measured in task 7.15 was 12 files and about 16.4 MiB (17,145,966 bytes), with no `index.html`.
     - Done when: `node --check scripts/check-spike-dist` reports no syntax error.
     - _Requirements: 11.2, 12.5, 12.6_
 
@@ -661,9 +662,11 @@ Rules that apply to every task:
 - Nothing is pushed by any task; huynh pushes. No task amends, rebases, force-pushes or rewrites history, or skips hooks. A fix after a commit, including a circuit change after the soundness review, goes in a new commit.
 - The deploy in task 9.4 publishes the local `dist/` folder and needs no commit before it.
 - Task 10.9 sits before task 10.8 in the document so that no existing task id changes.
+- Task 7.9 rule (1) exempts `tests/support/zk-env.ts` for `createProverEnv` (found in task 6.3).
 - Artifact path rewrite (huynh's decision A on U5, after task 4.3): the Build_Script rewrites the absolute source paths in `file_map` to package-relative paths by textual replacement, so builds from different directories are identical. Requirement 7.2 carries the one-sentence addition; `bytecode` and `abi` are copied unchanged. Tasks 4.1, 4.2, 4.3 and 4.5 are amended accordingly.
 - huynh's decisions after groups 4 and 5: (1) a generic absolute-path check in the Build_Script, added as the first sub-task of group 6 (task 6.0); (2) a design sync in group 10 (task 10.10, the only task allowed to edit `design.md`); (3) the Build_Script known limits recorded in the Results_Document `## Build_Script` section (task 6.0).
 - Order of the new tasks: task 6.0 is the first sub-task of group 6, before 6.1. Task 10.10 sits after task 10.7 and before task 10.9 in the document (and before the final stop task 10.8), so it runs before the group 10 commit and no existing id changes.
+- Task 7.14 split `src/zk/spike-classify.ts` from the worker; task 7.16 stages it (found in task 7.14). The spike build emits bb.js worker chunks `main.worker-*.js` and `thread.worker-*.js` that the dist check must allow (found in task 7.15).
 
 ## Task Dependency Graph
 

@@ -13,7 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:circuit": "cd circuits/ledger_audit && nargo test",
-    "build:circuit": "node scripts/build-circuit"
+    "build:circuit": "node scripts/build-circuit",
+    "test:proof": "vitest run --config vitest.proof.config.ts"
   },
   "dependencies": {
     "@aztec-foundation/bb.js": "6.0.0",

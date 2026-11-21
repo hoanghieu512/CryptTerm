@@ -1303,6 +1303,30 @@
         "executionId": "a520c87b-976a-4b35-aefe-40284b39c17e",
         "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
         "timestamp": 1795282103571
+      },
+      {
+        "executionId": "a520c87b-976a-4b35-aefe-40284b39c17e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795282133069
+      }
+    ],
+    "10.8 STOP: hand over to huynh for the browser steps": [
+      {
+        "executionId": "a520c87b-976a-4b35-aefe-40284b39c17e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795282138455
+      },
+      {
+        "executionId": "6d7ca848-be84-46b5-82de-df0536582d2c",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795290143999
+      }
+    ],
+    "10. Spike-only unit tests and the proof properties, before the Results_Document is declared complete": [
+      {
+        "executionId": "6d7ca848-be84-46b5-82de-df0536582d2c",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795290144159
       }
     ]
   }

@@ -6,7 +6,7 @@ Deploy URL: https://6b01a56625ec503f8621cc2b--cryptterm.netlify.app (draft, non-
 
 Deploy date: 2026-11-21
 
-Document status: complete as a document (task 10.7, 2026-11-21): all sections and lookups are written. The measured cells are huynh's numbers, transcribed. Still open for huynh: browser steps 1, 2, 7 and 8, and the five `PROOF` lines of the browser Invalid-witness result. The agent made no pass or fail judgement: PASS, NOT MEASURED and the gate decision are huynh's.
+Document status: the spike is complete (task 10.8, 2026-11-22). All sections and lookups are written and every browser step and result cell is filled. Nothing is open for huynh. The measured cells are huynh's numbers, transcribed. The agent made no pass or fail judgement: PASS, NOT MEASURED and the gate decision are huynh's.
 
 ### Version table
 
@@ -654,11 +654,11 @@ Filled in by huynh from the `INVALID WITNESS` run in Chrome on the Spike_Deploy.
 - `ERROR PROPERTIES`: `stack`, `message`, `callStack`, `rawAssertionPayload`, `acirFunctionId`, `brilligFunctionId`, `noirCallStack`
 - `ERROR MESSAGE`: `Circuit execution failed: DEBITS NOT EQUAL TO CREDITS`
 - `PRIVATE VALUE IN ERROR`: NO
-- `PROOF ATTEMPT THREW`: ______
-- `PROOF ERROR CONSTRUCTOR`: ______
-- `PROOF ERROR PROPERTIES`: ______
-- `PROOF ERROR MESSAGE`: ______
-- `PROOF VERIFIED`: ______
+- `PROOF ATTEMPT THREW`: not shown: execute threw, so no proof was attempted (spike-view renders proof rows only when a witness is returned)
+- `PROOF ERROR CONSTRUCTOR`: not shown: execute threw, so no proof was attempted (spike-view renders proof rows only when a witness is returned)
+- `PROOF ERROR PROPERTIES`: not shown: execute threw, so no proof was attempted (spike-view renders proof rows only when a witness is returned)
+- `PROOF ERROR MESSAGE`: not shown: execute threw, so no proof was attempted (spike-view renders proof rows only when a witness is returned)
+- `PROOF VERIFIED`: not shown: execute threw, so no proof was attempted (spike-view renders proof rows only when a witness is returned)
 
 ### Node pre-check (task 6.7)
 
@@ -730,14 +730,20 @@ Not spike-only and not in the removal steps: the SRS files under `src/zk/artifac
 
 Spike_Deploy URL: https://6b01a56625ec503f8621cc2b--cryptterm.netlify.app (use this one, not the discarded draft `6b01a524bf0487bd4f677f2e`). Nothing on the page is real data.
 
-1. Open Chrome and open the Spike_Deploy URL. Wait up to 10 s for the `RUN` control. Result: ______
-2. Open DevTools, Network tab, tick "Disable cache", clear the log, reload, press `RUN` once. Do not press it again. Result: ______
+1. Open Chrome and open the Spike_Deploy URL. Wait up to 10 s for the `RUN` control. Result: RUN control shown on the Spike_Deploy (not timed, well under 10 s)
+2. Open DevTools, Network tab, tick "Disable cache", clear the log, reload, press `RUN` once. Do not press it again. Result: done as written (Disable cache, cleared log, reload, RUN pressed once)
 3. After the run, record from the Network tab: number of requests 12 (11.3 MB transferred); every request same-origin (yes or no) yes, for the app requests (listed in Measurement notes); any request with a body (yes or no) no; any request to `crs.aztec-cdn.foundation` or `crs.aztec-labs.com`, must be none: none; any request to another origin (none or list) none among the app requests (`favicon.ico` and `hud?variant=owner-private` are not app requests, see Measurement notes)
 4. Confirm that `CROSS ORIGIN ISOLATED (PAGE)` and `CROSS ORIGIN ISOLATED (WORKER)` both read `FALSE`. Page FALSE; worker FALSE
 5. Copy the stage timings (`WASM INIT`, `WITNESS PREP`, `EXECUTE`, `PROVE`, `VERIFY`), `TOTAL` and `PROOF SIZE (BYTES)` into the Normal_Gate row of the gate table, with the Chrome version and the machine. Then repeat steps 2 and 3 from a fresh load with DevTools CPU throttling set to "4x slowdown" and copy the numbers into the Throttled_Gate row. Normal_Gate done: yes; Throttled_Gate done: observed, pass or fail NOT MEASURED (see Measurement notes)
 6. Press `INVALID WITNESS` once and wait up to 120 s. Copy the displayed values into "Invalid-witness report" below. Done: yes
-7. If there is no `RUN` control within 10 s, a `FAILED` result, or no result within 120 s: copy the stage name, the text and the URL, and tell the Spike_Team. Result ______
-8. In the repository root run `node scripts/verify-srs.ts` and paste its output here (developer command, needs network). Output ______
+7. If there is no `RUN` control within 10 s, a `FAILED` result, or no result within 120 s: copy the stage name, the text and the URL, and tell the Spike_Team. Result: not applicable; no missing RUN control, no FAILED result, no timeout in any run
+8. In the repository root run `node scripts/verify-srs.ts` and paste its output here (developer command, needs network). Output (run in the repository root, 2026-11-22, exit 0):
+
+   ```
+   PASS g1.dat 2097152 bytes
+   PASS g2.dat 128 bytes
+   PASS g1.dat chunk-check 4194304 bytes compressed
+   ```
 
 *Line written by task 5.5:* developer command `node scripts/verify-srs.ts` (repository root, needs network). It compares the committed `g1.dat` and `g2.dat` with the mirror host byte for byte and by sha256, and checks the g1 prefix through bb.js's pinned chunk hashes on the compressed route. It prints `PASS` or `FAIL` per check and exits 0 only when all pass. Task 9.8 repeats the command in the steps below.
 ## Deferred to zk-core

@@ -590,7 +590,7 @@ Rules that apply to every task:
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 13.1, 13.2, 13.7_
 
-- [ ] 10. Spike-only unit tests and the proof properties, before the Results_Document is declared complete
+- [x] 10. Spike-only unit tests and the proof properties, before the Results_Document is declared complete
   - Run the remaining tests after the deploy and before the hand-over, so the blank-cell checks in the Results_Document stay true and no spike task starts after the stop.
   - _Requirements: 6.5, 6.6, 8.5, 8.9, 8.13, 8.14, 8.15, 8.16, 9.1, 9.2, 9.3, 9.4, 9.8, 13.3, 13.4, 13.7, 13.8, 13.9_
 
@@ -641,12 +641,12 @@ Rules that apply to every task:
     - Done when: those sections say the above and `validate_spec_format` on `design.md` reports no issues.
     - _Requirements: 7.2, 7.5_
 
-  - [-] 10.9 Commit group 10 files
+  - [x] 10.9 Commit group 10 files
     - Placed after task 10.7 and before the final stop task 10.8; the number 10.9 keeps every existing id unchanged. Run `git status --short`. Stage by name: `tests/zk/spike-report.test.ts`, `tests/zk/spike-view.test.ts`, `tests/zk/results-document.test.ts`, `tests/zk/proof/proof.prop.test.ts`, `tests/zk/proof/proof-tamper.prop.test.ts`, `docs/spike-results.md`, `.kiro/specs/zk-spike/design.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. If task 10.6 fixed a defect, also stage by name the files it changed (for example `src/zk/spike-view.ts` or `src/zk/spike-report.ts`, a regression test, `tests/PBT-LOG.md`). Commit with the message `test(zk): spike-only unit tests, proof properties and completed results document`. Do not push.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit). No commit is made unless the "Done when" checks of tasks 10.1 to 10.7 and of task 10.10 (the design sections say the path-rewrite behaviour, U5 is Resolved, and `validate_spec_format` on `design.md` reports no issues) all passed.
     - _Requirements: 6.5, 6.6, 13.9, 7.2, 7.5_
 
-  - [ ] 10.8 STOP: hand over to huynh for the browser steps
+  - [x] 10.8 STOP: hand over to huynh for the browser steps
     - The agent must stop here, report the path `docs/spike-results.md`, the Spike_Deploy URL and the deploy date to huynh, and wait for huynh to run the "Browser steps for huynh" and fill in every measured and result cell. No later task exists and none may be started. The agent makes no pass or fail judgement.
     - The agent does not open the deployed page, press the run control, review the network panel, or install or run any browser automation tool.
     - If huynh reports that the page shows no run control within 10 s, a FAILED result, or no result within 120 s of pressing the run control, record the failing stage, the displayed error text and the Spike_Deploy URL as reported by huynh in the Results_Document, report back, and do not mark the deploy as ready for measurement.

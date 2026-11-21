@@ -1,0 +1,84 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "0. Commit the spec files and the two steering edits": [
+      {
+        "executionId": "020ae0b5-a00c-4489-8879-0bffd50b0934",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795291517926
+      },
+      {
+        "executionId": "020ae0b5-a00c-4489-8879-0bffd50b0934",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795291531314
+      }
+    ],
+    "1.1 Move `posting.ts` and `field.ts` to `src/ledger` (own commit)": [
+      {
+        "executionId": "020ae0b5-a00c-4489-8879-0bffd50b0934",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795291531500
+      },
+      {
+        "executionId": "dd9fbd0c-e66d-40bc-8fa2-b27ef50cb983",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795291992939
+      }
+    ],
+    "1.2 Write the format tests and `tests/support/ledger-arbitraries.ts` first": [
+      {
+        "executionId": "dd9fbd0c-e66d-40bc-8fa2-b27ef50cb983",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795291998633
+      },
+      {
+        "executionId": "dd9fbd0c-e66d-40bc-8fa2-b27ef50cb983",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795292547186
+      }
+    ],
+    "1.3 Implement `layout.ts`, `batch.ts`, `parse.ts`, `serialize.ts` and `invariants.ts`": [
+      {
+        "executionId": "dd9fbd0c-e66d-40bc-8fa2-b27ef50cb983",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795292553190
+      },
+      {
+        "executionId": "dd9fbd0c-e66d-40bc-8fa2-b27ef50cb983",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795292732718
+      }
+    ],
+    "1.4 Write the generator tests first": [
+      {
+        "executionId": "dd9fbd0c-e66d-40bc-8fa2-b27ef50cb983",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795292732937
+      },
+      {
+        "executionId": "dd9fbd0c-e66d-40bc-8fa2-b27ef50cb983",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795292879671
+      }
+    ],
+    "1.5 Implement `prng.ts` and `generate.ts`": [
+      {
+        "executionId": "dd9fbd0c-e66d-40bc-8fa2-b27ef50cb983",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795292879847
+      },
+      {
+        "executionId": "dd9fbd0c-e66d-40bc-8fa2-b27ef50cb983",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795293006813
+      }
+    ],
+    "1.6 Commit group 1": [
+      {
+        "executionId": "dd9fbd0c-e66d-40bc-8fa2-b27ef50cb983",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795293007064
+      }
+    ]
+  }
+}

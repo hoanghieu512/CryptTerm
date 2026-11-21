@@ -15,7 +15,7 @@ Rules for every task:
 
 ## Tasks
 
-- [-] 0. Commit the spec files and the two steering edits
+- [x] 0. Commit the spec files and the two steering edits
   - Stage by name: `git add .kiro/specs/ledger-format/requirements.md .kiro/specs/ledger-format/design.md .kiro/specs/ledger-format/tasks.md .kiro/specs/ledger-format/.config.kiro .kiro/steering/structure.md .kiro/steering/tech.md`. Run `git status --short` first. Commit with the message `docs(spec): add ledger-format requirements, design and tasks`.
   - Done when: `git log -1 --oneline` shows `docs(spec): add ledger-format requirements, design and tasks` and `git status --short` shows none of those six files.
   - _Requirements: 3.5_
@@ -24,34 +24,34 @@ Rules for every task:
   - Move the two files, then build `src/ledger` layout, codec, invariant checker and generator, tests first.
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2, 3.3, 3.5, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8_
 
-  - [ ] 1.1 Move `posting.ts` and `field.ts` to `src/ledger` (own commit)
+  - [x] 1.1 Move `posting.ts` and `field.ts` to `src/ledger` (own commit)
     - Run `git mv src/zk/posting.ts src/ledger/posting.ts` and `git mv src/zk/field.ts src/ledger/field.ts`. Contents stay byte-identical apart from comments that name their own path.
     - Update import paths only, with a helper-free `sed` or edit, in 17 files. In `src/zk`: `circuit-inputs.ts`, `hash.ts`, `merkle.ts`, `prover.ts`, `spike-report.ts`, `spike-witness.ts`, `witness-builder.ts`. In tests: `tests/support/zk-arbitraries.ts` and the tests `amount-range.prop`, `circuit-inputs`, `hash-kat`, `one-cent-change.prop`, `proof/proof-tamper.prop`, `root-parity.prop`, `spike-report`, `spike-witness`, `witness-builder`.
     - Commit with the message `refactor(zk): move posting and field to src/ledger`. If the sha or any test count differs from the values below, STOP and report.
     - Done when, with output quoted: `npm run typecheck` exits 0; `npx vitest run` reports 16 files and 441 tests passed; `npm run test:proof` passes; `shasum -a 256 src/zk/artifacts/ledger_audit.json` prints `2b08fea52a19e41a63589033287e3ee54530fdad677c416a6c869c42f1eecd5b`; `git log -1 --oneline` shows the commit; `git show --stat -M` shows the two files as renames.
     - _Requirements: 3.5_
 
-  - [ ] 1.2 Write the format tests and `tests/support/ledger-arbitraries.ts` first
+  - [x] 1.2 Write the format tests and `tests/support/ledger-arbitraries.ts` first
     - Create the fast-check generators for `Posting`, `Batch` and defective texts, and the four property tests under `tests/ledger/`: `roundtrip` (seed 20262001, 500 runs), `text_roundtrip` (20262002, 500), `parser_rejects_malformed` (20262003, 300), `field_range_rejected` (20262004, 300). The text for `text_roundtrip` is built field by field, not through `serializeBatch`.
     - Done when: `npx vitest run tests/ledger` fails or cannot import `src/ledger/parse`, and the output is quoted before any implementation exists.
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2, 3.3_
 
-  - [ ] 1.3 Implement `layout.ts`, `batch.ts`, `parse.ts`, `serialize.ts` and `invariants.ts`
+  - [x] 1.3 Implement `layout.ts`, `batch.ts`, `parse.ts`, `serialize.ts` and `invariants.ts`
     - Follow "Column layout", "Parse order" and the `BatchFormatError` code table in the design. Numbers are read by digit walk and `BigInt(str)`. Bounds come from `field.ts` with no literal copy of 2^40.
     - Done when: `npx vitest run tests/ledger` passes for the four format tests, and `npm run typecheck` exits 0 (output quoted).
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2, 3.3, 4.1_
 
-  - [ ] 1.4 Write the generator tests first
+  - [x] 1.4 Write the generator tests first
     - Create `generator_deterministic` (seed 20262007, 200 runs), `clean_batches_satisfy_invariants` (20262005, 200) and `violating_kinds_break_exactly_one_invariant` (20262006, 200) under `tests/ledger/`. Cover the three fixed error messages and the salt range.
     - Done when: `npx vitest run tests/ledger` fails or cannot import `src/ledger/generate`, output quoted before the implementation exists.
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8_
 
-  - [ ] 1.5 Implement `prng.ts` and `generate.ts`
+  - [x] 1.5 Implement `prng.ts` and `generate.ts`
     - Follow "PRNG", "Draw order" and "Per kind" in the design. The `generate.ts` header states that seeded salts are for demo determinism and are not random. No `Math.random`, no clock.
     - Done when: `npx vitest run tests/ledger` passes for all seven property tests, and `npm run typecheck` exits 0 (output quoted).
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8_
 
-  - [ ] 1.6 Commit group 1
+  - [-] 1.6 Commit group 1
     - Stage by name the files of tasks 1.2 to 1.5 plus `.kiro/specs/ledger-format/tasks.md` and `.kiro/specs/ledger-format/tasks.meta.json`. Run `git status --short` first. Message: `feat(ledger): batch format, parser, serializer and seeded generator`.
     - Done when: `git log -1 --oneline` shows that message and `git status --short` shows no change to the files this task staged.
     - _Requirements: 1.1, 2.1, 4.1_

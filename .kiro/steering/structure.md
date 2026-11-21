@@ -12,12 +12,12 @@ CryptTerm/
 ├── circuits/
 │   └── ledger_audit/      Noir package: Nargo.toml, src/, in-source tests
 ├── src/
-│   ├── ledger/            batch format, parse/serialize, types, validation
+│   ├── ledger/            batch format, parse/serialize, Posting type and bounds, validation, signed digest, trusted keys
 │   ├── zk/                hashing, Merkle tree, prover/verifier, worker, bundle
 │   └── ui/                block-mode terminal, screens, PF keys, routing
 ├── scripts/               build-time tools, including the core-ledger simulator
 ├── public/
-│   ├── samples/           signed sample batches, digests, demo public key
+│   ├── samples/           signed sample batches and their digests
 │   ├── _headers           COOP/COEP, only if bb.js needs them (Netlify)
 │   └── _redirects         SPA fallback so the CTM900 route loads directly (Netlify)
 ├── docs/
@@ -42,15 +42,16 @@ Do not add top-level directories without asking. The one root-level code entry p
 ### `src/ledger`
 
 - Owns the batch domain: types, fixed-width parse and serialize, amount parsing, account masking, totals, and the plain TypeScript check of the invariants (balance, range, limit or flag).
-- Pure functions. No DOM, no React, no network, no crypto beyond what the types need.
+- Pure functions. No DOM, no React, no network, no crypto beyond WebCrypto Ed25519 verification in the digest module.
 - The column layout is defined in one place here and documented in the ledger-format spec.
+- Also owns `posting.ts` and `field.ts` (the `Posting` type and the bounds, moved here from the spike), the digest module (`digestMessage`, `verifyDigest`) and the generated `trusted-keys.ts`, which holds the demo public key.
 
 ### `src/zk`
 
 - Poseidon leaf hash and Merkle root (parity with the circuit), witness building, bundle creation and parsing, the verifier steps, and the Web Worker that runs `noir_js` and `bb.js`.
-- Ed25519 signature verification lives here (verification only).
+- Ed25519 digest verification lives in `src/ledger` (ledger-format spec), not here. The Root_Function `batch-root.ts` lives here.
 - The public API is promise-based and reports progress through callbacks. The UI never touches `bb.js` directly.
-- The known source public key and the expected circuit version and verification key hash are constants here, loaded from `public/samples/` or generated artifacts, never typed in by hand.
+- The expected circuit version and verification key hash are constants here, loaded from `public/samples/` or generated artifacts, never typed in by hand. The known source public key is in the generated `src/ledger/trusted-keys.ts`.
 
 ### `src/ui`
 
@@ -63,13 +64,13 @@ Do not add top-level directories without asking. The one root-level code entry p
 ### `scripts`
 
 - Build-time tools run with Node: the seeded batch generator, the Ed25519 signer, the sample writer, and artifact copy steps.
-- The simulated core ledger lives in a subfolder, for example `scripts/ledger-sim/`. It holds the demo private key, labelled `DEMO ONLY`, with a README note that it is public by design.
+- The simulated core ledger keeps the demo private key in `scripts/demo-key/`, labelled `DEMO ONLY`, with a README note that it is public by design.
 - Scripts import from `src/ledger` and `src/zk` when they need shared types or hashing. The reverse is forbidden.
 - The generator is deterministic from a seed and is also imported by tests.
 
 ### `public/samples`
 
-- Generated, signed artifacts: the batch files, their signed digests, and the demo public key. Produced by `scripts/`. Do not hand-edit. Regenerate them instead.
+- Generated, signed artifacts: the batch files, and their signed digests. The demo public key is not here: it is in the generated `src/ledger/trusted-keys.ts`. Produced by `scripts/`. Do not hand-edit. Regenerate them instead.
 - Sample set: clean, unflagged over-limit, unbalanced, large.
 
 ### `tests`

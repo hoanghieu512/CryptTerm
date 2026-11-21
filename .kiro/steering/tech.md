@@ -77,6 +77,7 @@ All code in the repo is written by Kiro. Do not paste code from other assistants
 - Fixed-width text records in a COBOL-batch style, one posting per line, plus a header record and a trailer record (batch id, count).
 - Posting fields: record id, account (masked in the UI, still private), side `D` or `C`, amount in integer cents, review flag `Y` or `N`, and a random per-record salt (private, written by the core ledger).
 - The salt goes into each leaf hash. It stops the public root from being used to test guesses about low-entropy fields such as amounts and flags. It is part of the format from the first spike.
+- Sample salts are seeded, so the committed samples are byte-identical on every run. Real batches use random salts.
 - The exact column layout is documented in the ledger-format spec. `parse(serialize(x))` must equal `x` exactly, and `serialize(parse(text))` must equal `text` for valid text.
 
 ## Proof bundle

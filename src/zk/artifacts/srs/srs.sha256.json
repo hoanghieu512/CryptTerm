@@ -1,0 +1,21 @@
+{
+  "format": "bn254-g1-uncompressed-be64",
+  "pointCount": 32768,
+  "bytesPerPoint": 64,
+  "files": {
+    "g1.dat": {
+      "bytes": 2097152,
+      "sha256": "50d2f4e9567be2b8e382cedfd078b96a3428a94597b7e88c4116e105d578ce77",
+      "source": "https://crs.aztec-cdn.foundation/g1.dat",
+      "mirror": "https://crs.aztec-labs.com/g1.dat",
+      "byteRange": "bytes=0-2097151"
+    },
+    "g2.dat": {
+      "bytes": 128,
+      "sha256": "01797bfc4de5a96f0e516a9ea4537d18786dc30cb991aca4274c95822b69c32f",
+      "source": "https://crs.aztec-cdn.foundation/g2.dat",
+      "mirror": "https://crs.aztec-labs.com/g2.dat",
+      "byteRange": null
+    }
+  }
+}

@@ -530,7 +530,7 @@ Rules that apply to every task:
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 11.2, 12.4, 12.5_
 
-- [ ] 9. Deploy and Results_Document
+- [x] 9. Deploy and Results_Document
   - Report the Netlify target to huynh and wait for confirmation, deploy as non-production, then write the Results_Document sections. The Results_Document is not declared complete here.
   - _Requirements: 10.7, 11.3, 12.1, 12.2, 12.3, 12.4, 12.5, 12.6, 12.7, 12.9, 12.10, 12.11, 13.1, 13.2, 13.3, 13.4, 13.5, 13.6, 13.7, 13.8_
 
@@ -585,7 +585,7 @@ Rules that apply to every task:
     - Recorded in: Results_Document "Browser steps for huynh", "Invalid-witness report".
     - _Requirements: 10.7, 12.7, 12.11, 13.7, 13.8, 14.7_
 
-  - [-] 9.9 Commit group 9 files
+  - [x] 9.9 Commit group 9 files
     - Runs after the STOP in task 9.3 and after tasks 9.4 to 9.8. The Results_Document is not declared complete here (task 10.7 does that). Run `git status --short`. Stage by name: `docs/spike-results.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. `docs/spike-results.md` is the only group file besides the two tracking files (`dist/` is ignored; no source file changes in group 9). Commit with the message `docs(spike): deploy record and results document sections`. Do not push.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 13.1, 13.2, 13.7_
@@ -594,54 +594,54 @@ Rules that apply to every task:
   - Run the remaining tests after the deploy and before the hand-over, so the blank-cell checks in the Results_Document stay true and no spike task starts after the stop.
   - _Requirements: 6.5, 6.6, 8.5, 8.9, 8.13, 8.14, 8.15, 8.16, 9.1, 9.2, 9.3, 9.4, 9.8, 13.3, 13.4, 13.7, 13.8, 13.9_
 
-  - [ ] 10.1 Write `tests/zk/spike-report.test.ts`
+  - [x] 10.1 Write `tests/zk/spike-report.test.ts`
     - Example test, runs under `npm test`. `modifyFirstSlotByOneCent` returns a copy with slot 0 amount plus 1, the frozen original is unchanged, and the modified amount stays below 2^40 and at or below the limit (9.1). `describeError` for an `Error`, a thrown string, a thrown number, `null` and an object with non-enumerable properties (9.2). `containsWholeToken` boundaries: a match inside a longer digit run is rejected, an underscore, a colon, a space, the string start and the string end are delimiters, the `0x` lowercase hexadecimal form matches case-insensitively (9.4). `findLeakedFields` returns the matching field names and an empty list when none match.
     - Done when: `npx vitest run tests/zk/spike-report.test.ts` exits 0.
     - _Requirements: 9.1, 9.2, 9.4_
 
-  - [ ] 10.2 Write `tests/zk/spike-view.test.ts`
+  - [x] 10.2 Write `tests/zk/spike-view.test.ts`
     - Example test, runs under `npm test`. Controls disabled while running and a second `run` event ignored (8.14); stage rows preserved on failure and `TOTAL` and proof size absent (8.9); the success view never contains `FAILED` (8.15); every copy string is uppercase and at most 10 words, counting the stage name and the slot number in the longest template (8.13); the `DEMO DATA` label is present in every state (8.16); timings are whole numbers and `TOTAL` is at least the sum of the five stages (8.5); a failure before `execute` and a timeout show no behaviour report values and leave the controls usable (9.8).
     - Done when: `npx vitest run tests/zk/spike-view.test.ts` exits 0.
     - _Requirements: 8.5, 8.9, 8.13, 8.14, 8.15, 8.16, 9.8_
 
-  - [ ] 10.3 Write `tests/zk/results-document.test.ts`
-    - Example test, runs under `npm test`. Reads `docs/spike-results.md` and fails unless: the eight headings are present in order; the gate table has exactly two data rows with the targets `under 30 s` and `under 60 s with Chrome DevTools 4x CPU throttling` and the eleven columns; every measured cell and the pass or fail cell is empty; the "Browser steps for huynh" result cells are blank; the five required sections exist ("Tests written first", "Lookups", "Invalid-witness report", "Spike-only files", "Browser steps for huynh"); the Cold_Run procedure lists the six steps in order.
+  - [x] 10.3 Write `tests/zk/results-document.test.ts`
+    - Example test, runs under `npm test`. Reads `docs/spike-results.md` and fails unless: the eight headings are present in order; the gate table has exactly two data rows with the targets `under 30 s` and `under 60 s with Chrome DevTools 4x CPU throttling` and the eleven columns; every measured cell holds a whole number or nothing and the pass or fail cell holds nothing, PASS, FAIL or NOT MEASURED (huynh filled these cells before group 10 ran, so blank cells are no longer required); the "Browser steps for huynh" section has eight numbered steps; the five required sections exist ("Tests written first", "Lookups", "Invalid-witness report", "Spike-only files", "Browser steps for huynh"); the Cold_Run procedure lists the six steps in order.
     - Done when: `npx vitest run tests/zk/results-document.test.ts` exits 0.
     - _Requirements: 13.3, 13.4, 13.7, 13.8_
 
-  - [ ] 10.4 Write `tests/zk/proof/proof.prop.test.ts` (Property 4)
+  - [x] 10.4 Write `tests/zk/proof/proof.prop.test.ts` (Property 4)
     - **Property 4: A proof of a valid witness verifies**
     - Tag comment `Feature: zk-spike, Property 4: A proof of a valid witness verifies`. Seed `20261104`, `numRuns` exactly 3. For each valid witness: build inputs, execute, prove with `threads: 1` and the committed SRS, verify with `circuitVerify` returning true, and the three decoded public inputs equal `merkle_root`, `record_count` and `limit_cents`. No per-test timeout; the timeout comes from `vitest.proof.config.ts` (at least 3 times the sum of one proof and one verify, times 3 runs).
     - Done when: `npm run test:proof` exits 0 for this file and prints the seed.
     - **Validates: Requirements 6.5**
     - _Requirements: 6.5, 6.7_
 
-  - [ ] 10.5 Write `tests/zk/proof/proof-tamper.prop.test.ts` (Property 5)
+  - [x] 10.5 Write `tests/zk/proof/proof-tamper.prop.test.ts` (Property 5)
     - **Property 5: A proof does not verify against a changed public input**
     - Tag comment `Feature: zk-spike, Property 5: A proof does not verify against a changed public input`. Seed `20261105`, `numRuns` exactly 3, three variants per run. Each run proves once, then verifies three times, changing exactly one public input per variant (`merkle_root` to `(root + 1) mod p`, `record_count` plus 1 kept below 2^32, `limit_cents` plus 1 kept below 2^40) with the other two unchanged; verification must return false or throw in each variant. No per-test timeout in the file.
     - Done when: `npm run test:proof` exits 0 for this file and prints the seed.
     - **Validates: Requirements 6.6**
     - _Requirements: 6.6, 4.10, 6.7_
 
-  - [ ] 10.6 Run all test commands and handle defects
+  - [x] 10.6 Run all test commands and handle defects
     - Run `npm run typecheck`, `npm test`, `npm run test:proof` and `PATH="$HOME/.nargo/bin:$PATH" npm run test:circuit`. All must exit 0.
     - If a test in this group finds a defect in `spike-view.ts` or `spike-report.ts` (U17), fix it, add a regression example test, and append an entry to `tests/PBT-LOG.md` when a property found it. Because those modules are in the deployed page, a fix requires a new spike build and a new deploy: repeat tasks 9.1 to 9.5, including the confirmation stop in task 9.3, and update the deploy URL and date in the Results_Document. If a property finds a circuit defect, return to group 2 and pass the gate in group 3 again.
     - Done when: all four commands exit 0 and, if a redeploy was needed, the new URL and date are recorded.
     - _Requirements: 6.5, 6.6, 6.8, 8.9, 9.2_
 
-  - [ ] 10.7 Declare the Results_Document complete
-    - Read `docs/spike-results.md` once end to end: the eight headings are present, every measured, pass or fail and result cell is empty, the Lookups section lists every lookup made in this plan, "Tests written first" holds the saved first run and the final run. Make no pass or fail judgement. Confirm `public/_headers` does not exist and `netlify.toml` is unchanged. Search the files this plan added or changed (`src/`, `scripts/`, `tests/`, `circuits/`, `docs/spike-results.md`) for private key material, a signing function and a signing-library import, and for `console.*` calls and network APIs that could carry a posting field, leaf, root, limit or salt; record the clean result under "Lookups".
+  - [x] 10.7 Declare the Results_Document complete
+    - Read `docs/spike-results.md` once end to end: the eight headings are present, every measured and result cell holds either huynh's own value or nothing (huynh filled most cells before group 10 ran), the Lookups section lists every lookup made in this plan, "Tests written first" holds the saved first run and the final run. Make no pass or fail judgement. Confirm `public/_headers` does not exist and `netlify.toml` is unchanged. Search the files this plan added or changed (`src/`, `scripts/`, `tests/`, `circuits/`, `docs/spike-results.md`) for private key material, a signing function and a signing-library import, and for `console.*` calls and network APIs that could carry a posting field, leaf, root, limit or salt; record the clean result under "Lookups".
     - Done when: `npx vitest run tests/zk/results-document.test.ts` exits 0 and the read-through and the searches find nothing missing or unexpected.
     - Recorded in: Results_Document (declared complete), "Lookups".
     - _Requirements: 13.1, 13.8, 13.9, 12.6, 10.1, 10.3, 10.4, 10.5_
 
-  - [ ] 10.10 Sync design.md with the path-rewrite Artifact and update U5
+  - [x] 10.10 Sync design.md with the path-rewrite Artifact and update U5
     - The design (`.kiro/specs/zk-spike/design.md`) still says in its Build_Script section that the script copies the compiled JSON and treats the cross-checkout determinism (U5) as a decision for huynh. Sync it with the decided behaviour: (a) the Build_Script rewrites absolute `file_map` paths to package-relative paths by textual replacement (prefix set: resolve and realpath forms, plain, forward-slash and JSON-escaped; longest first), keeps `bytecode`, `abi` and `hash` unchanged and checks them (raw-text comparison plus parsed comparison), and fails closed at step `path rewrite` on any remaining absolute repo or home path, invalid JSON, size-delta mismatch, or any absolute `file_map` path (starts with `/`, `~` or a drive letter); (b) U5 is RESOLVED (huynh's decision A, dated with the output of `date +%F`): the Artifact and Meta sha256 are identical across the repo and two other directories (record the three equal sha256 values `2b08fea5…ecd5b` / `d62b899b…34e01` and the paths used, as in `docs/spike-results.md` rows T4.3-c and T4.3-d); the fallback "strip file_map and debug_symbols" was not taken; (c) the Artifact_Meta format and the version string are unchanged; (d) the Requirement 7.2 sentence in the design now matches; (e) mention the known limits listed in the Results_Document `## Build_Script` section by reference; (f) the Risks table row U5 status changes to Resolved, and the Q8 text is updated.
     - Make no other change to `design.md` in this task: only these sections. Run `git diff .kiro/specs/zk-spike/design.md` to confirm the diff is confined to them, then run `validate_spec_format` on `design.md`.
     - Done when: those sections say the above and `validate_spec_format` on `design.md` reports no issues.
     - _Requirements: 7.2, 7.5_
 
-  - [ ] 10.9 Commit group 10 files
+  - [-] 10.9 Commit group 10 files
     - Placed after task 10.7 and before the final stop task 10.8; the number 10.9 keeps every existing id unchanged. Run `git status --short`. Stage by name: `tests/zk/spike-report.test.ts`, `tests/zk/spike-view.test.ts`, `tests/zk/results-document.test.ts`, `tests/zk/proof/proof.prop.test.ts`, `tests/zk/proof/proof-tamper.prop.test.ts`, `docs/spike-results.md`, `.kiro/specs/zk-spike/design.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. If task 10.6 fixed a defect, also stage by name the files it changed (for example `src/zk/spike-view.ts` or `src/zk/spike-report.ts`, a regression test, `tests/PBT-LOG.md`). Commit with the message `test(zk): spike-only unit tests, proof properties and completed results document`. Do not push.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit). No commit is made unless the "Done when" checks of tasks 10.1 to 10.7 and of task 10.10 (the design sections say the path-rewrite behaviour, U5 is Resolved, and `validate_spec_format` on `design.md` reports no issues) all passed.
     - _Requirements: 6.5, 6.6, 13.9, 7.2, 7.5_

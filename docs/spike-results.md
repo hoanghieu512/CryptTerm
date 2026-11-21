@@ -6,6 +6,8 @@ Deploy URL: https://6b01a56625ec503f8621cc2b--cryptterm.netlify.app (draft, non-
 
 Deploy date: 2026-11-21
 
+Document status: complete as a document (task 10.7, 2026-11-21): all sections and lookups are written. The measured cells are huynh's numbers, transcribed. Still open for huynh: browser steps 1, 2, 7 and 8, and the five `PROOF` lines of the browser Invalid-witness result. The agent made no pass or fail judgement: PASS, NOT MEASURED and the gate decision are huynh's.
+
 ### Version table
 
 | Component | Version | Source |
@@ -190,8 +192,20 @@ cryptterm@0.0.0 /Users/lavopavden/Dev/projects/CryptTerm
 
 | Target | Cold_Run total (ms) | WASM INIT (ms) | WITNESS PREP (ms) | EXECUTE (ms) | PROVE (ms) | VERIFY (ms) | Proof size (bytes) | Chrome version | Machine | Pass or fail |
 |--------|---------------------|----------------|-------------------|--------------|------------|-------------|--------------------|----------------|---------|--------------|
-| Normal_Gate: under 30 s | | | | | | | | | | |
-| Throttled_Gate: under 60 s with Chrome DevTools 4x CPU throttling | | | | | | | | | | |
+| Normal_Gate: under 30 s | 16427 | 11687 | 21 | 198 | 3781 | 24 | 14656 | Chrome 158.0.8127.36 (x86_64), Guest profile | MacBook Pro Intel i9-9980HK 2.4 GHz, home connection in Vietnam | PASS |
+| Throttled_Gate: under 60 s with Chrome DevTools 4x CPU throttling | 16158 | 11761 | 19 | 186 | 3684 | 24 | 14656 | Chrome 158.0.8127.36 (x86_64), Guest profile | MacBook Pro Intel i9-9980HK 2.4 GHz, home connection in Vietnam | NOT MEASURED: DevTools CPU throttling does not apply to the dedicated worker (PROVE unchanged at 4x) |
+
+### Measurement notes (huynh, 2026-11-21, transcribed)
+
+Chrome 158.0.8127.36 (x86_64), Guest profile (no extensions), MacBook Pro Intel i9-9980HK 2.4 GHz, home connection in Vietnam. The Normal_Gate row is the official Guest run. `crossOriginIsolated` was FALSE on the page and in the worker in all runs.
+
+- WASM INIT parts, Guest run (ms): artifact 634, ACVM and ABI 2793, BB 5059, SRS fetch 3151, SRS init 45.
+- Reference run, normal profile with extensions (not in the table): total 17094, WASM INIT 12322, PROVE 3790.
+- Throttled_Gate row: the numbers are the observed run. The pass or fail cell reads NOT MEASURED because DevTools CPU throttling does not apply to the dedicated worker (PROVE was unchanged at 4x).
+- Estimated 4x total: about 31 s (CPU-bound parts about 4.6 s x 4 plus about 12 s network). A real slow-device measurement is planned for the polish phase.
+- Gate decision by huynh: keep Noir, no switch to Option_B. The network download (about 11 to 12 s of the total) is the main cost, not proving.
+- Network review, Guest run: 12 requests, 11.3 MB transferred. App requests: the document, spike JS, worker, `ledger_audit` JSON, `acvm_js` and `noirc_abi` WASM, barretenberg JS, `g1.dat`, `g2.dat`; all same-origin GETs with no body. `data:application/gzip` is an in-memory data URL, not a network request. `favicon.ico` and `hud?variant=owner-private` (the Netlify draft toolbar, injected only on draft deploys) are not app requests. No request went to `crs.aztec-cdn.foundation` or `crs.aztec-labs.com`.
+- Transcriber arithmetic, not a huynh figure: the five stage values add to 15711 ms (Normal) and 15674 ms (Throttled), against totals of 16427 and 16158, so about 716 ms and 484 ms of each total lie outside the five stages. The five WASM INIT parts add to 11682 ms against 11687.
 
 ## Cold_Run procedure
 
@@ -626,6 +640,7 @@ Two further limits found in tasks 4.1 and 4.4 are CLOSED by the generic absolute
 | T8.1-a | Vite 8 spike mode options (task 8.1, L12). Read in `node_modules/vite/dist/node/index.d.ts`: `build.rolldownOptions?: RolldownOptions` (rollupOptions is deprecated), `publicDir?: string \| false` (false disables copying), `worker.format?: "es" \| "iife"` (default iife). Read in `rolldown/dist/shared/define-config-*.d.mts`: `Plugin.generateBundle(outputOptions, bundle, isWrite)` and `emitFile({ type: "asset", fileName?, source })`, input is `InputOption` | `vite@8.3.8` and `rolldown` typings in `node_modules` | Vite 8.3.8, 2026-11-21 |
 | T8.5-a | Spike dist sizes (task 8.5), built with `nargo` absent from `PATH` (`PATH=/usr/local/bin:/usr/bin:/bin`, `command -v nargo` empty). `npm run build:spike` exit 0, `npm run check:spike-dist` exit 0, 13 files, 17,145,986 bytes, no `index.html`, no `_headers`, `_redirects` is `/  /spike.html  200` plus a newline. Largest files: `barretenberg-threads-*.js` 5,428,857; `barretenberg-*.js` 5,423,245; `acvm_js_bg-*.wasm` 3,050,251; `g1-*.dat` 2,097,152; `noirc_abi_wasm_bg-*.wasm` 789,608; `spike-worker-*.js` 209,424; `ledger_audit-*.json` 116,843; `spike-*.js` 11,654. No `node:` import appears in any `dist/assets/*.js` file (U8 not triggered). The `?no-inline` files and the emitted `_redirects` came out as real files (U9 not triggered). `netlify.toml` is unchanged (`git diff --stat netlify.toml` printed nothing) and has no cross-origin header. Correction to an earlier note: the ceremony host strings (`crs.aztec-cdn.foundation`, `crs.aztec-labs.com`) are in `spike-worker-*.js` as manifest data copied from `src/zk/artifacts/srs/srs.sha256.json`, and not in the `bb.js` chunks. `fetchBytes` in `src/zk/srs.ts` refuses any URL whose origin differs from `location.origin`. | `npm run build:spike`, `npm run check:spike-dist`, `grep` on `dist/` | Vite 8.3.8, Node 24.14.1, 2026-11-21 |
 | T9.2-a | Netlify CLI flow (task 9.2, L14). Power `netlify-deployment` overview read in this session: prefer the CLI, `netlify status` shows link and user state, an existing linked site gets a non-production `netlify deploy`, `--prod` only on request. The spike overrides one overview line (new site gets a production deploy): this deploy is non-production with `--dir dist`, no `--prod`, no `--build`. `netlify-cli@26.0.0` (pinned npx) printed `Not logged in` because it cannot read the token that this machine stores in the operating system keychain. `netlify-cli@27.20.1` (npm `latest`, via `npx --yes`) read it: user Hiếu Hoàng, team Hiếu Hoàng’s team, project `cryptterm`, https://cryptterm.netlify.app, project id `e665ced1-4a15-4477-ae1a-004e0f03e91d`. | Netlify power overview; `npx --yes netlify-cli@27.20.1 status` | netlify-cli 27.20.1, 2026-11-21 |
+| T10.7-a | Final searches (task 10.7, 2026-11-21) over `src/`, `scripts/`, `tests/`, `circuits/` and `docs/spike-results.md`. Private key material and signing: the only hits are the forbidden-word list in `tests/zk/spike-witness.test.ts` (`PRIVATE KEY`, `ed25519`, `sign(` and similar, used to scan the witness source). No key, no signing function and no signing-library import exists. `console.`: the only hit in `src/` is a comment in `src/zk/spike-report.ts`. Network APIs in `src/`: two `fetch(url, { method: 'GET' })` calls, in `src/zk/srs.ts` and `src/zk/artifact.ts`, which refuse any URL whose origin differs from `location.origin`; no XHR, WebSocket, `sendBeacon`, `EventSource`, image ping or `importScripts`. `public/` holds `_redirects` and `samples/` only (no `_headers`), and `git diff --stat netlify.toml` prints nothing. Lookup ids L1 to L14, L16 and E-1 to E-7 each have one row above. | `grep -rn` over the paths named, `ls public`, `git diff --stat netlify.toml` | Node 24.14.1, 2026-11-21 |
 
 ## Invalid-witness report
 
@@ -633,12 +648,12 @@ Two further limits found in tasks 4.1 and 4.4 are CLOSED by the generic absolute
 
 Filled in by huynh from the `INVALID WITNESS` run in Chrome on the Spike_Deploy. The Node result is a separate subsection below and is not this result.
 
-- `EXECUTE THREW`: ______
-- `RETURNED WITNESS`: ______
-- `ERROR CONSTRUCTOR`: ______
-- `ERROR PROPERTIES`: ______
-- `ERROR MESSAGE`: ______
-- `PRIVATE VALUE IN ERROR`: ______
+- `EXECUTE THREW`: YES
+- `RETURNED WITNESS`: NO
+- `ERROR CONSTRUCTOR`: `Error`
+- `ERROR PROPERTIES`: `stack`, `message`, `callStack`, `rawAssertionPayload`, `acirFunctionId`, `brilligFunctionId`, `noirCallStack`
+- `ERROR MESSAGE`: `Circuit execution failed: DEBITS NOT EQUAL TO CREDITS`
+- `PRIVATE VALUE IN ERROR`: NO
 - `PROOF ATTEMPT THREW`: ______
 - `PROOF ERROR CONSTRUCTOR`: ______
 - `PROOF ERROR PROPERTIES`: ______
@@ -672,7 +687,7 @@ Findings:
 - The three violations have the same constructor and the same own property names, and differ only in the assertion text, the opcode location, the selector and the source text. The shape is consistent.
 - Private values: the message and all own properties (`stack` included) were scanned for the decimal, `0x` hex and 64-digit `0x` hex spellings of `record_id`, `account`, `amount` and `salt` of every real posting, as whole tokens (non-alphanumeric delimiters). No field name was found in any case. The scan is by the pure function `leakedFieldNames` in the test file, which has its own boundary examples. `noirCallStack` carries circuit source text, which is not witness data.
 - Failure at the ABI encoder is a different path (E-3): its messages can echo input values, and the test asserts only that it throws.
-- Still pending: the same observation in the browser (Chrome, deployed page, the Spike_Worker). Requirement 9.5 completes after that report; until then the "Unverified" bullet in `.kiro/steering/noir.md` stays.
+- Browser observation: huynh ran it in Chrome on the Spike_Deploy on 2026-11-21 and the result matches (see "Browser result" above). Requirement 9.5 is met, and the "Unverified" bullet in `.kiro/steering/noir.md` was replaced with the observed behaviour.
 
 ## Spike-only files
 
@@ -717,10 +732,10 @@ Spike_Deploy URL: https://6b01a56625ec503f8621cc2b--cryptterm.netlify.app (use t
 
 1. Open Chrome and open the Spike_Deploy URL. Wait up to 10 s for the `RUN` control. Result: ______
 2. Open DevTools, Network tab, tick "Disable cache", clear the log, reload, press `RUN` once. Do not press it again. Result: ______
-3. After the run, record from the Network tab: number of requests ______; every request same-origin (yes or no) ______; any request with a body (yes or no) ______; any request to `crs.aztec-cdn.foundation` or `crs.aztec-labs.com`, must be none ______; any request to another origin (none or list) ______
-4. Confirm that `CROSS ORIGIN ISOLATED (PAGE)` and `CROSS ORIGIN ISOLATED (WORKER)` both read `FALSE`. Page ______; worker ______
-5. Copy the stage timings (`WASM INIT`, `WITNESS PREP`, `EXECUTE`, `PROVE`, `VERIFY`), `TOTAL` and `PROOF SIZE (BYTES)` into the Normal_Gate row of the gate table, with the Chrome version and the machine. Then repeat steps 2 and 3 from a fresh load with DevTools CPU throttling set to "4x slowdown" and copy the numbers into the Throttled_Gate row. Normal_Gate done ______; Throttled_Gate done ______
-6. Press `INVALID WITNESS` once and wait up to 120 s. Copy the displayed values into "Invalid-witness report" below. Done ______
+3. After the run, record from the Network tab: number of requests 12 (11.3 MB transferred); every request same-origin (yes or no) yes, for the app requests (listed in Measurement notes); any request with a body (yes or no) no; any request to `crs.aztec-cdn.foundation` or `crs.aztec-labs.com`, must be none: none; any request to another origin (none or list) none among the app requests (`favicon.ico` and `hud?variant=owner-private` are not app requests, see Measurement notes)
+4. Confirm that `CROSS ORIGIN ISOLATED (PAGE)` and `CROSS ORIGIN ISOLATED (WORKER)` both read `FALSE`. Page FALSE; worker FALSE
+5. Copy the stage timings (`WASM INIT`, `WITNESS PREP`, `EXECUTE`, `PROVE`, `VERIFY`), `TOTAL` and `PROOF SIZE (BYTES)` into the Normal_Gate row of the gate table, with the Chrome version and the machine. Then repeat steps 2 and 3 from a fresh load with DevTools CPU throttling set to "4x slowdown" and copy the numbers into the Throttled_Gate row. Normal_Gate done: yes; Throttled_Gate done: observed, pass or fail NOT MEASURED (see Measurement notes)
+6. Press `INVALID WITNESS` once and wait up to 120 s. Copy the displayed values into "Invalid-witness report" below. Done: yes
 7. If there is no `RUN` control within 10 s, a `FAILED` result, or no result within 120 s: copy the stage name, the text and the URL, and tell the Spike_Team. Result ______
 8. In the repository root run `node scripts/verify-srs.ts` and paste its output here (developer command, needs network). Output ______
 

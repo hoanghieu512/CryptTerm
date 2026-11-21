@@ -147,18 +147,64 @@ function validateNoAbsolutePaths(text: string, homeDirectory: string): string[] 
   return problems;
 }
 
-/** Every `file_map` path of the parsed Artifact must be relative. */
+type PathForm = 'absolute' | 'tilde' | 'drive';
+
+/**
+ * The same rule as the generic check in `scripts/build-circuit` (task 6.0): a path is not
+ * relative when it starts with `/` or `\` (POSIX root, Windows root, UNC), with `~`, or
+ * with a drive letter followed by `:` and a separator. Applies to the parsed string, so the
+ * JSON-escaped text form `C:\\x` has already become `C:\x` here.
+ */
+function absolutePathForm(path: string): PathForm | null {
+  if (path.startsWith('~')) {
+    return 'tilde';
+  }
+  if (/^[A-Za-z]:[\\/]/.test(path)) {
+    return 'drive';
+  }
+  if (path.startsWith('/') || path.startsWith('\\')) {
+    return 'absolute';
+  }
+  return null;
+}
+
+/** Every value stored under a key named `path`, at any depth, with its location. */
+function collectPathValues(value: unknown, location: string, found: Array<[string, string]>): void {
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => collectPathValues(item, `${location}[${index}]`, found));
+  } else if (isRecord(value)) {
+    for (const [key, item] of Object.entries(value)) {
+      const here = `${location}.${key}`;
+      if (key === 'path' && typeof item === 'string') {
+        found.push([here, item]);
+      }
+      collectPathValues(item, here, found);
+    }
+  }
+}
+
+/**
+ * Every `file_map` path of the parsed Artifact must be relative: no leading `/`, `\` or `~`
+ * and no drive letter. The `path` of each entry must be a string, and any nested `path`
+ * key inside an entry is checked the same way.
+ */
 function validateFileMapPaths(artifact: unknown): string[] {
   if (!isRecord(artifact) || !isRecord(artifact['file_map'])) {
     return ['Artifact has no file_map object'];
   }
   const problems: string[] = [];
   for (const [key, entry] of Object.entries(artifact['file_map'])) {
-    const path = isRecord(entry) ? entry['path'] : undefined;
-    if (typeof path !== 'string') {
+    if (!isRecord(entry) || typeof entry['path'] !== 'string') {
       problems.push(`file_map entry ${key} has no string path`);
-    } else if (path.startsWith('/') || path.startsWith('\\') || /^[A-Za-z]:/.test(path)) {
-      problems.push(`file_map entry ${key} has a non-relative path`);
+      continue;
+    }
+    const found: Array<[string, string]> = [];
+    collectPathValues(entry, `file_map[${key}]`, found);
+    for (const [location, path] of found) {
+      const form = absolutePathForm(path);
+      if (form !== null) {
+        problems.push(`${location} has a non-relative path (${form})`);
+      }
     }
   }
   return problems;
@@ -321,11 +367,77 @@ describe('committed Artifact shape', () => {
   });
 
   it.each([
-    ['an absolute path', '/Users/x/y/main.nr'],
-    ['a backslash root', '\\work\\main.nr'],
-    ['a drive path', 'C:\\work\\main.nr'],
-    ['a drive path with a slash', 'D:/a/b.nr'],
-  ])('rejects a file_map with %s', (_name, path) => {
-    expect(validateFileMapPaths({ file_map: { '1': { path, source: '' } } })).not.toEqual([]);
+    ['an absolute path', '/Users/x/y/main.nr', 'absolute'],
+    ['an absolute path outside any home', '/opt/ci/work/src/main.nr', 'absolute'],
+    ['a root-only path', '/', 'absolute'],
+    ['a backslash root', '\\work\\main.nr', 'absolute'],
+    ['a UNC path', '\\\\server\\share\\a.nr', 'absolute'],
+    ['a tilde path', '~/x.nr', 'tilde'],
+    ['a bare tilde', '~', 'tilde'],
+    ['a drive path', 'C:\\work\\main.nr', 'drive'],
+    ['a lowercase drive path', 'c:\\work\\main.nr', 'drive'],
+    ['a drive path with a slash', 'D:/a/b.nr', 'drive'],
+  ])('rejects a file_map with %s', (_name, path, form) => {
+    const problems = validateFileMapPaths({ file_map: { '1': { path, source: '' } } });
+    expect(problems).toEqual([`file_map[1].path has a non-relative path (${form})`]);
+  });
+
+  it.each([
+    ['a plain relative path', 'src/main.nr'],
+    ['a standard library path', 'std/hash/mod.nr'],
+    ['a dot-relative path', './src/main.nr'],
+    ['a tilde inside the path', 'src/~tmp/a.nr'],
+    ['a colon inside the path', 'src/a:b.nr'],
+  ])('accepts a file_map with %s', (_name, path) => {
+    expect(validateFileMapPaths({ file_map: { '1': { path, source: '' } } })).toEqual([]);
+  });
+
+  it('rejects an entry without a string path, and a nested absolute path key', () => {
+    expect(validateFileMapPaths({ file_map: { '1': { source: '' } } })).not.toEqual([]);
+    expect(validateFileMapPaths({ file_map: { '1': { path: 5 } } })).not.toEqual([]);
+    expect(validateFileMapPaths({ file_map: { '1': 'src/main.nr' } })).not.toEqual([]);
+    expect(
+      validateFileMapPaths({ file_map: { '1': { path: 'src/a.nr', inner: { path: '/etc/p.nr' } } } }),
+    ).not.toEqual([]);
+  });
+
+  describe('mutated Artifact text, one file_map path replaced (task 6.0)', () => {
+    const needle = '"path":"src/main.nr"';
+
+    // `escapedPathText` is the text between the quotes in the JSON file, so a Windows path
+    // appears with doubled backslashes, as nargo writes it.
+    const mutate = (escapedPathText: string): unknown => {
+      expect(artifactText.split(needle).length - 1).toBe(1);
+      return JSON.parse(artifactText.replace(needle, `"path":"${escapedPathText}"`));
+    };
+
+    it('accepts the committed text with the same path unchanged', () => {
+      expect(validateFileMapPaths(mutate('src/main.nr'))).toEqual([]);
+    });
+
+    it.each([
+      ['a tilde path', '~/x.nr', 'tilde'],
+      ['an absolute path under /Users', '/Users/someone/else/file.nr', 'absolute'],
+      ['an absolute path under /opt', '/opt/ci/work/src/main.nr', 'absolute'],
+      ['an absolute path under /var/folders', '/var/folders/x/src/main.nr', 'absolute'],
+      ['a JSON-escaped backslash drive path', 'C:\\\\x\\\\y.nr', 'drive'],
+      ['a forward-slash drive path', 'D:/a/b.nr', 'drive'],
+    ])('rejects %s', (_name, escapedPathText, form) => {
+      expect(validateFileMapPaths(mutate(escapedPathText))).toEqual([
+        `file_map[54].path has a non-relative path (${form})`,
+      ]);
+    });
+
+    // The substring checks of requirement 7.2 know `/Users/`, `/home/`, a drive path and
+    // this machine's home directory. These two paths hold none of them, so only the
+    // file_map check rejects them. The file_map check is what closes the gap.
+    it.each([
+      ['/opt/ci/work/src/main.nr'],
+      ['/var/folders/x/src/main.nr'],
+    ])('rejects %s although the substring checks accept it', (escapedPathText) => {
+      const mutatedText = artifactText.replace(needle, `"path":"${escapedPathText}"`);
+      expect(validateNoAbsolutePaths(mutatedText, home)).toEqual([]);
+      expect(validateFileMapPaths(JSON.parse(mutatedText))).not.toEqual([]);
+    });
   });
 });

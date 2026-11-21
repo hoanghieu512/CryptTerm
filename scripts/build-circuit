@@ -4,6 +4,8 @@
 // only), and writes the result to src/zk/artifacts/ledger_audit.json, plus
 // ledger_audit.meta.json (nargo version line and sha256 of the REWRITTEN artifact).
 // `nargo` is found through PATH.
+// After the rewrite, no `file_map` path may be absolute, tilde or drive form (step
+// `path rewrite`).
 // Nothing is written to src/zk/artifacts/ before every check has passed.
 // Errors go to stderr as `build-circuit: step <name> failed: <reason>`, exit status 1.
 
@@ -18,7 +20,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { homedir } from 'node:os';
-import { dirname, join, resolve, sep } from 'node:path';
+import { dirname, join, resolve, sep, win32 } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -212,6 +214,62 @@ function canonical(value) {
   return JSON.stringify(value);
 }
 
+// ---- Generic absolute-path check ----------------------------------------------------
+//
+// The textual replacement only removes the prefix of the package directory. This check
+// is independent of it: after the rewrite, NO `file_map` path may be absolute, whatever
+// its origin (outside the repo and the home directory, a symlink form the rewrite did not
+// know, a Windows path). It reads the PARSED rewritten text and never produces output.
+
+// Returns 'tilde', 'drive', 'absolute' or null (relative) for one path string.
+// `~` is not special to the file system, but a shell would expand it, so it is rejected.
+// `win32.isAbsolute` is a superset of the POSIX rule (`/...`) and also accepts `\...`
+// and UNC (`\\server`, `//server`); using it makes the result the same on every platform.
+function absolutePathForm(path) {
+  if (path.startsWith('~')) return 'tilde';
+  if (/^[A-Za-z]:[\\/]/.test(path)) return 'drive';
+  if (path.startsWith('/') || path.startsWith('\\') || win32.isAbsolute(path)) return 'absolute';
+  return null;
+}
+
+// Collects every string value stored under a key named `path`, at any depth below `value`.
+function collectPathValues(value, location, found) {
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => collectPathValues(item, `${location}[${index}]`, found));
+  } else if (value !== null && typeof value === 'object') {
+    for (const [key, item] of Object.entries(value)) {
+      const here = `${location}.${key}`;
+      if (key === 'path' && typeof item === 'string') found.push([here, item]);
+      collectPathValues(item, here, found);
+    }
+  }
+}
+
+// `fileMap` is `parsed.file_map`. A missing `file_map` has nothing to check; an empty
+// object is fine; any other shape (null, array, string, number) is a failure.
+function checkFileMapPaths(fileMap, fail) {
+  if (fileMap === undefined) return;
+  if (fileMap === null || typeof fileMap !== 'object' || Array.isArray(fileMap)) {
+    throw fail('`file_map` is not an object');
+  }
+  for (const [key, entry] of Object.entries(fileMap)) {
+    if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) {
+      throw fail(`\`file_map\` entry ${JSON.stringify(key)} is not an object`);
+    }
+    if (typeof entry.path !== 'string') {
+      throw fail(`\`file_map\` entry ${JSON.stringify(key)} has no string \`path\``);
+    }
+    const found = [];
+    collectPathValues(entry, `file_map[${JSON.stringify(key)}]`, found);
+    for (const [location, path] of found) {
+      const form = absolutePathForm(path);
+      if (form !== null) {
+        throw fail(`${location} is not relative (form: ${form}): ${JSON.stringify(path)}`);
+      }
+    }
+  }
+}
+
 // Returns the rewritten text, or throws StepError('path rewrite', ...).
 function rewritePaths(originalText) {
   const fail = (reason) => new StepError('path rewrite', reason);
@@ -283,6 +341,10 @@ function rewritePaths(originalText) {
   if (canonical(before.abi) !== canonical(after.abi)) {
     throw fail('parsed `abi` differs between the compile output and the rewritten artifact');
   }
+
+  // (e) No `file_map` path of the rewritten text may be absolute, tilde or drive form.
+  // This check parses only; the output is still the textual replacement above.
+  checkFileMapPaths(after.file_map, fail);
   return text;
 }
 

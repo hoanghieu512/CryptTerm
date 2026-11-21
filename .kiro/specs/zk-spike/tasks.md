@@ -17,7 +17,7 @@ Rules that apply to every task:
   - The two files change whenever a task status changes. The orchestrator marks a commit task in progress before it runs, so the committed `tasks.md` shows that commit task as in progress; the completion marks written after a commit land in the next group-end commit. That is expected and is not a failure of the commit task's done check.
   - The mid-group commits in tasks 4.6 and 5.6 stage only the Artifact files and the SRS files, as written (no tracking files).
   - Task 0 and task 1.7 are already done and stay as written.
-- Do not edit `requirements.md`, `design.md`, `.config.kiro` or any steering file other than `.kiro/steering/noir.md`.
+- Do not edit `requirements.md`, `design.md`, `.config.kiro` or any steering file other than `.kiro/steering/noir.md`, except task 10.10, which syncs `design.md` with the path-rewrite Artifact (huynh's decision).
 - Property tests are required, carry a fixed seed in the source, and are tagged with a comment `Feature: zk-spike, Property <n>: <text>`. When a property finds a real bug, add a regression example test and append an entry to `tests/PBT-LOG.md` (date, property name, seed, shrunk counterexample, root cause, fix).
 
 ## Tasks
@@ -241,7 +241,7 @@ Rules that apply to every task:
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit). Additionally, `docs/spike-results.md` contains the `## Deferred to zk-core` section with the review line and the three items.
     - _Requirements: 7.1, 7.8, 7.9_
 
-- [ ] 5. SRS size derivation, vendoring, sha256 file and its test, and `verify-srs`
+- [x] 5. SRS size derivation, vendoring, sha256 file and its test, and `verify-srs`
   - Measure the compiled circuit, derive the point count, vendor the matching ceremony prefix, pin its sha256 in a manifest, test it, and write the re-verification script.
   - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 14.6, 14.8, 14.9_
 
@@ -287,36 +287,45 @@ Rules that apply to every task:
     - Done when: the three SRS paths are tracked.
     - _Requirements: 14.1_
 
-  - [-] 5.7 Commit group 5 files
+  - [x] 5.7 Commit group 5 files
     - Task 5.6 already committed `.gitattributes` and the SRS files (`g1.dat`, `g2.dat`, `srs.sha256.json`), so this commit covers the rest of the group. Run `git status --short`. Stage by name: `src/zk/srs.ts`, `src/zk/srs-assets.ts`, `tests/zk/srs.test.ts`, `scripts/verify-srs.ts` (or `scripts/verify-srs.mjs` if task 5.5 renamed it), `.kiro/steering/noir.md`, `docs/spike-results.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`, plus `tsconfig.json` or a Vite client types declaration file only if task 5.3 changed one. Do not stage the SRS files or `.gitattributes` here. Commit with the message `feat(zk): vendored SRS prefix, size derivation, sha256 test and verify-srs`. Do not push.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 14.1, 14.2, 14.8_
 
 - [ ] 6. Witness_Builder, hashing wrapper, encoder, and the default-run tests that gate correctness
   - Build the TypeScript hashing, Merkle, validation and input-map modules with their test support, then the default-run properties and example tests, then measure the default run.
-  - _Requirements: 2.4, 2.5, 2.9, 3.1, 3.2, 3.4, 3.7, 3.8, 3.9, 3.10, 3.11, 6.1, 6.2, 6.3, 6.4, 6.7, 6.8_
+  - _Requirements: 2.4, 2.5, 2.9, 3.1, 3.2, 3.4, 3.7, 3.8, 3.9, 3.10, 3.11, 6.1, 6.2, 6.3, 6.4, 6.7, 6.8, 7.2, 7.4, 7.5_
 
-  - [ ] 6.1 Write `field.ts`, `posting.ts` and `errors.ts`
+  - [x] 6.0 Close the absolute-path gap in the Build_Script and record its known limits
+    - Amend `scripts/build-circuit`: after the textual rewrite and the existing checks, parse the rewritten text only as a check (the output is still produced by textual replacement) and fail with step `path rewrite` (exit 1, `src/zk/artifacts/` untouched, no tmp files) if any `file_map[*].path` starts with `/`, `~` or matches `^[A-Za-z]:[\\/]`. Lookup first (record in "Lookups", ids `T6.0-a`, ...) anything new used. Failure tests in a scratch copy OUTSIDE the repo with a `nargo` shim (as in task 4.1): an absolute path outside the repo and home (`/Users/someone/else/file.nr`), a `~/x.nr` path, a `C:\\x\\y.nr` path, each exits 1 with `step path rewrite failed` and leaves the artifact dir untouched.
+    - Re-run `PATH="$HOME/.nargo/bin:$PATH" npm run build:circuit` in the repo and confirm the Artifact and Meta are byte-identical to the committed ones (sha256 `2b08fea52a19e41a63589033287e3ee54530fdad677c416a6c869c42f1eecd5b` and `d62b899bd70c345293004b635eb8002322b5c6b452334b9ed7ad92160c334e01`): the check must not change the output; `git status` shows no change under `src/zk/artifacts/`.
+    - Extend `tests/zk/artifact.test.ts` (`validateFileMapPaths`) with the matching cases: absolute `/`, `~`, drive letter `C:\` and `D:/`, and the JSON-escaped form; add mutated cases for `~` and for a path like `/Users/someone/else/file.nr` that the older checks did not cover. The committed Artifact must still pass. `npx vitest run tests/zk/artifact.test.ts` exits 0.
+    - Record the Build_Script known limits in `docs/spike-results.md` under a NEW section `## Build_Script` placed after "Tests written first" and before "Lookups" (append the section; do not change other sections), with a subsection "Known limits (accepted by huynh)" listing, each as one bullet: (1) a `.tmp-<pid>` file left by a killed run (SIGKILL, power loss) is never cleaned up, because the suffix is the pid; (2) a kill between the two renames leaves the new Artifact with the old Meta, and only the checksum test (7.8) notices; (3) the restore path after a failed second rename has no test; (4) `target/ledger_audit.json` is not deleted before `nargo compile`, so a stale file would be read as fresh if nargo exited 0 without writing a new one (case "artifact missing" only triggers on a clean checkout); (5) an unexpected non-step error is labelled with whatever step was running (for example EACCES at the read step), and a missing `nargo` is reported as step `version`; (6) the Windows path forms (`\\`-escaped and forward-slash) are implemented but were not run on Windows. Add a note that two further limits found in tasks 4.1 and 4.4 (an absolute path outside the repo and home directory accepted, and an unknown symlink form slipping through) are CLOSED by this task's generic absolute-path check.
+    - Done when: `node --check scripts/build-circuit` passes, the scratch failure tests exit 1 as described, the committed Artifact and Meta are unchanged by a re-run, `npx vitest run tests/zk/artifact.test.ts` exits 0, `npm test` and `npm run typecheck` exit 0, and the `## Build_Script` section is present with the six limits.
+    - Recorded in: Results_Document "Build_Script" and "Lookups".
+    - _Requirements: 7.2, 7.4, 7.5, 1.9, 1.10_
+
+  - [x] 6.1 Write `field.ts`, `posting.ts` and `errors.ts`
     - Create under `src/zk/`: `field.ts` (`FIELD_MODULUS`, `CAPACITY` 64, `AMOUNT_BOUND_CENTS` 2^40 exclusive, `ID_MAX` 2^64 - 1, `SALT_BOUND` 2^248 exclusive, `fieldToBytes32`, `bytes32ToField`); `posting.ts` (`Cents`, `Side`, `ReviewFlag`, `Posting`, `PADDING_POSTING`, `SIDE_DEBIT`, `SIDE_CREDIT`, `FLAG_NO`, `FLAG_YES`, `leafInputs(p)` returning the six bigints in leaf order); `errors.ts` (`PostingFieldName`, `FieldRangeError` with `field` and `slot`, message `<LABEL> OUT OF RANGE AT SLOT <n>` or `<LABEL> OUT OF RANGE`, never the value, not extending `RangeError`, no property holding the value).
     - Amounts are `bigint`; no `Number` touches an amount. Strict TypeScript; no `any`.
     - Done when: `npm run typecheck` exits 0.
     - _Requirements: 3.4, 3.9, 3.10, 4.2_
 
-  - [ ] 6.2 Write `hash.ts` and `merkle.ts`
+  - [x] 6.2 Write `hash.ts` and `merkle.ts`
     - `src/zk/hash.ts`: `Poseidon2Api`, `Hasher`, `createHasher(api)`. Every leaf and every inner node is computed by calling `api.poseidon2Hash({ inputs })` with 32-byte big-endian elements. No Poseidon constants, permutation code or field arithmetic that computes a hash.
     - `src/zk/merkle.ts`: `merkleRoot(hasher, leaves)` requiring 64 leaves and pairing in the circuit's order (parent `j` is `hash(level[2j], level[2j + 1])`, six levels).
     - Lookup first, recorded in "Lookups": `poseidon2Hash` request and response types in `bb.js` 6.0.0 (L4).
     - Done when: `npm run typecheck` exits 0.
     - _Requirements: 3.1, 3.2, 3.7, 1.9, 1.10_
 
-  - [ ] 6.3 Write the test support files
+  - [x] 6.3 Write the test support files
     - Create `tests/support/pbt.ts` (prints the seed and `numRuns` to stdout at the start of every property run; fast-check failure output carries the shrunk counterexample) and `tests/support/zk-env.ts` with `createNoirEnv()` (loads `src/zk/artifacts/ledger_audit.json` from disk, creates `Noir`), `createHasherEnv()` (WASM single-thread `Barretenberg` with `skipSrsInit: true`, no `srsInitSrs`) and `createProverEnv()` (also initialises the SRS from the files on disk through `src/zk/srs.ts`). Every file that creates a `Barretenberg` calls `destroy()` in `afterAll`. No test makes a network request.
     - Check U19 on first use: `poseidon2Hash` works with no `srsInitSrs`. If it does not, `createHasherEnv()` loads the committed SRS prefix (no proving is added).
     - Lookup first, recorded in "Lookups": `Barretenberg.new` options and `destroy` in `bb.js` 6.0.0 (L1, L2), `Noir` constructor and `execute` in `noir_js` 1.0.0 (L6).
     - Done when: `npm run typecheck` exits 0.
     - _Requirements: 6.1, 6.7, 1.9, 1.10_
 
-  - [ ] 6.4 Write `tests/zk/hash-kat.test.ts` (Property 6)
+  - [x] 6.4 Write `tests/zk/hash-kat.test.ts` (Property 6)
     - **Property 6: Recorded hash vectors are reproduced**
     - Table-driven example test, no seed or `numRuns` (the table is the quantifier). For `PAD_LEAF`, `LEAF_A`, `LEAF_B`, `NODE_A`, `NODE_SMALL` and `EMPTY_ROOT` assert the `bb.js` hasher returns exactly the recorded field element, and that each output equals a reference sponge built only from `poseidon2Permutation` for the two call shapes (length 2 and length 6). Copy the expected values into the test and compare them with the values in `.kiro/steering/noir.md`, as `srs.test.ts` does for its hashes.
     - If the TypeScript output differs from the circuit vectors (U3), STOP and report per Requirement 3.3: variants tried, input vectors, output of each side, package versions. Adopt no other hash until huynh approves it.
@@ -324,19 +333,19 @@ Rules that apply to every task:
     - **Validates: Requirements 3.11, 3.2**
     - _Requirements: 3.2, 3.3, 3.11_
 
-  - [ ] 6.5 Write `circuit-inputs.ts` and `witness-builder.ts`
+  - [x] 6.5 Write `circuit-inputs.ts` and `witness-builder.ts`
     - `src/zk/circuit-inputs.ts`: `CircuitPosting`, `CircuitInputs` (`merkle_root`, `record_count`, `limit_cents` and 64 `postings` entries, every integer as a decimal string) and `toCircuitInputs(...)`.
     - `src/zk/witness-builder.ts`: `WitnessInput`, `BuiltInputs`, `validatePosting(p, slot)`, `validateScalars`, `buildCircuitInputs(hasher, input)` (validates, pads to 64 with `PADDING_POSTING`, hashes, builds the map) and `assembleCircuitInputs(hasher, slots, recordCount, limitCents, rootOverride?)`. Order: validate `recordCount` and `limitCents`, then every slot (`recordId` and `account` at most 2^64 - 1, `side` and `reviewFlag` in {0, 1}, `amountCents` below 2^40, `salt` below 2^248) throwing `FieldRangeError` on the first violation in slot order, and only then hash. No hash call and no `noir_js` call happens for an invalid value. Validators compare bigints and never stringify a value for an error.
     - Lookup first, recorded in "Lookups": `InputValue` and `abiEncode` input rules in `noirc_abi` 1.0.0 and `@noir-lang/types` (L7, L8).
     - Done when: `npm run typecheck` exits 0.
     - _Requirements: 2.4, 2.5, 3.4, 3.7, 3.9, 3.10, 1.9, 1.10_
 
-  - [ ] 6.6 Write `tests/zk/witness-builder.test.ts`
+  - [x] 6.6 Write `tests/zk/witness-builder.test.ts`
     - Example test, runs under `npm test`. Spy hasher: every leaf and node goes through `poseidon2Hash` (64 leaves and 63 nodes) and the builder holds no hash computation (3.7). Padding slots are the single `PADDING_POSTING` (3.9). Out-of-range `recordId`, `account`, `salt`, `side`, `reviewFlag`, `limitCents` and `recordCount` each throw `FieldRangeError` with the right `field` and `slot`, build no inputs, call the hasher zero times, and the error message and own properties contain no field value (3.10).
     - Done when: `npx vitest run tests/zk/witness-builder.test.ts` exits 0.
     - _Requirements: 3.7, 3.9, 3.10_
 
-  - [ ] 6.7 Write `tests/zk/circuit-inputs.test.ts` and run the Node `execute` experiment
+  - [x] 6.7 Write `tests/zk/circuit-inputs.test.ts` and run the Node `execute` experiment
     - Example test, runs under `npm test`. Check the ABI shape of the Artifact: exactly three public inputs `merkle_root`, `record_count`, `limit_cents`, a private `postings` array of 64, no return value (2.4, 2.5). Check that a missing public input and 63 or 65 postings make `abiEncode` throw (2.9).
     - Add the Q5 experiment: execute the circuit in Node with the one-cent-modified witness (slot 0 amount plus 1 cent, leaves and root recomputed) and assert it throws. Print the error constructor name, the own property names and whether the message contains a private value, and record the observed shape under "Invalid-witness report" in `docs/spike-results.md` as a Node pre-check, labelled as Node and not as the browser result. Add one bullet to the "API as looked up" section of `.kiro/steering/noir.md` stating the Node-observed behaviour; leave the existing "Unverified" bullet in place and mark the browser observation as pending huynh's run (Requirement 9.5 completes after the browser report).
     - If the observed behaviour differs from the behaviour `noir.md` assumed, append a quirks log entry to `noir.md` with the date in `YYYY-MM-DD` form, the assumed behaviour, the observed behaviour, and the `noir_js` and `bb.js` versions.
@@ -344,33 +353,33 @@ Rules that apply to every task:
     - Recorded in: Results_Document "Invalid-witness report" (Node pre-check), `.kiro/steering/noir.md`.
     - _Requirements: 2.4, 2.5, 2.9, 9.5, 9.6_
 
-  - [ ] 6.8 Write `tests/support/zk-arbitraries.ts`
+  - [x] 6.8 Write `tests/support/zk-arbitraries.ts`
     - fast-check arbitraries including `validWitnessArb`: `recordCount` in 1..64, a limit, real postings that balance by construction (all but the last drawn at random with amounts below 2^34, the last takes the net difference on the opposite side, amount 0 when there is only one posting), `reviewFlag` forced to 1 whenever an amount exceeds the limit, every other slot `PADDING_POSTING`. Values are synthetic.
     - Done when: `npm run typecheck` exits 0 and the arbitrary is used by tasks 6.9 to 6.11.
     - _Requirements: 6.1, 6.2_
 
-  - [ ] 6.9 Write `tests/zk/root-parity.prop.test.ts` (Property 1)
+  - [x] 6.9 Write `tests/zk/root-parity.prop.test.ts` (Property 1)
     - **Property 1: Witness_Builder root is accepted by the circuit**
     - Tag comment `Feature: zk-spike, Property 1: Witness_Builder root is accepted by the circuit`. Seed `20261101`, `numRuns` 100. For every valid witness from `validWitnessArb`, build the inputs with the Witness_Builder and `noir.execute` returns a witness without throwing. The inputs MUST come from the real Witness_Builder (its own leaf hashing, leaf field order and Merkle root, never hand-built field arrays or constants copied from the Noir tests), and `noir.execute` MUST run on the committed Artifact `src/zk/artifacts/ledger_audit.json` (loaded through `createNoirEnv()`, task 6.3), so that a leaf field order mismatch between TypeScript and `leaf_fields` in the circuit makes the property fail (huynh's soundness review note; the order is not pinned by any `nargo` test). Execution only, no proving. Per-test timeout (third argument of `it`) `max(60 s, 5 x numRuns x (T_build + T_exec))`, start at 120 s and adjust after the first measured run.
     - Done when: `npx vitest run tests/zk/root-parity.prop.test.ts` exits 0 and prints the seed.
     - **Validates: Requirements 3.8, 6.2**
     - _Requirements: 3.8, 6.2, 6.7_
 
-  - [ ] 6.10 Write `tests/zk/one-cent-change.prop.test.ts` (Property 2)
+  - [x] 6.10 Write `tests/zk/one-cent-change.prop.test.ts` (Property 2)
     - **Property 2: Changing one amount by one cent is rejected**
     - Tag comment `Feature: zk-spike, Property 2: Changing one amount by one cent is rejected`. Seed `20261102`, `numRuns` 100. Draw the witness first, then one slot (0 to 63, padding slots included) and one direction (+1 or -1 cent) from the set of pairs whose new amount stays within 0 to 2^40 - 1 (never empty, no run skipped). Execute with the one changed amount and the original `merkle_root`; it must throw. Same timeout rule as Property 1.
     - Done when: `npx vitest run tests/zk/one-cent-change.prop.test.ts` exits 0 and prints the seed.
     - **Validates: Requirements 6.3**
     - _Requirements: 6.3, 4.1, 4.3, 4.5, 4.10, 6.7_
 
-  - [ ] 6.11 Write `tests/zk/amount-range.prop.test.ts` (Property 3)
+  - [x] 6.11 Write `tests/zk/amount-range.prop.test.ts` (Property 3)
     - **Property 3: Out-of-range amounts are rejected before any input is built**
     - Tag comment `Feature: zk-spike, Property 3: Out-of-range amounts are rejected before any input is built`. Seed `20261103`, 300 runs in total: one test with three `fc.assert` calls of 100 runs each, for amounts from 2^40 to 2^64 - 1, from 2^53 - 2 to 2^53 + 2, and from the field modulus minus 2 to the field modulus plus 2. For each, building the inputs throws `FieldRangeError` with `field` `amountCents` and `slot` equal to the drawn index; a spy hasher reads zero calls; the message contains neither the decimal nor the `0x` hexadecimal form of the amount. Timeout 30 s.
     - Done when: `npx vitest run tests/zk/amount-range.prop.test.ts` exits 0 and prints the seed.
     - **Validates: Requirements 6.4, 3.10**
     - _Requirements: 6.4, 3.10, 6.7_
 
-  - [ ] 6.12 Run the default tests and record the measurement
+  - [x] 6.12 Run the default tests and record the measurement
     - Run `npx vitest run --reporter=verbose` once. Record in `docs/spike-results.md` (under "Lookups", subsection "Default-run measurement") the duration of each of the three property files and the wall-clock of `npm test`. Settle U16 and U19. Record `T_build` and `T_exec` and adjust the Property 1 and 2 timeouts by the formula in task 6.9. No batch data is printed.
     - If `npm test` exceeds 60 s wall-clock, or Property 1 or Property 2 exceeds 40 s, first remove per-run overhead (one shared `Noir` and one shared hasher per file). `numRuns` is not lowered. If `execute` itself is the cost, STOP and ask huynh, because moving Property 1 or 2 to `test:proof` changes where the parity gate runs.
     - If any property finds a real bug, add a regression example test and append an entry to `tests/PBT-LOG.md`.
@@ -378,10 +387,10 @@ Rules that apply to every task:
     - Recorded in: Results_Document "Lookups" (Default-run measurement).
     - _Requirements: 3.8, 6.2, 6.3, 6.4, 6.8_
 
-  - [ ] 6.13 Commit group 6 files
-    - Run `git status --short`. Stage by name: `src/zk/field.ts`, `src/zk/posting.ts`, `src/zk/errors.ts`, `src/zk/hash.ts`, `src/zk/merkle.ts`, `src/zk/circuit-inputs.ts`, `src/zk/witness-builder.ts`, `tests/support/pbt.ts`, `tests/support/zk-env.ts`, `tests/support/zk-arbitraries.ts`, `tests/zk/hash-kat.test.ts`, `tests/zk/witness-builder.test.ts`, `tests/zk/circuit-inputs.test.ts`, `tests/zk/root-parity.prop.test.ts`, `tests/zk/one-cent-change.prop.test.ts`, `tests/zk/amount-range.prop.test.ts`, `docs/spike-results.md`, `.kiro/steering/noir.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. If task 6.12 added a regression example test or a `tests/PBT-LOG.md` entry, stage those files by name too. Commit with the message `feat(zk): witness builder, hashing wrapper and default-run property tests`. Do not push.
+  - [-] 6.13 Commit group 6 files
+    - Run `git status --short`. Stage by name: `src/zk/field.ts`, `src/zk/posting.ts`, `src/zk/errors.ts`, `src/zk/hash.ts`, `src/zk/merkle.ts`, `src/zk/circuit-inputs.ts`, `src/zk/witness-builder.ts`, `tests/support/pbt.ts`, `tests/support/zk-env.ts`, `tests/support/zk-arbitraries.ts`, `tests/zk/hash-kat.test.ts`, `tests/zk/witness-builder.test.ts`, `tests/zk/circuit-inputs.test.ts`, `tests/zk/root-parity.prop.test.ts`, `tests/zk/one-cent-change.prop.test.ts`, `tests/zk/amount-range.prop.test.ts`, `scripts/build-circuit`, `tests/zk/artifact.test.ts`, `docs/spike-results.md`, `.kiro/steering/noir.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`, plus `package.json` only if task 6.0 changed it. If task 6.12 added a regression example test or a `tests/PBT-LOG.md` entry, stage those files by name too. Commit with the message `feat(zk): witness builder, hashing wrapper and default-run property tests`. Do not push.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
-    - _Requirements: 3.8, 6.2, 6.3, 6.4_
+    - _Requirements: 3.8, 6.2, 6.3, 6.4, 7.2, 7.4_
 
 - [ ] 7. Spike worker and page, plus the proof smoke test and the proof test split
   - Add the prover wrappers, the synthetic witness, the proof run configuration and the one-proof smoke test, then the worker, the view model and the page.
@@ -625,10 +634,16 @@ Rules that apply to every task:
     - Recorded in: Results_Document (declared complete), "Lookups".
     - _Requirements: 13.1, 13.8, 13.9, 12.6, 10.1, 10.3, 10.4, 10.5_
 
+  - [ ] 10.10 Sync design.md with the path-rewrite Artifact and update U5
+    - The design (`.kiro/specs/zk-spike/design.md`) still says in its Build_Script section that the script copies the compiled JSON and treats the cross-checkout determinism (U5) as a decision for huynh. Sync it with the decided behaviour: (a) the Build_Script rewrites absolute `file_map` paths to package-relative paths by textual replacement (prefix set: resolve and realpath forms, plain, forward-slash and JSON-escaped; longest first), keeps `bytecode`, `abi` and `hash` unchanged and checks them (raw-text comparison plus parsed comparison), and fails closed at step `path rewrite` on any remaining absolute repo or home path, invalid JSON, size-delta mismatch, or any absolute `file_map` path (starts with `/`, `~` or a drive letter); (b) U5 is RESOLVED (huynh's decision A, dated with the output of `date +%F`): the Artifact and Meta sha256 are identical across the repo and two other directories (record the three equal sha256 values `2b08fea5…ecd5b` / `d62b899b…34e01` and the paths used, as in `docs/spike-results.md` rows T4.3-c and T4.3-d); the fallback "strip file_map and debug_symbols" was not taken; (c) the Artifact_Meta format and the version string are unchanged; (d) the Requirement 7.2 sentence in the design now matches; (e) mention the known limits listed in the Results_Document `## Build_Script` section by reference; (f) the Risks table row U5 status changes to Resolved, and the Q8 text is updated.
+    - Make no other change to `design.md` in this task: only these sections. Run `git diff .kiro/specs/zk-spike/design.md` to confirm the diff is confined to them, then run `validate_spec_format` on `design.md`.
+    - Done when: those sections say the above and `validate_spec_format` on `design.md` reports no issues.
+    - _Requirements: 7.2, 7.5_
+
   - [ ] 10.9 Commit group 10 files
-    - Placed after task 10.7 and before the final stop task 10.8; the number 10.9 keeps every existing id unchanged. Run `git status --short`. Stage by name: `tests/zk/spike-report.test.ts`, `tests/zk/spike-view.test.ts`, `tests/zk/results-document.test.ts`, `tests/zk/proof/proof.prop.test.ts`, `tests/zk/proof/proof-tamper.prop.test.ts`, `docs/spike-results.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. If task 10.6 fixed a defect, also stage by name the files it changed (for example `src/zk/spike-view.ts` or `src/zk/spike-report.ts`, a regression test, `tests/PBT-LOG.md`). Commit with the message `test(zk): spike-only unit tests, proof properties and completed results document`. Do not push.
+    - Placed after task 10.7 and before the final stop task 10.8; the number 10.9 keeps every existing id unchanged. Run `git status --short`. Stage by name: `tests/zk/spike-report.test.ts`, `tests/zk/spike-view.test.ts`, `tests/zk/results-document.test.ts`, `tests/zk/proof/proof.prop.test.ts`, `tests/zk/proof/proof-tamper.prop.test.ts`, `docs/spike-results.md`, `.kiro/specs/zk-spike/design.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. If task 10.6 fixed a defect, also stage by name the files it changed (for example `src/zk/spike-view.ts` or `src/zk/spike-report.ts`, a regression test, `tests/PBT-LOG.md`). Commit with the message `test(zk): spike-only unit tests, proof properties and completed results document`. Do not push.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit). No commit is made if a "Done when" check of tasks 10.1 to 10.7 failed.
-    - _Requirements: 6.5, 6.6, 13.9_
+    - _Requirements: 6.5, 6.6, 13.9, 7.2, 7.5_
 
   - [ ] 10.8 STOP: hand over to huynh for the browser steps
     - The agent must stop here, report the path `docs/spike-results.md`, the Spike_Deploy URL and the deploy date to huynh, and wait for huynh to run the "Browser steps for huynh" and fill in every measured and result cell. No later task exists and none may be started. The agent makes no pass or fail judgement.
@@ -647,6 +662,8 @@ Rules that apply to every task:
 - The deploy in task 9.4 publishes the local `dist/` folder and needs no commit before it.
 - Task 10.9 sits before task 10.8 in the document so that no existing task id changes.
 - Artifact path rewrite (huynh's decision A on U5, after task 4.3): the Build_Script rewrites the absolute source paths in `file_map` to package-relative paths by textual replacement, so builds from different directories are identical. Requirement 7.2 carries the one-sentence addition; `bytecode` and `abi` are copied unchanged. Tasks 4.1, 4.2, 4.3 and 4.5 are amended accordingly.
+- huynh's decisions after groups 4 and 5: (1) a generic absolute-path check in the Build_Script, added as the first sub-task of group 6 (task 6.0); (2) a design sync in group 10 (task 10.10, the only task allowed to edit `design.md`); (3) the Build_Script known limits recorded in the Results_Document `## Build_Script` section (task 6.0).
+- Order of the new tasks: task 6.0 is the first sub-task of group 6, before 6.1. Task 10.10 sits after task 10.7 and before task 10.9 in the document (and before the final stop task 10.8), so it runs before the group 10 commit and no existing id changes.
 
 ## Task Dependency Graph
 
@@ -688,59 +705,61 @@ Rules that apply to every task:
     { "id": 32, "tasks": ["5.5"] },
     { "id": 33, "tasks": ["5.6"] },
     { "id": 34, "tasks": ["5.7"] },
-    { "id": 35, "tasks": ["6.1"] },
-    { "id": 36, "tasks": ["6.2"] },
-    { "id": 37, "tasks": ["6.3"] },
-    { "id": 38, "tasks": ["6.4"] },
-    { "id": 39, "tasks": ["6.5"] },
-    { "id": 40, "tasks": ["6.6"] },
-    { "id": 41, "tasks": ["6.7"] },
-    { "id": 42, "tasks": ["6.8"] },
-    { "id": 43, "tasks": ["6.9"] },
-    { "id": 44, "tasks": ["6.10"] },
-    { "id": 45, "tasks": ["6.11"] },
-    { "id": 46, "tasks": ["6.12"] },
-    { "id": 47, "tasks": ["6.13"] },
-    { "id": 48, "tasks": ["7.1"] },
-    { "id": 49, "tasks": ["7.2"] },
-    { "id": 50, "tasks": ["7.3"] },
-    { "id": 51, "tasks": ["7.4"] },
-    { "id": 52, "tasks": ["7.5"] },
-    { "id": 53, "tasks": ["7.6"] },
-    { "id": 54, "tasks": ["7.7"] },
-    { "id": 55, "tasks": ["7.8"] },
-    { "id": 56, "tasks": ["7.9"] },
-    { "id": 57, "tasks": ["7.10"] },
-    { "id": 58, "tasks": ["7.11"] },
-    { "id": 59, "tasks": ["7.12"] },
-    { "id": 60, "tasks": ["7.13"] },
-    { "id": 61, "tasks": ["7.14"] },
-    { "id": 62, "tasks": ["7.15"] },
-    { "id": 63, "tasks": ["7.16"] },
-    { "id": 64, "tasks": ["8.1"] },
-    { "id": 65, "tasks": ["8.2"] },
-    { "id": 66, "tasks": ["8.3"] },
-    { "id": 67, "tasks": ["8.4"] },
-    { "id": 68, "tasks": ["8.5"] },
-    { "id": 69, "tasks": ["8.6"] },
-    { "id": 70, "tasks": ["9.1"] },
-    { "id": 71, "tasks": ["9.2"] },
-    { "id": 72, "tasks": ["9.3"] },
-    { "id": 73, "tasks": ["9.4"] },
-    { "id": 74, "tasks": ["9.5"] },
-    { "id": 75, "tasks": ["9.6"] },
-    { "id": 76, "tasks": ["9.7"] },
-    { "id": 77, "tasks": ["9.8"] },
-    { "id": 78, "tasks": ["9.9"] },
-    { "id": 79, "tasks": ["10.1"] },
-    { "id": 80, "tasks": ["10.2"] },
-    { "id": 81, "tasks": ["10.3"] },
-    { "id": 82, "tasks": ["10.4"] },
-    { "id": 83, "tasks": ["10.5"] },
-    { "id": 84, "tasks": ["10.6"] },
-    { "id": 85, "tasks": ["10.7"] },
-    { "id": 86, "tasks": ["10.9"] },
-    { "id": 87, "tasks": ["10.8"] }
+    { "id": 35, "tasks": ["6.0"] },
+    { "id": 36, "tasks": ["6.1"] },
+    { "id": 37, "tasks": ["6.2"] },
+    { "id": 38, "tasks": ["6.3"] },
+    { "id": 39, "tasks": ["6.4"] },
+    { "id": 40, "tasks": ["6.5"] },
+    { "id": 41, "tasks": ["6.6"] },
+    { "id": 42, "tasks": ["6.7"] },
+    { "id": 43, "tasks": ["6.8"] },
+    { "id": 44, "tasks": ["6.9"] },
+    { "id": 45, "tasks": ["6.10"] },
+    { "id": 46, "tasks": ["6.11"] },
+    { "id": 47, "tasks": ["6.12"] },
+    { "id": 48, "tasks": ["6.13"] },
+    { "id": 49, "tasks": ["7.1"] },
+    { "id": 50, "tasks": ["7.2"] },
+    { "id": 51, "tasks": ["7.3"] },
+    { "id": 52, "tasks": ["7.4"] },
+    { "id": 53, "tasks": ["7.5"] },
+    { "id": 54, "tasks": ["7.6"] },
+    { "id": 55, "tasks": ["7.7"] },
+    { "id": 56, "tasks": ["7.8"] },
+    { "id": 57, "tasks": ["7.9"] },
+    { "id": 58, "tasks": ["7.10"] },
+    { "id": 59, "tasks": ["7.11"] },
+    { "id": 60, "tasks": ["7.12"] },
+    { "id": 61, "tasks": ["7.13"] },
+    { "id": 62, "tasks": ["7.14"] },
+    { "id": 63, "tasks": ["7.15"] },
+    { "id": 64, "tasks": ["7.16"] },
+    { "id": 65, "tasks": ["8.1"] },
+    { "id": 66, "tasks": ["8.2"] },
+    { "id": 67, "tasks": ["8.3"] },
+    { "id": 68, "tasks": ["8.4"] },
+    { "id": 69, "tasks": ["8.5"] },
+    { "id": 70, "tasks": ["8.6"] },
+    { "id": 71, "tasks": ["9.1"] },
+    { "id": 72, "tasks": ["9.2"] },
+    { "id": 73, "tasks": ["9.3"] },
+    { "id": 74, "tasks": ["9.4"] },
+    { "id": 75, "tasks": ["9.5"] },
+    { "id": 76, "tasks": ["9.6"] },
+    { "id": 77, "tasks": ["9.7"] },
+    { "id": 78, "tasks": ["9.8"] },
+    { "id": 79, "tasks": ["9.9"] },
+    { "id": 80, "tasks": ["10.1"] },
+    { "id": 81, "tasks": ["10.2"] },
+    { "id": 82, "tasks": ["10.3"] },
+    { "id": 83, "tasks": ["10.4"] },
+    { "id": 84, "tasks": ["10.5"] },
+    { "id": 85, "tasks": ["10.6"] },
+    { "id": 86, "tasks": ["10.7"] },
+    { "id": 87, "tasks": ["10.10"] },
+    { "id": 88, "tasks": ["10.9"] },
+    { "id": 89, "tasks": ["10.8"] }
   ]
 }
 ```

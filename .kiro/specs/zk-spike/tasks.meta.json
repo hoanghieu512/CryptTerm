@@ -1,5 +1,18 @@
 {
-  "pbtResults": {},
+  "pbtResults": {
+    "6.9 Write `tests/zk/root-parity.prop.test.ts` (Property 1)": {
+      "status": "passed",
+      "lastRunTimestamp": 1795245165899
+    },
+    "6.10 Write `tests/zk/one-cent-change.prop.test.ts` (Property 2)": {
+      "status": "passed",
+      "lastRunTimestamp": 1795245345494
+    },
+    "6.11 Write `tests/zk/amount-range.prop.test.ts` (Property 3)": {
+      "status": "passed",
+      "lastRunTimestamp": 1795245482660
+    }
+  },
   "executionHistory": {
     "0. Commit the spec files and the steering edits": [
       {
@@ -472,6 +485,181 @@
         "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
         "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
         "timestamp": 1795225083211
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795225200044
+      }
+    ],
+    "5. SRS size derivation, vendoring, sha256 file and its test, and `verify-srs`": [
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795225200433
+      }
+    ],
+    "6.0 Close the absolute-path gap in the Build_Script and record its known limits": [
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795240460325
+      },
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795240947640
+      }
+    ],
+    "6.1 Write `field.ts`, `posting.ts` and `errors.ts`": [
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795240948038
+      },
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795241157443
+      }
+    ],
+    "6.2 Write `hash.ts` and `merkle.ts`": [
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795241158043
+      },
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795241987748
+      }
+    ],
+    "6.3 Write the test support files": [
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795241988329
+      },
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795242361037
+      }
+    ],
+    "6.4 Write `tests/zk/hash-kat.test.ts` (Property 6)": [
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795242361490
+      },
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795243578881
+      }
+    ],
+    "6.5 Write `circuit-inputs.ts` and `witness-builder.ts`": [
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795243579258
+      },
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795244114927
+      }
+    ],
+    "6.6 Write `tests/zk/witness-builder.test.ts`": [
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795244115562
+      },
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795244292596
+      }
+    ],
+    "6.7 Write `tests/zk/circuit-inputs.test.ts` and run the Node `execute` experiment": [
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795244293623
+      },
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795244762975
+      }
+    ],
+    "6.8 Write `tests/support/zk-arbitraries.ts`": [
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795244763498
+      },
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795245063890
+      }
+    ],
+    "6.9 Write `tests/zk/root-parity.prop.test.ts` (Property 1)": [
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795245064182
+      },
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795245251819
+      }
+    ],
+    "6.10 Write `tests/zk/one-cent-change.prop.test.ts` (Property 2)": [
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795245252092
+      },
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795245411162
+      }
+    ],
+    "6.11 Write `tests/zk/amount-range.prop.test.ts` (Property 3)": [
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795245411758
+      },
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795245523198
+      }
+    ],
+    "6.12 Run the default tests and record the measurement": [
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795245523676
+      },
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795245917889
+      }
+    ],
+    "6.13 Commit group 6 files": [
+      {
+        "executionId": "df6557a9-4f23-45f0-b7b0-733c26763db5",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795245918202
       }
     ]
   }

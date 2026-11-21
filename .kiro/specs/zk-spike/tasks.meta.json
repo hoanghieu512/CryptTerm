@@ -381,6 +381,97 @@
         "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
         "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
         "timestamp": 1795192939393
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795193013633
+      }
+    ],
+    "4. Build_Script, Artifact and Artifact_Meta committed, with their sha256 and version tests": [
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795193013865
+      }
+    ],
+    "5.1 Measure the circuit size and choose the point count": [
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795193026956
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795196059560
+      }
+    ],
+    "5.2 Take the SRS files and write the manifest": [
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795196059737
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795223916801
+      }
+    ],
+    "5.3 Write `src/zk/srs.ts` and `src/zk/srs-assets.ts`": [
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795223917103
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795224355305
+      }
+    ],
+    "5.4 Write `tests/zk/srs.test.ts`": [
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795224355454
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795224716760
+      }
+    ],
+    "5.5 Write `scripts/verify-srs.ts`": [
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795224716969
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795225012285
+      }
+    ],
+    "5.6 Commit the SRS files": [
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795225012657
+      },
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795225082902
+      }
+    ],
+    "5.7 Commit group 5 files": [
+      {
+        "executionId": "42f9aaf5-6e31-4d36-9b0d-4ccce3a94d39",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795225083211
       }
     ]
   }

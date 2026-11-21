@@ -171,8 +171,17 @@ Copied from `circuits/ledger_audit/src/tests.nr`. All are field elements, big-en
 
 ### Not yet measured
 
-- Circuit sizes and the chosen SRS point count: recorded by group 5 (task 5.x), not yet measured.
-- SRS files, URL, byte range and sha256: recorded by group 5, not yet recorded.
+- Circuit size and the chosen SRS point count: measured by task 5.1 on 2026-11-21 (this item is no longer a placeholder).
+  - Artifact: `src/zk/artifacts/ledger_audit.json`, sha256 `2b08fea52a19e41a63589033287e3ee54530fdad677c416a6c869c42f1eecd5b`. Settings: `PROOF_SETTINGS` = `ipaAccumulation: false`, `oracleHashType: 'poseidon2'`, `disableZk: false`, `optimizedSolidityVerifier: false`.
+  - `numGates` = 21212. `numGatesDyadic` = 32768 (= 2^15, already a power of two). `numAcirOpcodes` = 4580.
+  - `requiredPoints = max(numGatesDyadic, 512)` = 32768. Chosen point count `N` = 32768 = 2^15 (smaller than 2^16 = 65536, so the 2^16 guess is not used). The g1 file is `N * 64` = 2097152 bytes (2 MiB).
+  - Method: `Barretenberg.new({ backend: BackendType.Wasm, threads: 1, skipSrsInit: true })`, then `circuitStats({ circuit: { name: 'ledger_audit', bytecode, verificationKey: new Uint8Array(0) }, includeGatesPerOpcode: false, settings: PROOF_SETTINGS })` on the base64-decoded, gunzipped `bytecode`, then `destroy()`. No SRS was loaded and no network use was seen.
+  - Cross-check: `~/.bb/bb gates -b circuits/ledger_audit/target/ledger_audit.json -t noir-recursive` printed `acir_opcodes` 4580 and `circuit_size` 21212, the same as `numAcirOpcodes` and `numGates`. The CLI prints no dyadic size.
+  - Open: `numGatesDyadic` is the `circuitStats` size, not the prover's own dyadic size (the prover adds 5 rows and counts lookup-table placement). The margin is 11556 rows. The first full prove with exactly `N` points (group 7) settles it. If it throws `too many points`, repeat 5.2 with the next power of two.
+- SRS files, recorded by task 5.2 on 2026-11-21 (Aztec Ignition ceremony data, vendored in `src/zk/artifacts/srs/`, manifest `srs.sha256.json`). Format `bn254-g1-uncompressed-be64`: 64 bytes per point (x then y, 32 bytes big-endian each), no header, `pointCount` = 32768, `bytesPerPoint` = 64.
+  - `g1.dat`: source `https://crs.aztec-cdn.foundation/g1.dat`, mirror `https://crs.aztec-labs.com/g1.dat`, byte range `bytes=0-2097151` (HTTP 206, `Content-Range: bytes 0-2097151/6400000000`), 2097152 bytes, sha256 `50d2f4e9567be2b8e382cedfd078b96a3428a94597b7e88c4116e105d578ce77`. The first point is the generator (1, 2).
+  - `g2.dat`: source `https://crs.aztec-cdn.foundation/g2.dat`, mirror `https://crs.aztec-labs.com/g2.dat`, whole file (no byte range), 128 bytes, sha256 `01797bfc4de5a96f0e516a9ea4537d18786dc30cb991aca4274c95822b69c32f`.
+  - The mirror returned byte-identical content for both files. The independent re-verification script is `scripts/verify-srs.ts` (task 5.5).
 - Single-thread answer and settings (`threads: 1`, no cross-origin isolation): recorded by the worker tasks (group 7), not yet measured.
 
 ## Version quirks log

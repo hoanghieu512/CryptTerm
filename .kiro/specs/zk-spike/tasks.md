@@ -187,7 +187,7 @@ Rules that apply to every task:
     - If huynh's review requires a circuit change, return to group 2, make the change test-first where it alters a constraint, rerun all 20 tests and the known-answer tests, commit the fix as a new commit in group 2 (never an amend, rebase or other history rewrite), and pass this gate again with a new hand-over that names the new commit hash.
     - _Requirements: 4.10, 5.5, 13.9_
 
-- [ ] 4. Build_Script, Artifact and Artifact_Meta committed, with their sha256 and version tests
+- [x] 4. Build_Script, Artifact and Artifact_Meta committed, with their sha256 and version tests
   - Starts only after the go-ahead in task 3.2. Compile through a script, write the Artifact and Artifact_Meta atomically, prove the output is stable, test the checksum and version, then commit the two files.
   - _Requirements: 2.1, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9_
 
@@ -232,7 +232,7 @@ Rules that apply to every task:
     - Done when: both paths are tracked and `circuits/ledger_audit/target/` is ignored.
     - _Requirements: 7.6_
 
-  - [-] 4.7 Commit group 4 files
+  - [x] 4.7 Commit group 4 files
     - Before staging, create the section `## Deferred to zk-core` at the END of `docs/spike-results.md` (after "Browser steps for huynh"; keep every existing section untouched; append only). The section is created in this task and reaches the group 4 commit through `docs/spike-results.md`, which this task already stages. Add no placeholder or invented content. It contains one line, "Soundness review passed at commit 9c5e5c8 with no circuit change (huynh, outside Kiro)", then exactly these three items:
       1. "Padding canonicality: no test sets a non-zero `record_id`, `account`, `side` or `review_flag` in a padding slot (`nonzero_padding_fails` changes only `amount`, `padding_nonzero_salt_fails` changes only `salt`). Not a soundness issue: amount is forced to 0 and every leaf is bound into the signed root. Deferred to zk-core as four extra `nargo` tests (one per field, each alone in a padding slot). They do not change the compiled Artifact."
       2. "Leaf field order (`leaf_fields`) is not pinned by any `nargo` test. Root parity property P1 (group 6, task 6.9) must catch an order mismatch between TypeScript and the circuit, so P1 must build its inputs through the real Witness_Builder and run `noir.execute` on the committed Artifact. This is a requirement on P1, not a deferral."
@@ -245,7 +245,7 @@ Rules that apply to every task:
   - Measure the compiled circuit, derive the point count, vendor the matching ceremony prefix, pin its sha256 in a manifest, test it, and write the re-verification script.
   - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5, 14.6, 14.8, 14.9_
 
-  - [ ] 5.1 Measure the circuit size and choose the point count
+  - [x] 5.1 Measure the circuit size and choose the point count
     - Look up `circuitStats` in the published `bb.js` 6.0.0 types and source (L4, L5) and record the lookup. From the repository root, run a throwaway `node --input-type=module -e` script (no repo file is created) that creates `Barretenberg.new({ backend: BackendType.Wasm, threads: 1, skipSrsInit: true })`, base64-decodes and gunzips the Artifact `bytecode` (with `node:zlib`), and calls `circuitStats` with `PROOF_SETTINGS` (`ipaAccumulation: false`, `oracleHashType: 'poseidon2'`, `disableZk: false`, `optimizedSolidityVerifier: false`) to read `numGates` and `numGatesDyadic`. Cross-check with `~/.bb/bb gates -b circuits/ledger_audit/target/ledger_audit.json -t noir-recursive` (U14; if the CLI rejects the file, record that and use only the `circuitStats` figure). Destroy the instance.
     - Compute `requiredPoints = max(numGatesDyadic, 512)` and the chosen point count `N` as the smallest power of two not smaller than `requiredPoints`. Do not assume 2^16: if `requiredPoints` exceeds 2^16, `N` is the smallest power of two that fits and is not 2^16.
     - Record in `.kiro/steering/noir.md` "Settled choices": `numGates`, `numGatesDyadic`, `requiredPoints`, `N`, the date and the commands used.
@@ -253,7 +253,7 @@ Rules that apply to every task:
     - Recorded in: `.kiro/steering/noir.md` "Settled choices", Results_Document "Lookups".
     - _Requirements: 14.2, 14.3, 1.9, 1.10_
 
-  - [ ] 5.2 Take the SRS files and write the manifest
+  - [x] 5.2 Take the SRS files and write the manifest
     - Create `src/zk/artifacts/srs/`. Download the g1 prefix with `curl --fail -sS -H "Range: bytes=0-<END>" -o src/zk/artifacts/srs/g1.dat https://crs.aztec-cdn.foundation/g1.dat` where `END = N * 64 - 1`, expecting HTTP 206 and a file of exactly `N * 64` bytes. Download `https://crs.aztec-cdn.foundation/g2.dat`, expecting 128 bytes with sha256 `01797bfc4de5a96f0e516a9ea4537d18786dc30cb991aca4274c95822b69c32f`. Request the same range from the mirror `https://crs.aztec-labs.com/g1.dat` and `g2.dat` and confirm the sha256 values match. Only the ceremony prefix is downloaded, never the full 6.4 GB file. No batch data is involved.
     - Write `src/zk/artifacts/srs/srs.sha256.json` with `format` `bn254-g1-uncompressed-be64`, `pointCount`, `bytesPerPoint` 64, and `files` entries for `g1.dat` and `g2.dat` (`bytes`, `sha256` as 64 lowercase hex from `shasum -a 256`, `source`, `mirror`, `byteRange` as `bytes=0-<END>` and `null`).
     - Record in `.kiro/steering/noir.md` for each file: the source URL, the byte range taken, and the sha256.
@@ -261,33 +261,33 @@ Rules that apply to every task:
     - Recorded in: `src/zk/artifacts/srs/srs.sha256.json`, `.kiro/steering/noir.md` "Settled choices".
     - _Requirements: 14.1, 14.4, 14.5_
 
-  - [ ] 5.3 Write `src/zk/srs.ts` and `src/zk/srs-assets.ts`
+  - [x] 5.3 Write `src/zk/srs.ts` and `src/zk/srs-assets.ts`
     - `src/zk/srs.ts`: `SrsSource` (`readG1()`, `readG2()`), `SrsBytes` (`g1`, `g2`, `pointCount`), `SrsManifest` and `SrsFileEntry` types, `loadSrs(source, manifest)` (checks length and sha256 against the manifest through `crypto.subtle.digest`, throws a coded error `SRS_FETCH` or `SRS_HASH`), `initSrs(api, srs)` (calls `api.srsInitSrs({ pointsBuf, numPoints, g2Point })` with exactly `numPoints * bytesPerPoint` bytes). The loader reads `pointCount` and `bytesPerPoint` from the manifest; no point count is hard-coded.
     - `src/zk/srs-assets.ts`: `import g1Url from './artifacts/srs/g1.dat?no-inline'`, the same for `g2.dat`, and the manifest import; export `SRS_URLS` and `SRS_MANIFEST`. `g2.dat` is 128 bytes, so `?no-inline` is required so that a real file is emitted.
     - Lookup first, recorded in "Lookups": `srsInitSrs` request type and byte-size rule (L4, L5), Vite `?no-inline` and JSON import (L12).
     - Done when: `npm run typecheck` exits 0. If `tsc` does not accept the `?no-inline` imports through `vite/client` types, resolve it from the Vite docs lookup without weakening strict mode, and record the lookup.
     - _Requirements: 14.1, 14.7, 1.9, 1.10_
 
-  - [ ] 5.4 Write `tests/zk/srs.test.ts`
+  - [x] 5.4 Write `tests/zk/srs.test.ts`
     - Example test, runs under `npm test`, calls no prover. Fails when: the manifest is missing, not valid JSON or lacks a key; a hash is not 64 lowercase hex; `pointCount * bytesPerPoint` differs from the `g1.dat` `bytes`; a data file is missing; a file's length or sha256 differs from the manifest; `g2.dat` is not 128 bytes with sha256 `01797bfc…c32f`; or either manifest sha256 is absent from the text of `.kiro/steering/noir.md`.
     - Add the size check: using `circuitStats` on the committed Artifact (a WASM `Barretenberg` with `skipSrsInit: true`, the bytecode decoded with `node:zlib`, `destroy()` in `afterAll`), assert `pointCount >= max(numGatesDyadic, 512)`.
     - Done when: `npx vitest run tests/zk/srs.test.ts` exits 0.
     - _Requirements: 14.2, 14.6, 14.8_
 
-  - [ ] 5.5 Write `scripts/verify-srs.ts`
+  - [x] 5.5 Write `scripts/verify-srs.ts`
     - Node 24 type-stripping script with erasable syntax only. It reads `src/zk/artifacts/srs/srs.sha256.json`; requests the same `bytes=0-<END>` range from `https://crs.aztec-labs.com/g1.dat` and `g2.dat` from the mirror and compares byte for byte and by sha256 with the committed files; then requests `ceil(N / 131072)` 4 MiB chunks of `g1_compressed.dat` from the primary host, calls `srsInitSrs` on a WASM `Barretenberg` with `skipSrsInit: true` so `bb.js` checks each chunk against its pinned hash, and compares the first `N * 64` returned bytes with the committed `g1.dat`. It prints `PASS` or `FAIL` per file with the byte counts and nothing else. It is a developer script that uses the network; the app never does.
     - Run it once with `node scripts/verify-srs.ts` (U15). If Node type stripping fails under the repo `tsconfig`, rename to `.mjs` with JSDoc and record the change. If the network is unavailable, record that and leave the run to huynh.
     - Done when: the script prints `PASS` for both files, or the failure reason is recorded.
     - Recorded in: Results_Document "Lookups" and "Browser steps for huynh" (task 9.8 repeats the command).
     - _Requirements: 14.4, 1.9, 1.10_
 
-  - [ ] 5.6 Commit the SRS files
+  - [x] 5.6 Commit the SRS files
     - Add a `.gitattributes` file with the single line `src/zk/artifacts/srs/*.dat binary`. Run `git add .gitattributes src/zk/artifacts/srs/g1.dat src/zk/artifacts/srs/g2.dat src/zk/artifacts/srs/srs.sha256.json` (by name) and commit with a message that states they are the ceremony prefix and its manifest.
     - Confirm `git ls-files src/zk/artifacts/srs` lists all three paths. Choose `N` only once: a re-commit with a different `N` adds a full copy to history.
     - Done when: the three SRS paths are tracked.
     - _Requirements: 14.1_
 
-  - [ ] 5.7 Commit group 5 files
+  - [-] 5.7 Commit group 5 files
     - Task 5.6 already committed `.gitattributes` and the SRS files (`g1.dat`, `g2.dat`, `srs.sha256.json`), so this commit covers the rest of the group. Run `git status --short`. Stage by name: `src/zk/srs.ts`, `src/zk/srs-assets.ts`, `tests/zk/srs.test.ts`, `scripts/verify-srs.ts` (or `scripts/verify-srs.mjs` if task 5.5 renamed it), `.kiro/steering/noir.md`, `docs/spike-results.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`, plus `tsconfig.json` or a Vite client types declaration file only if task 5.3 changed one. Do not stage the SRS files or `.gitattributes` here. Commit with the message `feat(zk): vendored SRS prefix, size derivation, sha256 test and verify-srs`. Do not push.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 14.1, 14.2, 14.8_

@@ -1033,6 +1033,11 @@
         "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
         "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
         "timestamp": 1795266959243
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795266974429
       }
     ],
     "8. Spike build mode, dist check script and the spike `_redirects` decision (D4)": [
@@ -1045,6 +1050,11 @@
         "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
         "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
         "timestamp": 1795265455247
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795266975102
       }
     ],
     "9.1 Rebuild the spike and check `dist/` before any deploy": [
@@ -1062,6 +1072,16 @@
         "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
         "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
         "timestamp": 1795265443751
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795266978866
+      },
+      {
+        "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795267002417
       }
     ],
     "9.2 Read the Netlify power overview and report the deploy target": [
@@ -1079,6 +1099,16 @@
         "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
         "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
         "timestamp": 1795265449192
+      },
+      {
+        "executionId": "c09904d1-92be-45b1-9b29-183a3ce38b13",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795268124926
+      },
+      {
+        "executionId": "b1946315-3334-4046-a10e-47485892c21d",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795269056897
       }
     ],
     "9.3 STOP: deploy confirmation, wait for huynh to confirm the site and account": [
@@ -1091,6 +1121,78 @@
         "executionId": "3442fed8-8924-405c-a7b6-1d77b3424a83",
         "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
         "timestamp": 1795265449882
+      },
+      {
+        "executionId": "b1946315-3334-4046-a10e-47485892c21d",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795269063037
+      },
+      {
+        "executionId": "c136edb6-fa54-430b-97ec-59f454da1b9e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795269845076
+      }
+    ],
+    "9.4 Create the non-production Spike_Deploy": [
+      {
+        "executionId": "c136edb6-fa54-430b-97ec-59f454da1b9e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795269850733
+      },
+      {
+        "executionId": "c136edb6-fa54-430b-97ec-59f454da1b9e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795270004928
+      }
+    ],
+    "9.5 Record the deploy URL, date and versions": [
+      {
+        "executionId": "c136edb6-fa54-430b-97ec-59f454da1b9e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795270071329
+      }
+    ],
+    "9.6 Write the gate table text and the Cold_Run procedure": [
+      {
+        "executionId": "c136edb6-fa54-430b-97ec-59f454da1b9e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795270071513
+      },
+      {
+        "executionId": "c136edb6-fa54-430b-97ec-59f454da1b9e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795270101238
+      }
+    ],
+    "9.7 Write the \"Spike-only files\" section": [
+      {
+        "executionId": "c136edb6-fa54-430b-97ec-59f454da1b9e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795270112815
+      },
+      {
+        "executionId": "c136edb6-fa54-430b-97ec-59f454da1b9e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795270138490
+      }
+    ],
+    "9.8 Write the \"Browser steps for huynh\" section": [
+      {
+        "executionId": "c136edb6-fa54-430b-97ec-59f454da1b9e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795270138817
+      },
+      {
+        "executionId": "c136edb6-fa54-430b-97ec-59f454da1b9e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795270192954
+      }
+    ],
+    "9.9 Commit group 9 files": [
+      {
+        "executionId": "c136edb6-fa54-430b-97ec-59f454da1b9e",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795270193225
       }
     ]
   }

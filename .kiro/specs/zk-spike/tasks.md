@@ -490,7 +490,7 @@ Rules that apply to every task:
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit). No commit is made if `npm run test:proof` or `npm test` failed in this group.
     - _Requirements: 6.5, 8.1, 8.2_
 
-- [ ] 8. Spike build mode, dist check script and the spike `_redirects` decision (D4)
+- [x] 8. Spike build mode, dist check script and the spike `_redirects` decision (D4)
   - Select the spike build with `vite build --mode spike`, keep the default build free of spike files, and add the dist allow-list check.
   - _Requirements: 7.7, 11.1, 11.2, 11.4, 12.4, 12.5, 12.6_
 
@@ -525,7 +525,7 @@ Rules that apply to every task:
     - Recorded in: Results_Document "Lookups".
     - _Requirements: 7.7, 11.2, 12.4, 12.5, 12.6_
 
-  - [-] 8.6 Commit group 8 files
+  - [x] 8.6 Commit group 8 files
     - Run `git status --short`. Stage by name: `vite.config.ts`, `scripts/check-spike-dist`, `package.json`, `docs/spike-results.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. `public/_redirects` and `netlify.toml` are not changed by this group, and `public/_headers` must not exist. `dist/` is ignored and stays out. Commit with the message `feat(build): spike build mode, dist check and spike redirects`. Do not push.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 11.2, 12.4, 12.5_
@@ -534,50 +534,50 @@ Rules that apply to every task:
   - Report the Netlify target to huynh and wait for confirmation, deploy as non-production, then write the Results_Document sections. The Results_Document is not declared complete here.
   - _Requirements: 10.7, 11.3, 12.1, 12.2, 12.3, 12.4, 12.5, 12.6, 12.7, 12.9, 12.10, 12.11, 13.1, 13.2, 13.3, 13.4, 13.5, 13.6, 13.7, 13.8_
 
-  - [ ] 9.1 Rebuild the spike and check `dist/` before any deploy
+  - [x] 9.1 Rebuild the spike and check `dist/` before any deploy
     - Run `npm run build:spike` and `npm run check:spike-dist`. Confirm `dist/` holds only `spike.html`, the bundles derived from `src/zk/spike.ts`, the Artifact, `_redirects`, the two SRS `.dat` files, and the WASM and JavaScript assets the spike build references, and that no `_headers` exists.
     - If `dist/` contains any other file, STOP, list the unexpected files to huynh, and do not deploy until huynh confirms. An `index.html` or any other HTML file counts as unexpected.
     - Done when: both commands exit 0 and no unexpected file is listed.
     - _Requirements: 12.4, 12.5, 12.6_
 
-  - [ ] 9.2 Read the Netlify power overview and report the deploy target
+  - [x] 9.2 Read the Netlify power overview and report the deploy target
     - Load `power::netlify-deployment::overview` and record the lookup (L14) in "Lookups". Run `netlify status`. Report to huynh the site name and account name from its output, and state that the deploy will be non-production (`netlify deploy --dir dist`, no `--prod`, no `--build`) and that `dist/` contains only the spike page, its worker bundles, the Artifact, the SRS prefix, `_redirects` and the WASM files, with no private data.
     - If `netlify status` shows no linked site or account, report that and ask huynh which site and account to use. Create no deploy.
     - Done when: the site name and account name are in the message that ends task 9.3.
     - _Requirements: 12.1, 12.2, 1.10_
 
-  - [ ] 9.3 STOP: deploy confirmation, wait for huynh to confirm the site and account
+  - [x] 9.3 STOP: deploy confirmation, wait for huynh to confirm the site and account
     - The agent must stop here, report the site name and account name from task 9.2, and wait for huynh's explicit written reply that confirms them. No later task may be started or batched with this one. Create no deploy before the reply.
     - If `netlify status` later shows a different site or account than the one huynh confirmed, or no linked site, stop again, create no deploy, and ask which site and account to use.
     - The deploy is non-production only. A production deploy happens only if huynh asks in writing.
     - _Requirements: 12.1, 12.2, 12.3_
 
-  - [ ] 9.4 Create the non-production Spike_Deploy
+  - [x] 9.4 Create the non-production Spike_Deploy
     - Run `netlify status` again and confirm it matches what huynh confirmed. Run `netlify deploy --dir dist` through the Netlify power with no `--prod`. Do not install or run any browser automation tool, and do not open the deployed page.
     - If the command fails or returns no deploy URL, STOP, report the command output to huynh, and do not retry as a production deploy.
     - The deploy publishes the local `dist/` folder, so no commit is needed or made before it.
     - Done when: the command returns a draft deploy URL.
     - _Requirements: 12.2, 12.3, 12.4, 12.9, 12.11_
 
-  - [ ] 9.5 Record the deploy URL, date and versions
+  - [x] 9.5 Record the deploy URL, date and versions
     - In `docs/spike-results.md` header, write the deploy URL, the deploy date in `YYYY-MM-DD` format, and update the version table with the installed version strings of `nargo`, `@noir-lang/noir_js`, `@noir-lang/acvm_js`, `@noir-lang/noirc_abi`, `@noir-lang/types`, `@aztec-foundation/bb.js`, Vite and Node taken from `nargo --version`, `npm ls` and `node --version`.
     - Done when: the URL, the date and all eight version strings are present.
     - Recorded in: Results_Document header.
     - _Requirements: 12.10, 13.2_
 
-  - [ ] 9.6 Write the gate table text and the Cold_Run procedure
+  - [x] 9.6 Write the gate table text and the Cold_Run procedure
     - Under "Gate table" keep the two rows: `Normal_Gate: under 30 s` and `Throttled_Gate: under 60 s with Chrome DevTools 4x CPU throttling`, with every measured cell, Chrome version, machine and pass or fail cell empty and no placeholder, estimate or example number. Under "Cold_Run procedure" write the six ordered steps: open Chrome on huynh's Mac; open DevTools and enable "Disable cache" in the Network panel; set CPU throttling to "No throttling" for the Normal_Gate or "4x slowdown" for the Throttled_Gate; load the Spike_Deploy URL for the first time; press the run control once; read the timings from the Spike_Page. State that `bb.js` runs with `threads: 1`, that one Cold_Run supplies the numbers for each gate, that a gate passes only if its Cold_Run total is strictly below its target, and that failing either gate means switching to Option_B, which is Circom with snarkjs.
     - Done when: the section matches the text above and the table has no value in any measured cell.
     - Recorded in: Results_Document "Gate table", "Cold_Run procedure".
     - _Requirements: 13.3, 13.4, 13.5, 13.6, 13.8_
 
-  - [ ] 9.7 Write the "Spike-only files" section
+  - [x] 9.7 Write the "Spike-only files" section
     - List by repository-relative path every spike-only file: `spike.html`, `src/zk/spike.ts`, `src/zk/spike-worker.ts`, `src/zk/spike-protocol.ts`, `src/zk/spike-view.ts`, `src/zk/spike-report.ts`, `src/zk/spike-witness.ts`, `scripts/check-spike-dist`, `tests/zk/spike-report.test.ts`, `tests/zk/spike-view.test.ts`, `tests/zk/spike-witness.test.ts`, `tests/zk/results-document.test.ts`, `tests/zk/proof/proof-smoke.test.ts`, the `spike` branch of `vite.config.ts`, and the `build:spike` and `check:spike-dist` entries in `package.json`. Add the ordered removal steps: delete those files; delete the `spike` branch from `vite.config.ts` (keep `worker.format` and `build.target`); delete the two scripts from `package.json`; run `npm run build` and `npm test`; confirm no source, config, script or test file contains `spike.html` or `src/zk/spike.ts` (decision D5). State that the SRS files, `tests/zk/srs.test.ts`, `tests/zk/srs-wiring.test.ts` and `docs/spike-results.md` are not spike-only and are not in the removal steps. Include the result of task 8.4.
     - Done when: the section lists every path above and the removal steps are in order.
     - Recorded in: Results_Document "Spike-only files".
     - _Requirements: 11.3, 14.9_
 
-  - [ ] 9.8 Write the "Browser steps for huynh" section
+  - [x] 9.8 Write the "Browser steps for huynh" section
     - Write these numbered steps with the result cells blank (the `______` fill-in line, no value): (1) open Chrome, open the deploy URL, wait up to 10 s for the `RUN` control; (2) open DevTools, Network tab, tick "Disable cache", clear the log, reload, press `RUN` once; (3) after the run record number of requests, whether every request is same-origin, whether any request carries a body, whether any request went to `crs.aztec-cdn.foundation` or `crs.aztec-labs.com` (must be none), whether any request went to another origin; (4) confirm `CROSS ORIGIN ISOLATED (PAGE)` and `(WORKER)` both read `FALSE`; (5) copy the stage timings, `TOTAL` and `PROOF SIZE` into the gate table (Normal_Gate row), then repeat with CPU throttling "4x slowdown" for the Throttled_Gate row; (6) press `INVALID WITNESS`, wait up to 120 s, copy the displayed values into "Invalid-witness report"; (7) if there is no `RUN` control within 10 s, a `FAILED` result, or no result within 120 s, copy the stage name, the text and the URL and tell the Spike_Team; (8) run `node scripts/verify-srs.ts` and paste its output.
     - Write the "Invalid-witness report" section as a blank fill-in list: `EXECUTE THREW`, `RETURNED WITNESS`, `ERROR CONSTRUCTOR`, `ERROR PROPERTIES`, `ERROR MESSAGE`, `PRIVATE VALUE IN ERROR`, and the proof lines. Keep the Node pre-check from task 6.7 under its own labelled subheading.
     - The agent does not open the deployed page, press any control, review the network panel, or install or run any browser automation tool.
@@ -585,7 +585,7 @@ Rules that apply to every task:
     - Recorded in: Results_Document "Browser steps for huynh", "Invalid-witness report".
     - _Requirements: 10.7, 12.7, 12.11, 13.7, 13.8, 14.7_
 
-  - [ ] 9.9 Commit group 9 files
+  - [-] 9.9 Commit group 9 files
     - Runs after the STOP in task 9.3 and after tasks 9.4 to 9.8. The Results_Document is not declared complete here (task 10.7 does that). Run `git status --short`. Stage by name: `docs/spike-results.md`, `.kiro/specs/zk-spike/tasks.md` and `.kiro/specs/zk-spike/tasks.meta.json`. `docs/spike-results.md` is the only group file besides the two tracking files (`dist/` is ignored; no source file changes in group 9). Commit with the message `docs(spike): deploy record and results document sections`. Do not push.
     - Done when: `git log --oneline -1` shows that message and `git status --short` shows no remaining change to the files that this task stages (the two tracking files are staged, so the check holds at the moment of the commit; later status marks land in the next group-end commit).
     - _Requirements: 13.1, 13.2, 13.7_

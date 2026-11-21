@@ -2,9 +2,9 @@
 
 ## Header
 
-Deploy URL:
+Deploy URL: https://6b01a56625ec503f8621cc2b--cryptterm.netlify.app (draft, non-production, project `cryptterm`, deploy id `6b01a56625ec503f8621cc2b`)
 
-Deploy date:
+Deploy date: 2026-11-21
 
 ### Version table
 
@@ -20,6 +20,15 @@ Deploy date:
 | Vite | 8.3.8 | `npm ls vite` |
 | Node | v24.14.1 | `node --version` |
 | npm (extra row) | 11.11.0 | `npm --version` |
+| `netlify-cli` (extra row) | 27.20.1 | `npx --yes netlify-cli@27.20.1 --version`; used for `status` and `deploy` |
+
+### Deploy notes
+
+- CLI: `netlify-cli` pinned to exactly 27.20.1 (`npx --yes netlify-cli@27.20.1`), never an unpinned or `latest` tag. Reason: `netlify-cli@26.0.0` cannot read the login that this machine keeps in the operating system keychain and printed `Not logged in`; 27.20.1 reads it. Site: project `cryptterm` (`e665ced1-4a15-4477-ae1a-004e0f03e91d`), account Hiếu Hoàng, confirmed by huynh.
+- Command that produced the Spike_Deploy: `netlify deploy --dir dist --no-build` (no `--prod`). In 27.20.1 a plain `netlify deploy --dir dist` runs `build.command` from `netlify.toml` first, so `--no-build` is needed to honour "no build".
+- Discarded first draft: the first run without `--no-build` rebuilt `dist/` as the default app (3 files, `index.html`, no `spike.html`) and published it as draft `https://6b01a524bf0487bd4f677f2e--cryptterm.netlify.app` (deploy id `6b01a524bf0487bd4f677f2e`). Do not use that URL for the Cold_Run. It holds no private data. It is still listed under the project deploys and can be deleted in the Netlify admin.
+- The Spike_Deploy above uploaded 13 files, the same 13 files (17,145,986 bytes) that `npm run check:spike-dist` accepted just before the deploy.
+
 
 ### Toolchain check output
 
@@ -616,10 +625,25 @@ Two further limits found in tasks 4.1 and 4.4 are CLOSED by the generic absolute
 | T7.15-d | `performance.now()` clock (task 7.15, Requirement 8.6). MDN: returns a `DOMHighResTimeStamp` in milliseconds, relative to `Performance.timeOrigin`, which is a monotonic clock that never decreases and is not subject to system clock adjustments; resolution is coarsened (100 microseconds when not cross-origin isolated, 5 microseconds when isolated), far below the whole-millisecond display. `t0` and the receive-time reading are both taken on the page, so `TOTAL` uses one clock. The worker's stage times use the worker's own `performance.now()` differences, which are floored | MDN `Performance/now` | MDN, 2026-11-21 |
 | T8.1-a | Vite 8 spike mode options (task 8.1, L12). Read in `node_modules/vite/dist/node/index.d.ts`: `build.rolldownOptions?: RolldownOptions` (rollupOptions is deprecated), `publicDir?: string \| false` (false disables copying), `worker.format?: "es" \| "iife"` (default iife). Read in `rolldown/dist/shared/define-config-*.d.mts`: `Plugin.generateBundle(outputOptions, bundle, isWrite)` and `emitFile({ type: "asset", fileName?, source })`, input is `InputOption` | `vite@8.3.8` and `rolldown` typings in `node_modules` | Vite 8.3.8, 2026-11-21 |
 | T8.5-a | Spike dist sizes (task 8.5), built with `nargo` absent from `PATH` (`PATH=/usr/local/bin:/usr/bin:/bin`, `command -v nargo` empty). `npm run build:spike` exit 0, `npm run check:spike-dist` exit 0, 13 files, 17,145,986 bytes, no `index.html`, no `_headers`, `_redirects` is `/  /spike.html  200` plus a newline. Largest files: `barretenberg-threads-*.js` 5,428,857; `barretenberg-*.js` 5,423,245; `acvm_js_bg-*.wasm` 3,050,251; `g1-*.dat` 2,097,152; `noirc_abi_wasm_bg-*.wasm` 789,608; `spike-worker-*.js` 209,424; `ledger_audit-*.json` 116,843; `spike-*.js` 11,654. No `node:` import appears in any `dist/assets/*.js` file (U8 not triggered). The `?no-inline` files and the emitted `_redirects` came out as real files (U9 not triggered). `netlify.toml` is unchanged (`git diff --stat netlify.toml` printed nothing) and has no cross-origin header. Correction to an earlier note: the ceremony host strings (`crs.aztec-cdn.foundation`, `crs.aztec-labs.com`) are in `spike-worker-*.js` as manifest data copied from `src/zk/artifacts/srs/srs.sha256.json`, and not in the `bb.js` chunks. `fetchBytes` in `src/zk/srs.ts` refuses any URL whose origin differs from `location.origin`. | `npm run build:spike`, `npm run check:spike-dist`, `grep` on `dist/` | Vite 8.3.8, Node 24.14.1, 2026-11-21 |
+| T9.2-a | Netlify CLI flow (task 9.2, L14). Power `netlify-deployment` overview read in this session: prefer the CLI, `netlify status` shows link and user state, an existing linked site gets a non-production `netlify deploy`, `--prod` only on request. The spike overrides one overview line (new site gets a production deploy): this deploy is non-production with `--dir dist`, no `--prod`, no `--build`. `netlify-cli@26.0.0` (pinned npx) printed `Not logged in` because it cannot read the token that this machine stores in the operating system keychain. `netlify-cli@27.20.1` (npm `latest`, via `npx --yes`) read it: user Hiếu Hoàng, team Hiếu Hoàng’s team, project `cryptterm`, https://cryptterm.netlify.app, project id `e665ced1-4a15-4477-ae1a-004e0f03e91d`. | Netlify power overview; `npx --yes netlify-cli@27.20.1 status` | netlify-cli 27.20.1, 2026-11-21 |
 
 ## Invalid-witness report
 
-*Filled in by task 6.7 (Node pre-check) and task 9.8 (fill-in list for huynh).*
+### Browser result (fill in, task 9.8)
+
+Filled in by huynh from the `INVALID WITNESS` run in Chrome on the Spike_Deploy. The Node result is a separate subsection below and is not this result.
+
+- `EXECUTE THREW`: ______
+- `RETURNED WITNESS`: ______
+- `ERROR CONSTRUCTOR`: ______
+- `ERROR PROPERTIES`: ______
+- `ERROR MESSAGE`: ______
+- `PRIVATE VALUE IN ERROR`: ______
+- `PROOF ATTEMPT THREW`: ______
+- `PROOF ERROR CONSTRUCTOR`: ______
+- `PROOF ERROR PROPERTIES`: ______
+- `PROOF ERROR MESSAGE`: ______
+- `PROOF VERIFIED`: ______
 
 ### Node pre-check (task 6.7)
 
@@ -652,7 +676,36 @@ Findings:
 
 ## Spike-only files
 
-*Filled in by tasks 8.4 (default-build inspection result) and 9.7 (file list and removal steps).*
+### Spike-only files (task 9.7)
+
+Every path is repository-relative. Files marked `(group 10)` are written by group 10 and do not exist yet.
+
+- `spike.html`
+- `src/zk/spike.ts`
+- `src/zk/spike-worker.ts`
+- `src/zk/spike-protocol.ts`
+- `src/zk/spike-view.ts`
+- `src/zk/spike-report.ts`
+- `src/zk/spike-witness.ts`
+- `src/zk/spike-classify.ts` (split out of the worker, accepted by huynh)
+- `scripts/check-spike-dist`
+- `tests/zk/spike-witness.test.ts`
+- `tests/zk/spike-report.test.ts` (group 10)
+- `tests/zk/spike-view.test.ts` (group 10)
+- `tests/zk/results-document.test.ts` (group 10)
+- `tests/zk/proof/proof-smoke.test.ts`
+- the `spike` branch of `vite.config.ts` (`spikeRedirects`, `spikeInput`, the `spike` conditions)
+- the `build:spike` and `check:spike-dist` entries in `package.json`
+
+Removal steps, in order:
+
+1. Delete every file in the list above.
+2. Delete the `spike` branch from `vite.config.ts` and keep `worker.format` and `build.target`.
+3. Delete the `build:spike` and `check:spike-dist` scripts from `package.json`.
+4. Run `npm run build` and `npm test`.
+5. Search source, config, script and test files for `spike.html` and `src/zk/spike.ts`; none may contain either (decision D5).
+
+Not spike-only and not in the removal steps: the SRS files under `src/zk/artifacts/srs/`, `tests/zk/srs.test.ts`, `tests/zk/srs-wiring.test.ts` and `docs/spike-results.md`. The result of task 8.4 is in the next subsection.
 
 ### Default build inspection (task 8.4, 2026-11-21)
 
@@ -660,7 +713,16 @@ Findings:
 
 ## Browser steps for huynh
 
-*Written by task 9.8. huynh fills in the result cells.*
+Spike_Deploy URL: https://6b01a56625ec503f8621cc2b--cryptterm.netlify.app (use this one, not the discarded draft `6b01a524bf0487bd4f677f2e`). Nothing on the page is real data.
+
+1. Open Chrome and open the Spike_Deploy URL. Wait up to 10 s for the `RUN` control. Result: ______
+2. Open DevTools, Network tab, tick "Disable cache", clear the log, reload, press `RUN` once. Do not press it again. Result: ______
+3. After the run, record from the Network tab: number of requests ______; every request same-origin (yes or no) ______; any request with a body (yes or no) ______; any request to `crs.aztec-cdn.foundation` or `crs.aztec-labs.com`, must be none ______; any request to another origin (none or list) ______
+4. Confirm that `CROSS ORIGIN ISOLATED (PAGE)` and `CROSS ORIGIN ISOLATED (WORKER)` both read `FALSE`. Page ______; worker ______
+5. Copy the stage timings (`WASM INIT`, `WITNESS PREP`, `EXECUTE`, `PROVE`, `VERIFY`), `TOTAL` and `PROOF SIZE (BYTES)` into the Normal_Gate row of the gate table, with the Chrome version and the machine. Then repeat steps 2 and 3 from a fresh load with DevTools CPU throttling set to "4x slowdown" and copy the numbers into the Throttled_Gate row. Normal_Gate done ______; Throttled_Gate done ______
+6. Press `INVALID WITNESS` once and wait up to 120 s. Copy the displayed values into "Invalid-witness report" below. Done ______
+7. If there is no `RUN` control within 10 s, a `FAILED` result, or no result within 120 s: copy the stage name, the text and the URL, and tell the Spike_Team. Result ______
+8. In the repository root run `node scripts/verify-srs.ts` and paste its output here (developer command, needs network). Output ______
 
 *Line written by task 5.5:* developer command `node scripts/verify-srs.ts` (repository root, needs network). It compares the committed `g1.dat` and `g2.dat` with the mirror host byte for byte and by sha256, and checks the g1 prefix through bb.js's pinned chunk hashes on the compressed route. It prints `PASS` or `FAIL` per check and exits 0 only when all pass. Task 9.8 repeats the command in the steps below.
 ## Deferred to zk-core

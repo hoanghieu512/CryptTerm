@@ -87,26 +87,26 @@ Decisions on the items that were flagged for review. No flagged item is open.
     - Done when: `npx vitest run` passes (summary quoted), `git log -1 --oneline` shows that message and `git status --short` shows no change to the files this task staged.
     - _Requirements: 6.1, 7.1_
 
-- [ ] 3. Group 3: prove service, worker, verifier
+- [x] 3. Group 3: prove service, worker, verifier
   - Add the worker protocol and core, the Prove_Service with cancel and error hygiene, and the Verifier with its separate Verify_Worker.
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 4.1, 4.2, 4.3, 4.4, 4.5, 5.4, 6.6, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 9.1, 9.2, 9.3, 9.4, 9.5_
 
-  - [ ] 3.1 Write the service, worker and verifier tests first
+  - [x] 3.1 Write the service, worker and verifier tests first
     - Add `tests/support/in-process-port.ts` (`createInProcessPort` with `structuredClone` on both directions, `emit`, terminate flags and an event log; `createStubBackend` with per-stage throw switches that carry sentinel messages and a canned proof and public inputs). Write under `tests/zk/`: `worker_protocol` (examples: stage order, `BUSY`, `CANCELLED` then a new run, a late result from a cancelled run, a sentinel scan of every event and error), `worker_run_id_isolation` (Property 13, seed 20263013, 100 runs), `worker_message_hygiene` (Property 14, seed 20263014, 100 runs), `prove_error_codes` (all nine reasons and fixed messages, `publicInputs` equal to the stub's returned inputs), `prove_digest_invalid`, `prove_precheck_rejects` (the `unbalanced` and `over-limit-unflagged` samples, port factory never called), the stub-run half of `bundle_allow_list` (Property 3, seed 20263003, 100 runs), `prove_assembles_bundle` (Property 4, seed 20263004, 100 runs), `verifier_order` (Property 8, seed 20263008, 200 runs), `verify_never_throws` (Property 7, seed 20263007, 300 runs), `verify_unknown_key` (Property 9, seed 20263009, 100 runs, with `__proto__` and `constructor`), `digest_match_compares_public_inputs` (Property 10, seed 20263010, 100 runs), `policy_compares_public_inputs_and_bundle_limit` (Property 11, seed 20263011, 100 runs), `proof_step_uses_built_inputs` (Property 12, seed 20263012, 100 runs). The requirement 8.6 case (a prove run is active while `verifyBundle` completes) goes in its own file `tests/zk/verify-while-proving.test.ts` with `worker_protocol` in its title.
     - Done when: `npx vitest run tests/zk tests/ledger` fails because `src/zk/worker-core`, `worker-protocol`, `worker-port`, `prove-service`, `verify-client` and `verifier` cannot be imported, output quoted before any implementation exists, none skipped.
     - _Requirements: 3.2, 3.3, 3.4, 3.6, 3.7, 4.1, 4.2, 4.3, 4.4, 4.5, 5.4, 6.6, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 9.1, 9.2, 9.3, 9.4, 9.5_
 
-  - [ ] 3.2 Implement the worker module and the Prove_Service
+  - [x] 3.2 Implement the worker module and the Prove_Service
     - Look up the Vite worker URL form (`new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' })`) and the `?url&no-inline` asset form first (rule 4) and record the source. New files: `src/zk/worker-protocol.ts` (message types, `PROVE_STAGES`, fail codes, `isWorkerRequest`, `isWorkerEvent`), `worker-core.ts` (`createWorkerCore`, `WorkerBackend`, stage sequencing, error mapping, `catch` blocks that bind nothing), `worker-backend.ts` (`createBrowserBackend`, built from the existing loaders; no import by any Node test), `worker.ts` (the entry), `worker-port.ts` (`WorkerPort`, `PortFactory`, `openBrowserPort`, the only `new Worker`) and `prove-service.ts` (`createProveService`, `proveBatch`, `cancelProve`, `ProveError`, `PROVE_ERROR_MESSAGES`, digest check before `checkBatch`, run-id filtering, `onProgress` with one argument and a swallowed throw). No `crossOriginIsolated`, no `SharedArrayBuffer`. The existing `prover.ts`, `witness-builder.ts` and the other existing files are not edited.
     - Done when: `npx vitest run tests/zk -t "worker_protocol|worker_run_id_isolation|worker_message_hygiene|prove_error_codes|prove_digest_invalid|prove_precheck_rejects|prove_assembles_bundle|bundle_allow_list"` passes with the 8.6 file excluded (summary quoted). `npm run typecheck` is not required yet, because the verifier tests of 3.1 import `src/zk/verifier`.
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 4.1, 4.2, 4.3, 4.4, 4.5, 5.4_
 
-  - [ ] 3.3 Implement the Verifier and the Verify_Worker client
+  - [x] 3.3 Implement the Verifier and the Verify_Worker client
     - New files `src/zk/verify-client.ts` (`createProofVerifier`, its own port and run counter, `VERIFY_TIMEOUT_MS` 60,000, resolves and never rejects) and `src/zk/verifier.ts` (`createVerifier`, `verifyBundle`, `proofStep`, `VerifyReport`, `VERIFY_DETAILS` with the fixed detail table, `runStep`, one outer `try`, `rootToDigestHex` from the codec, `TRUSTED_SOURCE_KEYS` looked up by own property). The default client opens its port lazily on the first `PROOF` step, never at import time, so Node tests can import the module. `PROOF` builds its inputs from the signed root, the signed count and `policy.limitCents`, and never reads `public_inputs`.
     - Done when: `npx vitest run` passes with every test of 3.1 included, including `tests/zk/verify-while-proving.test.ts` (summary line quoted), `npm run typecheck` exits 0, and `git status --short src` shows only new files and the one additive change to `src/zk/artifact.ts` from 2.3 (outputs quoted).
     - _Requirements: 6.6, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 9.1, 9.2, 9.3, 9.4, 9.5_
 
-  - [ ] 3.4 Commit group 3
+  - [x] 3.4 Commit group 3
     - Stage by name the files of tasks 3.1 to 3.3 (the new `src/zk` files, `tests/support/in-process-port.ts`, `tests/support/bundle-arbitraries.ts` if changed, the new test files) plus `.kiro/specs/zk-core/tasks.md` and `.kiro/specs/zk-core/tasks.meta.json` if it exists. Run `git status --short` first. Message: `feat(zk-core): prove service, worker and verifier`.
     - Done when: `npx vitest run` and `npm run typecheck` pass (summary lines quoted), `git log -1 --oneline` shows that message and `git status --short` shows no change to the files this task staged.
     - _Requirements: 3.1, 8.1_

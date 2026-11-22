@@ -62,6 +62,7 @@ Record these in the sections below once the spike settles them. Do not leave the
 - The Merkle tree layout and the hash used for inner nodes.
 - How the compiled circuit artifact reaches the browser, and how the verification key hash is computed.
 - Whether `bb.js` runs single-threaded without cross-origin isolation, and the settings that make that work.
+- `VK_HASH` is the SHA-256 of the shipped verification key bytes, as 64 lowercase hex characters. The key is computed with `circuitComputeVk` and `PROOF_SETTINGS`, which gives the same 3680 bytes as `bb write_vk -t noir-recursive`. The `vk.hash` file of `bb` is not used. The key and `VK_HASH` are produced by a build script from the committed Artifact and are never typed by hand.
 
 ## API as looked up (2026-11-18)
 

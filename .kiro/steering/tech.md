@@ -82,17 +82,18 @@ All code in the repo is written by Kiro. Do not paste code from other assistants
 
 ## Proof bundle
 
-A JSON file with: `batch_id`, `record_count`, `merkle_root`, `limit_cents`, `signature`, `source_key_id`, `proof`, `circuit_version`, `verification_key_hash`. Nothing private. Bigint-valued fields serialize as decimal strings, never as JSON numbers.
+A JSON file with: `batch_id`, `record_count`, `merkle_root`, `limit_cents`, `signature`, `source_key_id`, `proof`, `circuit_version`, `verification_key_hash`, `public_inputs` (array of exactly 3 canonical decimal strings in circuit order: `merkle_root`, `record_count`, `limit_cents`; the verifier only compares them, never uses them as proof inputs). Nothing private. Bigint-valued fields serialize as decimal strings, never as JSON numbers.
 
 ## Verifier order
 
 The verifier runs these steps in this order and reports the first failing step by name:
 
-1. Signature over `(batch_id, merkle_root, record_count)` verifies against the known source key.
-2. The bundle's public inputs match the signed digest.
-3. The bundle's `limit_cents` equals the verifier's expected policy limit (default 1,000,000, editable on CTM900).
-4. The `circuit_version` and verification key hash match what the verifier ships.
-5. The UltraHonk proof verifies.
+1. `FORMAT`: the bundle text decodes to the exact bundle format.
+2. `SIGNATURE`: signature over `(batch_id, merkle_root, record_count)` verifies against the known source key.
+3. `DIGEST_MATCH`: the bundle public inputs match the signed digest.
+4. `POLICY`: the bundle `limit_cents` equals the verifier expected policy limit (default 1,000,000, editable on CTM900).
+5. `CIRCUIT`: the `circuit_version` and verification key hash match what the verifier ships.
+6. `PROOF`: the UltraHonk proof verifies.
 
 ## Proving in the browser
 

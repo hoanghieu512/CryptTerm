@@ -1,0 +1,63 @@
+#!/usr/bin/env node
+// dist_vk_asset (zk-core Requirement 7.7, design section G). Checks a build output folder: `dist`
+// by default, or the folder given as the first argument. Reads files only. It passes when:
+//   1. `<dir>/assets/` holds exactly one `ledger_audit(-<hash>).vk` file,
+//   2. its sha256 equals VK_HASH, read from the generated `src/zk/circuit-identity.ts`,
+//   3. the key is a real file and not inlined: the base64 of its first 48 bytes occurs in no
+//      `.js` or `.html` file of the folder.
+// Output: `check-dist-vk: PASS` on stdout, or `check-dist-vk: <reason>` on stderr with exit 1.
+import { createHash } from 'node:crypto';
+import { readFileSync, readdirSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const dir = resolve(process.argv[2] ?? join(repoRoot, 'dist'));
+const KEY_FILE = /^ledger_audit(-[A-Za-z0-9_-]+)?\.vk$/;
+const HASH_LINE = /^export const VK_HASH = '([0-9a-f]{64})';$/m;
+const HEAD_BYTES = 48;
+
+function fail(reason) {
+  process.stderr.write(`check-dist-vk: ${reason}\n`);
+  process.exit(1);
+}
+
+// Every file under `folder`, as absolute paths.
+function listFiles(folder) {
+  const found = [];
+  for (const entry of readdirSync(folder, { withFileTypes: true })) {
+    const full = join(folder, entry.name);
+    if (entry.isDirectory()) found.push(...listFiles(full));
+    else found.push(full);
+  }
+  return found;
+}
+
+function expectedHash() {
+  const text = readFileSync(join(repoRoot, 'src', 'zk', 'circuit-identity.ts'), 'utf8');
+  const match = HASH_LINE.exec(text);
+  if (match === null) fail('VK_HASH not found in src/zk/circuit-identity.ts');
+  return match[1];
+}
+
+let assets;
+try {
+  assets = readdirSync(join(dir, 'assets'));
+} catch {
+  fail('the folder or its assets/ folder is missing, build first');
+}
+const keyFiles = assets.filter((name) => KEY_FILE.test(name));
+if (keyFiles.length !== 1) fail(`expected exactly one ledger_audit .vk file in assets/, found ${keyFiles.length}`);
+
+const keyBytes = readFileSync(join(dir, 'assets', keyFiles[0]));
+if (createHash('sha256').update(keyBytes).digest('hex') !== expectedHash()) {
+  fail('the sha256 of the .vk file is not VK_HASH');
+}
+
+const head = keyBytes.subarray(0, HEAD_BYTES).toString('base64');
+const inlinedIn = listFiles(dir).filter(
+  (file) => /\.(js|html)$/.test(file) && readFileSync(file, 'utf8').includes(head),
+);
+if (inlinedIn.length > 0) fail('the key bytes are inlined into a .js or .html file');
+
+process.stdout.write('check-dist-vk: PASS\n');

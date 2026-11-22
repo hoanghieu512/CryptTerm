@@ -5,6 +5,7 @@
 // that serves the Spike_Page (Requirements 8.11, 10.2). This module imports no
 // runtime code besides that URL, so it works in the worker and in Node tests.
 import artifactUrl from './artifacts/ledger_audit.json?url&no-inline';
+import vkUrl from './artifacts/ledger_audit.vk?url&no-inline';
 import type { CompiledCircuit } from '@noir-lang/types';
 
 /** The shape `Noir` accepts: `@noir-lang/types` `CompiledCircuit`. */
@@ -77,4 +78,28 @@ export async function loadArtifactFromUrl(url: string): Promise<CompiledArtifact
   }
   assertCompiledArtifact(parsed);
   return parsed;
+}
+
+/** URL of the emitted verification key file (the raw bytes of `ledger_audit.vk`). */
+export const VK_URL: string = vkUrl;
+
+/**
+ * Fetches the verification key bytes with a plain GET and returns them. It does not hash or
+ * check them: `assertShippedVk` in `circuit-vk.ts` does. Throws `VK URL NOT SAME ORIGIN` before
+ * any request for a cross-origin URL, and `VK FETCH FAILED` for a network error or a non-OK
+ * response. The messages are fixed and hold no value.
+ */
+export async function loadVkFromUrl(url: string): Promise<Uint8Array> {
+  try {
+    assertSameOrigin(url);
+  } catch {
+    throw new Error('VK URL NOT SAME ORIGIN');
+  }
+  try {
+    const response = await fetch(url, { method: 'GET' });
+    if (!response.ok) throw new Error('VK FETCH FAILED');
+    return new Uint8Array(await response.arrayBuffer());
+  } catch {
+    throw new Error('VK FETCH FAILED');
+  }
 }

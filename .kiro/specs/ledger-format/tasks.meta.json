@@ -78,6 +78,61 @@
         "executionId": "dd9fbd0c-e66d-40bc-8fa2-b27ef50cb983",
         "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
         "timestamp": 1795293007064
+      },
+      {
+        "executionId": "dd9fbd0c-e66d-40bc-8fa2-b27ef50cb983",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795293020428
+      }
+    ],
+    "1. Group 1: format core (parse, serialize, invariants, generator)": [
+      {
+        "executionId": "dd9fbd0c-e66d-40bc-8fa2-b27ef50cb983",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795293020596
+      }
+    ],
+    "2.1 Write the digest tests first": [
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795322262657
+      },
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795322830130
+      }
+    ],
+    "2.2 Implement `src/ledger/digest.ts`": [
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795322830676
+      },
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795322961501
+      }
+    ],
+    "2.3 Implement `src/zk/batch-root.ts` with a small example test": [
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795322961680
+      },
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795323038785
+      }
+    ],
+    "2.4 Commit group 2": [
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795323038911
       }
     ]
   }

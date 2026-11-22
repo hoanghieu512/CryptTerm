@@ -20,7 +20,7 @@ Rules for every task:
   - Done when: `git log -1 --oneline` shows `docs(spec): add ledger-format requirements, design and tasks` and `git status --short` shows none of those six files.
   - _Requirements: 3.5_
 
-- [ ] 1. Group 1: format core (parse, serialize, invariants, generator)
+- [x] 1. Group 1: format core (parse, serialize, invariants, generator)
   - Move the two files, then build `src/ledger` layout, codec, invariant checker and generator, tests first.
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2, 3.3, 3.5, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8_
 
@@ -51,7 +51,7 @@ Rules for every task:
     - Done when: `npx vitest run tests/ledger` passes for all seven property tests, and `npm run typecheck` exits 0 (output quoted).
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8_
 
-  - [-] 1.6 Commit group 1
+  - [x] 1.6 Commit group 1
     - Stage by name the files of tasks 1.2 to 1.5 plus `.kiro/specs/ledger-format/tasks.md` and `.kiro/specs/ledger-format/tasks.meta.json`. Run `git status --short` first. Message: `feat(ledger): batch format, parser, serializer and seeded generator`.
     - Done when: `git log -1 --oneline` shows that message and `git status --short` shows no change to the files this task staged.
     - _Requirements: 1.1, 2.1, 4.1_
@@ -60,22 +60,22 @@ Rules for every task:
   - Add the signed digest message and verifier in `src/ledger`, and `batchRoot` in `src/zk`.
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.1_
 
-  - [ ] 2.1 Write the digest tests first
+  - [x] 2.1 Write the digest tests first
     - Create `digest_message_unambiguous` (seed 20262008, 500 runs), `digest_tamper_detected` (20262009, 200) and `verify_digest_never_throws` (20262010, 300) under `tests/ledger/`. The tamper test signs with an ephemeral key made in the test and never uses the Demo_Key. Look up WebCrypto Ed25519 first (rule 4).
     - Done when: `npx vitest run tests/ledger` fails or cannot import `src/ledger/digest`, output quoted before the implementation exists.
     - _Requirements: 6.1, 6.2, 6.3, 6.5, 6.6_
 
-  - [ ] 2.2 Implement `src/ledger/digest.ts`
+  - [x] 2.2 Implement `src/ledger/digest.ts`
     - `digestMessage`, `SignedDigest` and `verifyDigest` as in the design "Digest" section. `crypto.subtle` verify only. No `subtle.sign` and no key generation anywhere in `src/`.
     - Done when: `npx vitest run tests/ledger` passes for the three digest tests, and `npm run typecheck` exits 0 (output quoted).
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.1_
 
-  - [ ] 2.3 Implement `src/zk/batch-root.ts` with a small example test
+  - [x] 2.3 Implement `src/zk/batch-root.ts` with a small example test
     - New file only. Import `Batch` from `src/ledger` and reuse `buildCircuitInputs`; no hash, padding or leaf-encoding logic of its own. Add `tests/zk/batch-root.test.ts` (uses `Hasher` from `tests/support/zk-env.ts`): root equals `buildCircuitInputs(...).merkleRoot` for one generated batch, and an amount of 2^40 throws `FieldRangeError`. The full `samples_verify_and_roots` test comes in group 3.
     - Done when: `npx vitest run tests/zk/batch-root.test.ts` passes and `npm run typecheck` exits 0 (output quoted).
     - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-  - [ ] 2.4 Commit group 2
+  - [-] 2.4 Commit group 2
     - Stage by name the files of tasks 2.1 to 2.3 plus `tasks.md` and `tasks.meta.json` of this spec. Run `git status --short` first. Message: `feat(ledger): signed digest message, verifyDigest and batch root`.
     - Done when: `git log -1 --oneline` shows that message and `git status --short` shows no change to the files this task staged.
     - _Requirements: 5.1, 6.1_

@@ -10,10 +10,13 @@ Resolved:
 - `DIGEST_INVALID`: an unusable digest is rejected with the new reason `DIGEST_INVALID` (nine reasons) by the digest shape check of section F, before `checkBatch` and before any worker work.
 - `CIRCUIT_VERSION` is `nargo-1.0.0+` plus the first 32 hex characters of the Artifact sha256 (44 characters).
 - `VK_URL` and `loadVkFromUrl` are added as new exports of `src/zk/artifact.ts`.
-- Steering edits (`tech.md` "Verifier order" with `FORMAT` first, `noir.md` veri- Steering edits (`tech.md` "Verifier order" with `FORMAT` first, `noir.md` veri- Steering edits (`tech.md` "Verifier order" with `Fan- Steering emp- Steering editut- Steering edits (`tech.md` "Verif.
-- Steering edits (`terPor- Steering edits (`terPor-wiring check `dist_vk_asset` and- Steering edits (`terPor- Steering edits (`terPor-wiring check `dist_vk_asset` and- Steering edits (`terPor- Steering edits (`terPor-wiring check `dist_vk_asset` and- Steering edits (`terPor- Steering edits (`terPor-wiring check `dist_vk_asset` and- Steering edits (`terPor-ec- Steering edits (`terPor- Steering edits (`terPor-wiring check `dist_vk_asset` and- Steering edits (`terPor- Steering edits (`terPor-wiring check `dist_vk_asset` and- Steering edits (`terPion 15).
+- Steering edits (`tech.md` "Verifier order" with `FORMAT` first, and the `noir.md` rule that `VK_HASH` is the SHA-256 of the shipped verification key bytes) happen in the first task.
+- The two compare tests, `digest_match_compares_public_inputs` and `policy_compares_public_inputs_and_bundle_limit`, are properties that include the hand-built examples.
+- An injected `WorkerPort` is accepted: the service and the worker core take the port or factory as an argument.
+- `dist_vk_asset` runs on the e2e build output in this spec. The `terminal-ui` spec adds the same check on `dist` in its first wiring task, once the app imports the prove service or the verifier. Requirement 7.7 is read as written (it already names the E2E_Build).
+- Digest patterns: `digest.ts` gets exports only (`hasExactDigestKeys`, `ROOT_HEX_PATTERN`, `SIGNATURE_HEX_PATTERN`) and `digest-shape.ts` imports them, with no copy and no drift test.
 - Harness page location: the harness is built with `vite build --mode e2e` into `node_modules/.cryptterm-e2e/`, not into `dist`, so Netlify never publishes it and no top-level directory is added. The production build has only `index.html` as an entry (checked in the same task as `find dist -path '*e2e*'`). Section G has the detail.
-- Harness tooling: `@playwright/test` 1.62.0 is accepted (its browser revision, chromium 1234, is the one in `~/Library/Caches/ms-pl- Harness tooling: `@playwright/test` 1.62.0 is accepted (its browser revision, chromium 1234, is the one in `~/Library/Caches/ms-pl- Harness tooling: `@playwright/test` 1.62.0 is accepted (its browser revision, chromium 1234, is the one in `~/Library/Caches/ms-pl- Harness tooling: `@playwright/test` 1.62.0 is accepted (its browser revision, chromium 1234, is the one in `~/Library/Caches/ms-pl- Harness tooling: `@playwright/test` 1.62.0 is accepted (its browser revision, chromium 1234, is the one in `~/Library/Caches/ms-pl- Harness tooling: `@playwriinal-ui` spec adds the same check on `dist` in its first wiring task, once the app imports the prove service or the verifier. Requirement 7.7 is read as written (it already names the E2E_Build).
+- Harness tooling: `@playwright/test` 1.62.0 is accepted. Its browser revision, chromium-1234, is the one in `~/Library/Caches/ms-playwright`. It runs only against the local harness on localhost, downloads no browser, and the task stops and asks if the cached Chromium is missing.
 
 ## Overview
 
@@ -448,9 +451,16 @@ export function isSignedDigestShape(value: unknown): value is SignedDigest;
 
 The imported names are the three new exports of `digest.ts` (Architecture) and the existing `digestMessage`. The function returns `true` if and only if `value` passes every rule that `verifyDigest` applies before it touches the signature or the key. It never throws and it holds no input value in its result.
 
-| Rule | Where it comes from | Rule | Where it comes from | Rule | Where it comes from | Rule | Where it comes f`n| Rule | Wheow| Rule | Whexactl| Rule | Where it comes from | RctDiges| Rule | Where it comes from | Rule | Where it comg | Rule | Where it comes frombefore `BigInt`) | `ROOT_HEX_PATTERN` |
+| Rule | Where it comes from |
+|------|---------------------|
+| `value` is a plain object whose own keys are exactly `batchId`, `merkleRoot`, `recordCount`, `signature`, `sourceKeyId` | `hasExactDigestKeys` |
+| `batchId` and `sourceKeyId` are strings | the `typeof` checks of `verifyDigest` (no pattern on `sourceKeyId`) |
+| `merkleRoot` is a string matching `^0x[0-9a-f]{64}$` (checked before `BigInt`) | `ROOT_HEX_PATTERN` |
 | `signature` is a string matching `^[0-9a-f]{128}$` | `SIGNATURE_HEX_PATTERN` |
-| `batchId` is a string matching `BATCH_ID_PATTERN`; `merkleRoot` is below `FIELD_MODULUS`; `record| `batchId` is a string matching `BATCH_ID_PATTERN`; `merkleRoot` is below `FIELD_MODULUS`; `record| nt| `batchId` is a string matching `BATCH_ID_PIN| `batchId` is a string matching `BATCH_ID_PATTERN`; `merkleRoot` is belo` check, as in `verifyDigest` |
+| `recordCount` is a `number` | the `typeof` check of `verifyDigest` |
+| `batchId` matches `BATCH_ID_PATTERN` | `digestMessage`, through its triple check |
+| `merkleRoot` (as `BigInt`) is below `FIELD_MODULUS` | `digestMessage`, through its triple check |
+| `recordCount` is a safe integer from 1 to `CAPACITY` | `digestMessage`, through its triple check, as in `verifyDigest` |
 
 Because each rule exists once, in `digest.ts`, a later change to `verifyDigest` rules (through those names) changes the shape check with it.
 

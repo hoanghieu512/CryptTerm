@@ -132,7 +132,7 @@ Decisions on the items that were flagged for review. No flagged item is open.
     - Done when: `git ls-files | grep -i spike` lists only `docs/spike-results.md`, `tests/zk/results-document.test.ts` and the `.kiro/specs/zk-spike/` files, `grep -rn "from '.*spike" src tests scripts e2e` prints nothing, `npm run typecheck` exits 0, `npm test` passes, and `npm run test:proof` passes (outputs quoted).
     - _Requirements: 3.8, 10.4_
 
-  - [-] 4.4 Run everything, commit group 4 and hand over
+  - [x] 4.4 Run everything, commit group 4 and hand over
     - Run `npm run typecheck`, `npm test`, `npm run test:circuit`, `npm run test:proof` and `npx vitest run tests/zk -t zk_static_scan`. Quote each summary line. Stage by name `tests/support/zk-env.ts`, `tests/zk/proof/zk-core-proof.test.ts`, `tests/zk/zk-static-scan.test.ts`, `.kiro/specs/zk-core/tasks.md`, `.kiro/specs/zk-core/tasks.meta.json` if it exists, `.kiro/specs/zk-core/design.md`, plus any other file actually changed in group 4 (by name). Run `git status --short` first. Message: `test(zk-core): full-proof tests and static scan`.
     - Done when: the five commands pass with output quoted, `git log -1 --oneline` shows that message and `git status --short` shows no change to the files this task staged. Then give huynh the evidence list (each command with its summary line, the commit lines of this spec from `git log --oneline -6`, the auditor entry of `docs/writeup-notes.md`) and say "STOP: hand over to huynh".
     - _Requirements: 3.1, 9.6, 10.5_

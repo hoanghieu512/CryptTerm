@@ -1,13 +1,13 @@
 // Test environments for `noir_js` and `bb.js` in Node (Requirements 6.1, 1.9, 1.10).
 //
-// Three factories:
+// Four factories (the fourth, createNodeBackend, wraps createProverEnv for the full-proof tests):
 //   createNoirEnv()    loads the committed Artifact from disk and creates `Noir`. No WASM setup is
 //                      needed in Node: the `nodejs` builds of `acvm_js` and `noirc_abi` initialise
 //                      themselves and `Noir.init()` is a no-op there (see docs/spike-results.md, T6.3-a).
 //   createHasherEnv()  a single-thread WASM `Barretenberg` for `poseidon2Hash`. `skipSrsInit: true`
 //                      and no `srsInitSrs` (U19, see T6.3-c).
 //   createProverEnv()  the same, plus the vendored SRS prefix read from disk and passed to
-//                      `srsInitSrs`. ONLY files under `tests/zk/proof/` may use it.
+//                      `srsInitSrs`. ONLY files under `tests/zk/proof/` and `createNodeBackend` below use it.
 //
 // Rules for callers:
 //   - Every file that creates a `Barretenberg` registers `destroy()` in `afterAll`.
@@ -19,10 +19,13 @@ import { fileURLToPath } from 'node:url';
 import { BackendType, Barretenberg } from '@aztec-foundation/bb.js';
 import { Noir } from '@noir-lang/noir_js';
 import type { CompiledCircuit } from '@noir-lang/types';
+import { assertShippedVk } from '../../src/zk/circuit-vk';
 import { createHasher } from '../../src/zk/hash';
 import type { Hasher } from '../../src/zk/hash';
+import { acirBytes, executeCircuit, proveCircuit, verifyProofWithVk } from '../../src/zk/prover';
 import { initSrs, loadSrs, parseSrsManifest } from '../../src/zk/srs';
 import type { SrsBytes, SrsSource } from '../../src/zk/srs';
+import type { WorkerBackend } from '../../src/zk/worker-core';
 
 const ARTIFACT_PATH = fileURLToPath(
   new URL('../../src/zk/artifacts/ledger_audit.json', import.meta.url),
@@ -31,6 +34,7 @@ const SRS_DIR = new URL('../../src/zk/artifacts/srs/', import.meta.url);
 const SRS_MANIFEST_PATH = fileURLToPath(new URL('srs.sha256.json', SRS_DIR));
 const SRS_G1_PATH = fileURLToPath(new URL('g1.dat', SRS_DIR));
 const SRS_G2_PATH = fileURLToPath(new URL('g2.dat', SRS_DIR));
+const VK_PATH = fileURLToPath(new URL('../../src/zk/artifacts/ledger_audit.vk', import.meta.url));
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -118,4 +122,44 @@ export async function createProverEnv(): Promise<ProverEnv> {
     await destroy();
     throw error;
   }
+}
+
+export interface NodeBackend extends WorkerBackend {
+  /** Callers register this in `afterAll`. Safe to call more than once. */
+  destroy(): Promise<void>;
+}
+
+/**
+ * A `WorkerBackend` for Node that runs the real circuit and the real prover. It is the Node twin
+ * of `createBrowserBackend`: one `createProverEnv` (vendored SRS from disk) shared by the prover
+ * and verifier sessions, and the shipped `ledger_audit.vk` read from disk and checked with
+ * `assertShippedVk` before the verifier session uses it. Session `close` does nothing, because the
+ * shared `Barretenberg` is destroyed once, by `destroy()`. Used behind `createInProcessPort` by
+ * the full-proof tests.
+ */
+export async function createNodeBackend(): Promise<NodeBackend> {
+  const env = await createProverEnv();
+  const { noir, artifact } = createNoirEnv();
+  const acir = await acirBytes(artifact);
+  return {
+    openProver: () =>
+      Promise.resolve({
+        hasher: env.hasher,
+        execute: async (inputs) => (await executeCircuit(noir, inputs)).witness,
+        prove: async (witness) => {
+          const { proof, publicInputs } = await proveCircuit(env.api, acir, witness);
+          return { proof, publicInputs };
+        },
+        close: () => Promise.resolve(),
+      }),
+    openVerifier: async () => {
+      const vk = new Uint8Array(readFileSync(VK_PATH));
+      await assertShippedVk(vk);
+      return {
+        verify: (proof, publicInputs) => verifyProofWithVk(env.api, vk, publicInputs, proof),
+        close: () => Promise.resolve(),
+      };
+    },
+    destroy: env.destroy,
+  };
 }

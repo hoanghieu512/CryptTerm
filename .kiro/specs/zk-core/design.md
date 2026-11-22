@@ -164,7 +164,7 @@ A value of the wrong JSON type (for example `record_count` as a string, or `publ
 
 ```ts
 export type VerifyStepName = 'FORMAT' | 'SIGNATURE' | 'DIGEST_MATCH' | 'POLICY' | 'CIRCUIT' | 'PROOF';
-export interface VerifyStep { readonly step: VerifyStepName; readonly ok: boolean; readonly detail: string }
+export interface VerifyStep { readonly name: VerifyStepName; readonly ok: boolean; readonly detail: string }
 export interface VerifyReport { readonly verdict: 'VERIFIED' | 'REJECTED'; readonly steps: readonly VerifyStep[] }
 export interface VerifyPolicy { readonly limitCents: Cents }
 export type ProofVerifier = (proof: Uint8Array, publicInputs: readonly [string, string, string]) => Promise<boolean>;
@@ -470,6 +470,8 @@ Not checked here: the signature itself, whether `sourceKeyId` is a trusted key, 
 
 ### G. Browser harness and asset checks
 
+> **Moved.** By decision of huynh, the browser harness, the `e2e` build mode, `playwright.config.ts`, `worker_browser_e2e`, `e2e_harness_imports` and the `dist_vk_asset` run on the e2e build output move to the `terminal-ui` spec. They are not built in `zk-core`. This section is kept as the design that `terminal-ui` starts from. `scripts/check-dist-vk` and its fixture tests (group 2) stay in `zk-core`.
+
 **Checked first.** `package.json` has no Playwright dependency and `node_modules/@playwright` is absent. There is no `playwright.config.*`, and `e2e/` holds only `.gitkeep`. Playwright's browser cache holds `chromium-1234` and `chromium_headless_shell-1234`, which is the revision of Playwright 1.62.0 (`browsers.json` at tag `v1.62.0`); 1.65.1 (latest) wants 1255. `vite.config.ts` has a `spike` mode (input `spike.html`, `publicDir: false`) and the default mode (entry `index.html`, `public/` copied). The production `App` is a placeholder that imports nothing from `src/zk`.
 
 **Choice: an `e2e` build mode with a harness HTML entry, built into a folder that is not `dist`.** Alternatives considered:
@@ -495,7 +497,7 @@ Not checked here: the signature itself, whether `sourceKeyId` is a trusted key, 
 ```ts
 type HarnessResult =
   | { readonly ok: true; readonly verdict: 'VERIFIED' | 'REJECTED';
-      readonly steps: readonly { readonly step: string; readonly ok: boolean }[];
+      readonly steps: readonly { readonly name: string; readonly ok: boolean }[];
       readonly stages: readonly string[] }
   | { readonly ok: false; readonly reason: string };   // ProveError reason only
 ```

@@ -56,7 +56,7 @@ Rules for every task:
     - Done when: `git log -1 --oneline` shows that message and `git status --short` shows no change to the files this task staged.
     - _Requirements: 1.1, 2.1, 4.1_
 
-- [ ] 2. Group 2: digest and root
+- [x] 2. Group 2: digest and root
   - Add the signed digest message and verifier in `src/ledger`, and `batchRoot` in `src/zk`.
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.1_
 
@@ -75,7 +75,7 @@ Rules for every task:
     - Done when: `npx vitest run tests/zk/batch-root.test.ts` passes and `npm run typecheck` exits 0 (output quoted).
     - _Requirements: 5.1, 5.2, 5.3, 5.4_
 
-  - [-] 2.4 Commit group 2
+  - [x] 2.4 Commit group 2
     - Stage by name the files of tasks 2.1 to 2.3 plus `tasks.md` and `tasks.meta.json` of this spec. Run `git status --short` first. Message: `feat(ledger): signed digest message, verifyDigest and batch root`.
     - Done when: `git log -1 --oneline` shows that message and `git status --short` shows no change to the files this task staged.
     - _Requirements: 5.1, 6.1_
@@ -84,27 +84,27 @@ Rules for every task:
   - Add the demo key folder, the Sample_Writer, the signed samples, the isolation and scan tests, and the save hook.
   - _Requirements: 3.4, 3.5, 4.8, 5.1, 5.2, 5.3, 5.4, 6.4, 7.1, 7.2, 7.3, 7.4, 7.5, 8.1, 8.2, 8.3, 8.4, 8.5, 9.1, 9.2_
 
-  - [ ] 3.1 Write the example tests first
+  - [x] 3.1 Write the example tests first
     - Create under `tests/ledger/`: `gen_samples_missing_key`, `samples_reproducible` (temporary output directory, checks stdout form), `samples_verify_and_roots` (includes the `FieldRangeError` case and the invariant results per kind), `no_private_key_in_src`, `ledger_static_scan`, `ledger_hook_config`. The two sample tests use `Hasher` from `tests/support/zk-env.ts`.
     - Done when: `npx vitest run tests/ledger` shows these six tests failing because `scripts/gen-samples.ts`, the key folder, the samples or the hook do not exist yet (output quoted, none skipped).
     - _Requirements: 3.4, 3.5, 4.8, 5.1, 5.2, 5.3, 5.4, 6.4, 7.1, 7.2, 7.3, 7.4, 7.5, 8.1, 8.2, 8.3, 8.4, 8.5, 9.1, 9.2_
 
-  - [ ] 3.2 Create `scripts/demo-key/`
+  - [x] 3.2 Create `scripts/demo-key/`
     - `make-demo-key.ts` (one-off, refuses to overwrite an existing key file), the key file `DEMO_ONLY_core_ledger_key.json`, and `README.md` that says DEMO ONLY, says the key is public by design, and says seeded salts are for demo determinism and are not random.
     - Done when: `ls scripts/demo-key` lists the three files, and `npx vitest run tests/ledger -t no_private_key_in_src` passes (output quoted).
     - _Requirements: 4.8, 7.1, 7.2, 7.3_
 
-  - [ ] 3.3 Write `scripts/gen-samples.ts` and generate the samples
+  - [x] 3.3 Write `scripts/gen-samples.ts` and generate the samples
     - Follow "Samples and Sample_Writer" in the design. Export `generateSamples(...)` plus a thin command-line wrapper. Run it, which writes `public/samples/*` and `src/ledger/trusted-keys.ts`. Run it a second time and compare.
     - Done when: `shasum -a 256 public/samples/* src/ledger/trusted-keys.ts` printed after run 1 and after run 2 is identical (both outputs quoted), and `npx vitest run tests/ledger` passes for `gen_samples_missing_key`, `samples_reproducible`, `samples_verify_and_roots` and `ledger_static_scan`.
     - _Requirements: 5.2, 6.4, 7.4, 7.5, 8.1, 8.2, 8.3, 8.4, 8.5_
 
-  - [ ] 3.4 Create the save hook in `.kiro/hooks/`
+  - [x] 3.4 Create the save hook in `.kiro/hooks/`
     - Look up the Kiro hook file format first (rule 4) and record the source. The design names `.kiro/hooks/ledger-save.kiro.hook`; if the docs give another name or format, STOP and ask. The hook runs on save of files under `src/ledger/` and `src/zk/` and runs `npx vitest run tests/ledger tests/zk` with `tests/zk/proof` excluded.
     - Done when: `ls .kiro/hooks` lists the hook file and `npx vitest run tests/ledger -t ledger_hook_config` passes (output quoted).
     - _Requirements: 9.1, 9.2_
 
-  - [ ] 3.5 Run everything, commit group 3 and hand over
+  - [-] 3.5 Run everything, commit group 3 and hand over
     - Run `npm run typecheck`, `npx vitest run` (with the new tests), `npm run test:proof`, and `npx vitest run tests/ledger -t "ledger_static_scan|no_private_key_in_src"`. Quote each summary line. Stage by name the files of tasks 3.1 to 3.4, `public/samples/*`, `src/ledger/trusted-keys.ts`, plus `tasks.md` and `tasks.meta.json` of this spec. Run `git status --short` first. Message: `feat(ledger): signed samples, demo key and save hook`.
     - Done when: the four commands pass with output quoted, `git log -1 --oneline` shows that message and `git status --short` shows no change to the files this task staged. Then say "STOP: hand over to Claude for review".
     - _Requirements: 3.4, 7.3, 8.3, 9.1_

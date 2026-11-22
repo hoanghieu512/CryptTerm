@@ -35,7 +35,9 @@ Module map:
 | `scripts/gen-samples.ts` | Sample_Writer, the only code that signs. |
 | `scripts/demo-key/` | `DEMO_ONLY_core_ledger_key.json`, `README.md`, `make-demo-key.ts` (one-off, refuses to overwrite). |
 | `public/samples/` | `clean`, `over-limit-unflagged`, `unbalanced`, `large`, each as `.dat` and `.digest.json`. |
-| `tests/ledger/*`, `tests/support/ledger-arbitraries.ts`, `.kiro/hooks/ledger-save.kiro.hook` | Tests ("Testing Strategy"), fast-check generators, save hook (Requirement 9). |
+| `tests/ledger/*`, `tests/support/ledger-arbitraries.ts`, `.kiro/hooks/ledger-save.json` | Tests ("Testing Strategy"), fast-check generators, save hook (Requirement 9). |
+
+The hook file is `.kiro/hooks/ledger-save.json` in the Kiro 1.5 v1 format (trigger `PostFileSave`, matcher `^src/(ledger|zk)/`), replacing the earlier `.kiro.hook` name.
 
 ## Data Models
 

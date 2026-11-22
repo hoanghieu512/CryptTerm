@@ -1,0 +1,12 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "ledger-save",
+      "description": "Run the ledger and zk tests when a file under src/ledger or src/zk is saved. tests/zk/proof is excluded by vite.config.ts.",
+      "trigger": "PostFileSave",
+      "matcher": "^src/(ledger|zk)/",
+      "action": { "type": "command", "command": "npx vitest run tests/ledger tests/zk" }
+    }
+  ]
+}

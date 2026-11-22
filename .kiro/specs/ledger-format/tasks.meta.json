@@ -133,6 +133,73 @@
         "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
         "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
         "timestamp": 1795323038911
+      },
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795323065144
+      }
+    ],
+    "2. Group 2: digest and root": [
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795323065289
+      }
+    ],
+    "3.1 Write the example tests first": [
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795323065782
+      },
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795323496660
+      }
+    ],
+    "3.2 Create `scripts/demo-key/`": [
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795323496827
+      },
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795323941637
+      }
+    ],
+    "3.3 Write `scripts/gen-samples.ts` and generate the samples": [
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795323941842
+      },
+      {
+        "executionId": "20f495f4-e01a-4738-b15d-4661324eed24",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795324165978
+      }
+    ],
+    "3.4 Create the save hook in `.kiro/hooks/`": [
+      {
+        "executionId": "07211114-e9bb-4582-b02e-be8a897e4c08",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795325093385
+      },
+      {
+        "executionId": "07211114-e9bb-4582-b02e-be8a897e4c08",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795325147823
+      }
+    ],
+    "3.5 Run everything, commit group 3 and hand over": [
+      {
+        "executionId": "07211114-e9bb-4582-b02e-be8a897e4c08",
+        "chatSessionId": "sess_57cff0eb-f1ba-4e6f-9602-7c8c56035195",
+        "timestamp": 1795325148188
       }
     ]
   }

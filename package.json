@@ -16,6 +16,7 @@
     "test:watch": "vitest",
     "test:circuit": "cd circuits/ledger_audit && nargo test",
     "build:circuit": "node scripts/build-circuit",
+    "gen:samples": "node --import ./scripts/register-ts.mjs scripts/gen-samples.ts",
     "test:proof": "vitest run --config vitest.proof.config.ts"
   },
   "dependencies": {

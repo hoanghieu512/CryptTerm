@@ -80,7 +80,7 @@ Rules for every task:
     - Done when: `git log -1 --oneline` shows that message and `git status --short` shows no change to the files this task staged.
     - _Requirements: 5.1, 6.1_
 
-- [ ] 3. Group 3: samples, key isolation, hook
+- [x] 3. Group 3: samples, key isolation, hook
   - Add the demo key folder, the Sample_Writer, the signed samples, the isolation and scan tests, and the save hook.
   - _Requirements: 3.4, 3.5, 4.8, 5.1, 5.2, 5.3, 5.4, 6.4, 7.1, 7.2, 7.3, 7.4, 7.5, 8.1, 8.2, 8.3, 8.4, 8.5, 9.1, 9.2_
 
@@ -104,7 +104,7 @@ Rules for every task:
     - Done when: `ls .kiro/hooks` lists the hook file and `npx vitest run tests/ledger -t ledger_hook_config` passes (output quoted).
     - _Requirements: 9.1, 9.2_
 
-  - [-] 3.5 Run everything, commit group 3 and hand over
+  - [x] 3.5 Run everything, commit group 3 and hand over
     - Run `npm run typecheck`, `npx vitest run` (with the new tests), `npm run test:proof`, and `npx vitest run tests/ledger -t "ledger_static_scan|no_private_key_in_src"`. Quote each summary line. Stage by name the files of tasks 3.1 to 3.4, `public/samples/*`, `src/ledger/trusted-keys.ts`, plus `tasks.md` and `tasks.meta.json` of this spec. Run `git status --short` first. Message: `feat(ledger): signed samples, demo key and save hook`.
     - Done when: the four commands pass with output quoted, `git log -1 --oneline` shows that message and `git status --short` shows no change to the files this task staged. Then say "STOP: hand over to Claude for review".
     - _Requirements: 3.4, 7.3, 8.3, 9.1_

@@ -22,8 +22,8 @@ const HOOK_FILE = join(REPO_ROOT, '.kiro', 'hooks', HOOK_FILE_NAME);
 const VITE_CONFIG_FILE = join(REPO_ROOT, 'vite.config.ts');
 const EXPECTED_COMMAND = 'npx vitest run tests/ledger tests/zk';
 
-const MATCHING_PATHS: readonly string[] = ['src/ledger/parse.ts', 'src/ledger/trusted-keys.ts', 'src/zk/batch-root.ts'];
-const NON_MATCHING_PATHS: readonly string[] = ['src/ui/App.tsx', 'tests/ledger/x.test.ts', 'docs/spike-results.md'];
+const MATCHING_PATHS: readonly string[] = ['src/ledger/parse.ts', 'src/ledger/trusted-keys.ts', 'src/zk/batch-root.ts', '/Users/dev/CryptTerm/src/ledger/parse.ts', '/Users/dev/CryptTerm/src/zk/batch-root.ts'];
+const NON_MATCHING_PATHS: readonly string[] = ['src/ui/App.tsx', 'tests/ledger/x.test.ts', 'docs/spike-results.md', '/Users/dev/CryptTerm/src/ui/App.tsx', '/Users/dev/mysrc/ledger/x.ts', 'notsrc/zk/x.ts'];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);

@@ -24,8 +24,8 @@ const MESSAGE_LENGTH = COUNT_OFFSET + COUNT_LENGTH;
 const PUBLIC_KEY_BYTES = 32;
 const SIGNATURE_BYTES = 64;
 
-const ROOT_HEX_PATTERN = /^0x[0-9a-f]{64}$/;
-const SIGNATURE_HEX_PATTERN = /^[0-9a-f]{128}$/;
+export const ROOT_HEX_PATTERN = /^0x[0-9a-f]{64}$/;
+export const SIGNATURE_HEX_PATTERN = /^[0-9a-f]{128}$/;
 const PUBLIC_KEY_HEX_PATTERN = /^[0-9a-f]{64}$/;
 
 /** The fixed error message of `digestMessage`. It never holds an input value. */
@@ -95,7 +95,7 @@ function hexToBytes(hex: string, byteLength: number): Uint8Array<ArrayBuffer> {
 const DIGEST_KEYS: readonly string[] = ['batchId', 'merkleRoot', 'recordCount', 'signature', 'sourceKeyId'];
 
 /** A plain object with exactly the five digest keys as own properties, and no others. */
-function hasExactDigestKeys(value: unknown): value is Record<string, unknown> {
+export function hasExactDigestKeys(value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
   const proto: unknown = Object.getPrototypeOf(value);
   if (proto !== Object.prototype && proto !== null) return false;

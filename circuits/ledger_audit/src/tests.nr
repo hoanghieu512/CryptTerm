@@ -228,3 +228,61 @@ fn padding_leaf_matches_bb_js() {
 fn empty_root_matches_bb_js() {
     assert_eq(root_of([padding_posting(); N]), EMPTY_ROOT);
 }
+
+// zk-core task 1.1: padding canonicality and boundary tests. Tests only, no constraint changes.
+// Each padding test puts one non-zero value into slot 10 (a padding slot for record_count 10),
+// with the other fields zero. The root is the root of the supplied slots and the amounts are
+// unchanged, so no earlier assertion can fire and only constraint 7 rejects.
+#[allow(dead_code)]
+fn padding_with(record_id: Field, account: Field, side: u8, review_flag: u8) -> Posting {
+    Posting { record_id, account, side, amount: 0, review_flag, salt: 0 }
+}
+
+#[test(should_fail_with = "PADDING SLOT NOT NEUTRAL")]
+fn padding_nonzero_record_id_fails() {
+    let p = with_slot(base_postings(10), 10, padding_with(1, 0, SIDE_DEBIT, FLAG_NOT_SET));
+    main(root_of(p), 10, LIMIT, p);
+}
+
+#[test(should_fail_with = "PADDING SLOT NOT NEUTRAL")]
+fn padding_nonzero_account_fails() {
+    let p = with_slot(base_postings(10), 10, padding_with(0, 1, SIDE_DEBIT, FLAG_NOT_SET));
+    main(root_of(p), 10, LIMIT, p);
+}
+
+#[test(should_fail_with = "PADDING SLOT NOT NEUTRAL")]
+fn padding_nonzero_side_fails() {
+    // Side C (1) is a valid side, so constraint 4 passes. Amount 0 keeps the sums equal.
+    let p = with_slot(base_postings(10), 10, padding_with(0, 0, SIDE_CREDIT, FLAG_NOT_SET));
+    main(root_of(p), 10, LIMIT, p);
+}
+
+#[test(should_fail_with = "PADDING SLOT NOT NEUTRAL")]
+fn padding_nonzero_review_flag_fails() {
+    // Flag Y (1) is a valid flag, so constraint 5 passes.
+    let p = with_slot(base_postings(10), 10, padding_with(0, 0, SIDE_DEBIT, FLAG_SET));
+    main(root_of(p), 10, LIMIT, p);
+}
+
+#[test]
+fn record_count_1_passes() {
+    // One real posting: a debit of 0 cents. It balances (0 = 0) and is within the limit.
+    // Every other slot is padding.
+    let one = Posting {
+        record_id: 1,
+        account: 1000000000000001,
+        side: SIDE_DEBIT,
+        amount: 0,
+        review_flag: FLAG_NOT_SET,
+        salt: 7000001,
+    };
+    let p = with_slot(base_postings(0), 0, one);
+    main(root_of(p), 1, LIMIT, p);
+}
+
+#[test]
+fn limit_2_pow_40_minus_1_passes() {
+    // The largest valid limit. Amounts stay at the base batch values, all below this limit.
+    let p = base_postings(10);
+    main(root_of(p), 10, TWO_POW_40 - 1, p);
+}

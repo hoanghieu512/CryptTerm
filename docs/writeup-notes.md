@@ -46,3 +46,26 @@ Decisions by huynh. At the time of writing, only the Netlify power is installed 
 | Netlify | Installed | Used for deploys. Hosting moved to Netlify. |
 | Kane CLI | Kept | Reserved for an exploratory pass in Task 7. |
 | Security powers | Skipped | They target cloud infrastructure, and this static app has none. The app's security rules live in `security.md` and in checks that run on the source. |
+
+### 2026-11-22: Circuit auditor, first run (zk-core task 1.4)
+
+Agent file: `.kiro/agents/circuit-auditor.json`. It is read-only: the tool list is `read`, and `permissions.rules` deny `fs_write` and `shell`. The format comes from the Kiro "Configuration reference" for custom agents (kiro.dev/docs/custom-agents/configuration-reference/), which covers IDE 1.0 and CLI V3.
+
+Scope: `circuits/ledger_audit`, `src/zk/witness-builder.ts`, `src/zk/batch-root.ts`.
+
+Command, run once from the repo root on 2026-11-22, exit status 0:
+
+```
+kiro-cli chat --v3 --agent circuit-auditor --no-interactive --trust-workspace --trust-tools=read "Audit circuits/ledger_audit, src/zk/witness-builder.ts and src/zk/batch-root.ts as described in your instructions. Report findings in the report format. Do not modify anything."
+```
+
+Quirk: without `--v3` the headless run picks the V2 engine, which cannot load a V3-only agent file (`Mode 'circuit-auditor' not found`, exit status 4). `kiro-cli agent list` shows the agent either way, so the listing does not prove that a headless run will find it.
+
+Findings (the agent reported four, none a real soundness or parity break; no circuit or witness code was changed):
+
+1. Test gap claim: five constraints (`RECORD COUNT BELOW 1`, `RECORD COUNT ABOVE CAPACITY`, `LIMIT OUT OF RANGE`, `SIDE NOT D OR C`, `FLAG NOT Y OR N`) have no failing `nargo test`. Not a finding. The agent saw only part of a grep and said so itself. `circuits/ledger_audit/src/tests.nr` has a `should_fail_with` test for each of them (`record_count_0_fails`, `record_count_65_fails`, `limit_at_2_pow_40_fails`, `side_value_2_fails`, `review_flag_value_2_fails`), and `nargo test` passes all 26 tests. Action: none.
+2. `record_id`, `account` and `salt` are not range-checked in the circuit, while the TypeScript builder limits them to 64, 64 and 248 bits. Known and recorded in `noir.md` ("Leaf and field encodings"). The root is signed, so a different preimage needs a Poseidon2 collision. Action: none.
+3. `assembleCircuitInputs` does not force padding slots to be neutral, and must not reach production code. It builds crafted witnesses for tests, and `buildCircuitInputs` always pads with `PADDING_POSTING`. Checked by search: only `src/zk/witness-builder.ts` and four test files name it. Action: none. The `zk_static_scan` of group 4 could pin this later.
+4. `batchRoot` takes the count from `batch.postings.length`, so nothing in these three files ties it to the signed `record_count`. The parser rejects a trailer count that differs from the posting lines (`COUNT_MISMATCH` in `src/ledger/parse.ts`), and the verifier's `DIGEST_MATCH` step compares the proof's count with the signed one. Action: none.
+
+Status: no finding is open and nothing awaits huynh. The agent's own caveat stands: it read the code and ran nothing.

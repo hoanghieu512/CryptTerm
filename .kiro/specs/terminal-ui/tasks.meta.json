@@ -83,6 +83,11 @@
         "executionId": "ff9bfec4-f9da-44f5-b674-b08a7f4f2d77",
         "chatSessionId": "sess_2b8cf7e7-b855-4f79-8b3d-a30dc6b68502",
         "timestamp": 1795446200661
+      },
+      {
+        "executionId": "ff9bfec4-f9da-44f5-b674-b08a7f4f2d77",
+        "chatSessionId": "sess_2b8cf7e7-b855-4f79-8b3d-a30dc6b68502",
+        "timestamp": 1795446758180
       }
     ],
     "3.3 Implement the effect host `createTerminal`, then Group checkpoint": [
@@ -95,6 +100,18 @@
         "executionId": "ff9bfec4-f9da-44f5-b674-b08a7f4f2d77",
         "chatSessionId": "sess_2b8cf7e7-b855-4f79-8b3d-a30dc6b68502",
         "timestamp": 1795446540023
+      },
+      {
+        "executionId": "ff9bfec4-f9da-44f5-b674-b08a7f4f2d77",
+        "chatSessionId": "sess_2b8cf7e7-b855-4f79-8b3d-a30dc6b68502",
+        "timestamp": 1795446758328
+      }
+    ],
+    "3. Group 3: CTM300 prove flow and the effect host": [
+      {
+        "executionId": "ff9bfec4-f9da-44f5-b674-b08a7f4f2d77",
+        "chatSessionId": "sess_2b8cf7e7-b855-4f79-8b3d-a30dc6b68502",
+        "timestamp": 1795446758498
       }
     ]
   }

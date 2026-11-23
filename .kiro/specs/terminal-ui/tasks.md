@@ -65,7 +65,7 @@ Rules for every task:
     - Done when: `npm test` passes with all 2.1 tests included, `npm run typecheck` exits 0, and `git log -1 --oneline` shows the commit message (outputs quoted).
     - _Requirements: 3.2, 3.3, 4.2, 4.3, 4.4, 4.5, 4.6, 5.4, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 3. Group 3: CTM300 prove flow and the effect host
+- [x] 3. Group 3: CTM300 prove flow and the effect host
   - Needs from groups 1 and 2: `src/ui/model/types.ts` (`Action`, `Effect`, `TerminalState`, `ProveState`), `update.ts` (`initialState`, `update`), `grid.ts` (`renderGrid`), `tamper.ts` (`workingBatch`, `isTampered`), `digest-status.ts` (`checkSignature`), `sample-loader.ts` (`createSampleLoader`), `samples.ts`, `messages.ts`, `screens/ctm300.ts` (skeleton), `tests/support/terminal-arbitraries.ts`. Existing `src/zk` exports used: `ProveService`, `createProveService`, `ProveError`, `PROVE_ERROR_MESSAGES`, `PROVE_STAGES`, `encodeBundleForUrl`, `decodeBundle`, `bundleToJson`, and `tests/support/in-process-port.ts` for the stub backend.
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
@@ -74,12 +74,12 @@ Rules for every task:
     - Done when: `npx vitest run tests/ui -t "limit_field_prefill_and_rules|precheck_rejects_without_worker|single_proof_at_a_time|leave_mid_proof|prove_error_display|prove_success_screen|bundle_actions|verify_link_roundtrip|bundle_dropped_on_change|sample_load_through_host"` fails because `src/ui/model/prove-flow`, `links` and `terminal` cannot be imported (output quoted before any implementation exists).
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6_
 
-  - [-] 3.2 Implement links, the prove flow and the CTM300 screen
+  - [x] 3.2 Implement links, the prove flow and the CTM300 screen
     - New files: `src/ui/model/links.ts` (`VERIFY_LINK_PREFIX`, `verifyLinkFor`, `bundleFileName`), `src/ui/model/prove-flow.ts` (`startProve` with the on-page `checkBatch`, `onProveProgress`, `onProveDone`, `onProveFailed`, export helpers). Replace `screens/ctm300.ts` (limit field prefilled with `LIMIT_CENTS`, result lines, link row with prefix and length, PF5, PF9, PF10, PF11 only when `done`). Wire `update.ts`: `PROVE`, `CANCEL_PROVE`, `CLIPBOARD_WRITE`, `DOWNLOAD`, `OPEN_LINK` effects, run-id filtering, bundle dropped on edit change and on leaving CTM200.
     - Done when: `npx vitest run tests/ui -t "limit_field_prefill_and_rules|prove_success_screen|bundle_actions|verify_link_roundtrip|bundle_dropped_on_change"` passes (summary line quoted). The host-driven tests pass in 3.3.
     - _Requirements: 7.1, 7.2, 7.3, 7.6, 8.2, 8.3, 8.4, 8.5, 8.6_
 
-  - [-] 3.3 Implement the effect host `createTerminal`, then Group checkpoint
+  - [x] 3.3 Implement the effect host `createTerminal`, then Group checkpoint
     - New file `src/ui/model/terminal.ts` (`createTerminal`, `Terminal`, `TerminalDeps`): store the state before running effects, run `LOAD_SAMPLE` (with `checkSignature`), `PROVE` (rejection mapped to `ProveReason` or `UNEXPECTED` by `err instanceof ProveError && Object.hasOwn(PROVE_ERROR_MESSAGES, err.reason)`, a synchronous throw is `UNEXPECTED`), `CANCEL_PROVE`, `CLIPBOARD_WRITE`, `DOWNLOAD`, `OPEN_LINK`. Every re-entering action carries its load id or run id. No `catch` binds the thrown value, no `console.*`. `src/ui/app.tsx` is not edited here.
     - Group checkpoint: run `npm test` and `npm run typecheck`, run `git status --short`, stage by name the new and changed `src/ui` files, `tests/support/fake-prove.ts`, the new test files and `.kiro/specs/terminal-ui/tasks.md`, commit `feat(terminal-ui): prove flow and effect host`, never push, then STOP for huynh and Claude review.
     - Done when: `npm test` passes with all 3.1 tests included, `npm run typecheck` exits 0, and `git log -1 --oneline` shows the commit message (outputs quoted).

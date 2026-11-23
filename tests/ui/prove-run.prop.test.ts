@@ -156,4 +156,18 @@ describe('prove_error_display', () => {
       expect(h.terminal.getState().prove.kind).toBe('proving');
     }));
   });
+
+  // Regression example for the PBT-LOG entry of 2026-11-23: a synchronous throw from proveBatch must show
+  // UNEXPECTED in the same turn, with no await between the key and the checks.
+  it('prove_error_display: a synchronous throw from the Prove_Port shows UNEXPECTED in the same turn (regression)', () => {
+    const h = makeHarness({ initial: ctm300() });
+    h.fake.throwOnNextCall(new Error('PROOF RUN ALREADY ACTIVE'));
+    h.terminal.dispatch(pf(5));
+    const state = h.terminal.getState();
+    expect(state.status).toBe(MESSAGES.UNEXPECTED);
+    expect(state.prove.kind).toBe('failed');
+    h.terminal.dispatch(pf(5));
+    expect(h.fake.calls).toHaveLength(2);
+    expect(h.terminal.getState().prove.kind).toBe('proving');
+  });
 });

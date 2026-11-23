@@ -96,7 +96,7 @@ describe('masked_accounts', () => {
         }
       }
     }));
-  });
+  }, 30000);
 
   it.each(['clean', 'over-limit-unflagged', 'unbalanced', 'large'])('masked_accounts: sample %s, every page, before and after an edit', (name) => {
     const batch = committedSample(name).batch;

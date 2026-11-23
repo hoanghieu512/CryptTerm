@@ -1,9 +1,10 @@
 // The terminal state machine: update(state, action) -> { state, effects } (terminal-ui design,
-// section A). Pure: no React, DOM or network. No effect is emitted for the prove flow yet; the
-// only effect so far is LOAD_SAMPLE from CTM100.
+// section A). Pure: no React, DOM or network. Effects are data: LOAD_SAMPLE from CTM100 and the
+// prove-flow effects (PROVE, CANCEL_PROVE, CLIPBOARD_WRITE, DOWNLOAD, OPEN_LINK) from CTM300.
 import { inputFields } from './grid';
 import { MESSAGES } from './messages';
 import { goTo } from './navigation';
+import { onClipboardDone, onProveDone, onProveFailed, onProveProgress } from './prove-flow';
 import { SCREENS, layoutOf } from './screens/index';
 import type { Action, PfNumber, TerminalState, Update } from './types';
 
@@ -126,12 +127,16 @@ function reduce(state: TerminalState, action: Action): Update {
     case 'SAMPLE_FAILED':
       if (!isCurrentLoad(state, action.loadId)) return { state, effects: [] };
       return { state: { ...state, pendingLoad: null, status: MESSAGES.LOAD_FAILED }, effects: [] };
+    // Prove results. Each handler in prove-flow.ts drops a result whose run id is not the run on
+    // screen (isCurrentRun), returning this same state object with no effects.
     case 'PROVE_PROGRESS':
+      return onProveProgress(state, action);
     case 'PROVE_DONE':
+      return onProveDone(state, action);
     case 'PROVE_FAILED':
+      return onProveFailed(state, action);
     case 'CLIPBOARD_DONE':
-      // Handled with the prove flow (group 3). Until then no run exists, so every result is stale.
-      return { state, effects: [] };
+      return onClipboardDone(state, action);
   }
 }
 

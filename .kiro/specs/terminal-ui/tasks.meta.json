@@ -55,6 +55,47 @@
         "chatSessionId": "sess_b3aecd88-7d1d-41db-84c6-5ae42f4ba4a6",
         "timestamp": 1795397922531
       }
+    ],
+    "3.1 Write the failing tests for the prove flow and the host": [
+      {
+        "executionId": "ff9bfec4-f9da-44f5-b674-b08a7f4f2d77",
+        "chatSessionId": "sess_2b8cf7e7-b855-4f79-8b3d-a30dc6b68502",
+        "timestamp": 1795445740835
+      },
+      {
+        "executionId": "ff9bfec4-f9da-44f5-b674-b08a7f4f2d77",
+        "chatSessionId": "sess_2b8cf7e7-b855-4f79-8b3d-a30dc6b68502",
+        "timestamp": 1795445746835
+      },
+      {
+        "executionId": "ff9bfec4-f9da-44f5-b674-b08a7f4f2d77",
+        "chatSessionId": "sess_2b8cf7e7-b855-4f79-8b3d-a30dc6b68502",
+        "timestamp": 1795446196813
+      }
+    ],
+    "3.2 Implement links, the prove flow and the CTM300 screen": [
+      {
+        "executionId": "ff9bfec4-f9da-44f5-b674-b08a7f4f2d77",
+        "chatSessionId": "sess_2b8cf7e7-b855-4f79-8b3d-a30dc6b68502",
+        "timestamp": 1795445741313
+      },
+      {
+        "executionId": "ff9bfec4-f9da-44f5-b674-b08a7f4f2d77",
+        "chatSessionId": "sess_2b8cf7e7-b855-4f79-8b3d-a30dc6b68502",
+        "timestamp": 1795446200661
+      }
+    ],
+    "3.3 Implement the effect host `createTerminal`, then Group checkpoint": [
+      {
+        "executionId": "ff9bfec4-f9da-44f5-b674-b08a7f4f2d77",
+        "chatSessionId": "sess_2b8cf7e7-b855-4f79-8b3d-a30dc6b68502",
+        "timestamp": 1795445741723
+      },
+      {
+        "executionId": "ff9bfec4-f9da-44f5-b674-b08a7f4f2d77",
+        "chatSessionId": "sess_2b8cf7e7-b855-4f79-8b3d-a30dc6b68502",
+        "timestamp": 1795446540023
+      }
     ]
   }
 }

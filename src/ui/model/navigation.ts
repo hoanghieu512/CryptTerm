@@ -6,7 +6,8 @@
 //   to CTM100   sample, edits, tamper flag, page and prove are discarded
 //   to CTM200   from CTM100: fresh view (the caller sets `sample`)
 //               from CTM300: sample, edits and page kept, a run or a failure is dropped, a bundle kept
-//   to CTM300   sample, edits and page kept, tamper mode off
+//   to CTM300   sample, edits and page kept, tamper mode off, limit field prefilled
+import { LIMIT_CENTS } from '../../ledger/invariants';
 import type { ScreenId, TerminalState } from './types';
 
 export function goTo(state: TerminalState, screen: ScreenId): TerminalState {
@@ -31,6 +32,7 @@ export function goTo(state: TerminalState, screen: ScreenId): TerminalState {
       }
       return { ...moved, edits: new Map(), tamper: false, page: 0, pendingLoad: null, prove: { kind: 'idle' } };
     case 'CTM300':
-      return { ...moved, tamper: false, pendingLoad: null };
+      // The policy limit field starts from the default on every entry. A typed limit is not kept.
+      return { ...moved, fields: { limit: LIMIT_CENTS.toString() }, tamper: false, pendingLoad: null };
   }
 }

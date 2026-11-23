@@ -1,0 +1,26 @@
+// Every fixed status text of the terminal (terminal-ui design, "Data Models"). One place, all at
+// most 70 characters, none built from user input, a posting or a thrown value.
+// `REJECTED` and `PROVING` are prefixes: the caller appends a reason or a stage name.
+export const MESSAGES = Object.freeze({
+  SELECT_INVALID: 'ENTER A SAMPLE NUMBER FROM 1 TO 4',
+  LOADING: 'LOADING SAMPLE',
+  LOAD_FAILED: 'SAMPLE LOAD FAILED',
+  SAMPLE_LOADED: 'SAMPLE LOADED',
+  PF_INACTIVE: 'PF KEY NOT ACTIVE',
+  FIRST_PAGE: 'FIRST PAGE',
+  LAST_PAGE: 'LAST PAGE',
+  TAMPER_ON: 'TAMPER MODE ON',
+  TAMPER_OFF: 'TAMPER MODE OFF',
+  NO_EDITS: 'NO AMOUNT ENTERED',
+  EDITS_APPLIED: 'AMOUNTS UPDATED',
+  LIMIT_OK: 'LIMIT ACCEPTED',
+  IN_PROGRESS: 'PROOF IN PROGRESS',
+  REJECTED: 'REJECTED: ',
+  PROVING: 'PROVING: ',
+  DONE: 'PROOF GENERATED',
+  UNEXPECTED: 'PROOF GENERATION FAILED: UNEXPECTED ERROR',
+  COPIED: 'BUNDLE COPIED',
+  COPY_FAILED: 'COPY FAILED',
+  DOWNLOAD: 'DOWNLOAD STARTED',
+  OPENING: 'OPENING VERIFIER',
+} as const);

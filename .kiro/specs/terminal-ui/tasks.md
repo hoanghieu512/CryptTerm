@@ -20,7 +20,7 @@ Rules for every task:
 
 ## Tasks
 
-- [ ] 0. Commit the spec files
+- [x] 0. Commit the spec files
   - Run `git status --short` first. Stage by name: `git add .kiro/specs/terminal-ui/requirements.md .kiro/specs/terminal-ui/design.md .kiro/specs/terminal-ui/tasks.md .kiro/specs/terminal-ui/.config.kiro`. Commit with the message `spec(terminal-ui): requirements, design, tasks`. Never push. Run by the orchestrator right after this file is generated.
   - Done when: `git log -1 --oneline` prints `spec(terminal-ui): requirements, design, tasks` (quoted).
   - _Requirements: none (process task)_
@@ -29,17 +29,17 @@ Rules for every task:
   - Needs from earlier groups: nothing new. Reuses existing `src/ledger` exports (`Batch`, `Posting`, `POSTING_COLUMNS`, `padDigits`, `ID_MAX`, `AMOUNT_BOUND_CENTS`, `LIMIT_CENTS`, `SIDE_DEBIT_LETTER`, `SIDE_CREDIT_LETTER`, `checkBatch`, `SignedDigest`) and `src/zk` exports (`ProofBundle`, `PROVE_STAGES`, `ProveReason`) as types and values, and `tests/support/pbt.ts`, `ledger-arbitraries.ts`, `bundle-arbitraries.ts`.
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 3.1, 4.1, 4.4, 5.1, 5.2, 5.3, 5.5_
 
-  - [ ] 1.1 Write the failing tests for the pure foundations
+  - [x] 1.1 Write the failing tests for the pure foundations
     - Create `tests/ledger/mask.prop.test.ts` (`mask_account`, P8, seed 20264008, plus examples `0`, `7`, `9999`, `10000`, `ID_MAX`). Create under `tests/ui/`: `format_cents_roundtrip` (P12, 20264012), `tamper_input_validation` valid and invalid halves only (P13, P14, seeds 20264013 and 20264014, boundary examples `0`, `1099511627775`, `1099511627776`, values within 4 of `2^53`, `abc`, `-5`, empty, `007`, `12345678901234`, `9007199254740993`, sentinel digits absent from rendered rows), `pf5_does_not_reload` and `f11_f12_not_handled` (P5, 20264005), `alt_bindings_work` (P6, 20264006, 12 macOS examples), `pf_bar_buttons_match_keys`, `screen_grid_shape` (P1, 20264001), `pf_bar_matches_handlers` (P2, 20264002), `tab_order` (P3, 20264003), `field_input_protected` (P4, 20264004), `enter_submits_whole_screen`, `screen_flow` (P7, 20264007, CTM000 to CTM300 skeleton and PF3), `logon_to_select`, `layout_fields_valid`, `messages_fit_status_line`. Create `tests/support/terminal-arbitraries.ts` (`keyEventArb`, `userActionArb`, `sampleStateArb(batch)` that drives CTM000, CTM100 and a `SAMPLE_LOADED` action). Properties range over `SCREENS`, so they cover the richer CTM200 and CTM300 layouts when those arrive.
     - Done when: `npx vitest run tests/ledger/mask.prop.test.ts tests/ui` fails because `src/ledger/mask` and `src/ui/model/*` cannot be imported (output quoted before any implementation exists).
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 3.1, 4.1, 4.4, 5.1, 5.2, 5.3, 5.5_
 
-  - [ ] 1.2 Implement `mask.ts`, `types.ts`, `amount-input.ts` and `keys.ts`
+  - [x] 1.2 Implement `mask.ts`, `types.ts`, `amount-input.ts` and `keys.ts`
     - New files: `src/ledger/mask.ts` (`maskAccount`, `MASK_CHAR`, `MASK_WIDTH`, `VISIBLE_DIGITS`, fail closed with 20 mask characters), `src/ui/model/types.ts` (all types of design section A), `src/ui/model/amount-input.ts` (`parseAmountInput`, `AMOUNT_INPUT_MESSAGES`, `formatCents`, no `Number` step, length check before `BigInt`), `src/ui/model/keys.ts` (`KeyEventLike`, `handleKey`, `pfAction`, frozen F1 to F10 table, `ALT_CODES` matched on `code`, F11 and F12 never handled).
     - Done when: `npx vitest run tests/ledger/mask.prop.test.ts tests/ui -t "mask_account|format_cents_roundtrip|tamper_input_validation|f11_f12_not_handled|alt_bindings_work"` passes (summary line quoted).
     - _Requirements: 2.1, 2.2, 2.3, 4.1, 4.4, 5.1, 5.2, 5.3, 5.5_
 
-  - [ ] 1.3 Implement the grid, screens CTM000 to CTM300 skeleton and `update`, then Group checkpoint
+  - [-] 1.3 Implement the grid, screens CTM000 to CTM300 skeleton and `update`, then Group checkpoint
     - New files: `src/ui/model/messages.ts` (`MESSAGES`), `samples.ts` (`SAMPLES`, `SampleName`, `sampleByNumber`), `grid.ts` (`ROWS`, `COLS`, `renderGrid`, `renderStatusRow`, `inputFields`, `cursorCell`), `screens/ctm000.ts`, `ctm100.ts` (menu and selection field), `ctm200.ts` and `ctm300.ts` (skeleton: title, PF3 only), `screens/index.ts` (`SCREENS`, `layoutOf`), `navigation.ts` (`goTo`), `update.ts` (`initialState`, `update`, `settle`, field editing, Tab, Enter, PF dispatch, stale-action drop). No effect is emitted yet.
     - Group checkpoint: run `npm test` and `npm run typecheck`, run `git status --short`, stage by name the new `src/ledger/mask.ts`, `src/ui/model/*`, the new test and support files and `.kiro/specs/terminal-ui/tasks.md`, commit `feat(terminal-ui): mask, amount input, key handler and screen model core`, never push, then STOP for huynh and Claude review.
     - Done when: `npm test` passes with all 1.1 tests included, `npm run typecheck` exits 0, and `git log -1 --oneline` shows the commit message (outputs quoted).

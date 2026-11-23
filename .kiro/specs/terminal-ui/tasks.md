@@ -25,7 +25,7 @@ Rules for every task:
   - Done when: `git log -1 --oneline` prints `spec(terminal-ui): requirements, design, tasks` (quoted).
   - _Requirements: none (process task)_
 
-- [ ] 1. Group 1: pure foundations (mask, amount input, key handler, grid and screen core)
+- [x] 1. Group 1: pure foundations (mask, amount input, key handler, grid and screen core)
   - Needs from earlier groups: nothing new. Reuses existing `src/ledger` exports (`Batch`, `Posting`, `POSTING_COLUMNS`, `padDigits`, `ID_MAX`, `AMOUNT_BOUND_CENTS`, `LIMIT_CENTS`, `SIDE_DEBIT_LETTER`, `SIDE_CREDIT_LETTER`, `checkBatch`, `SignedDigest`) and `src/zk` exports (`ProofBundle`, `PROVE_STAGES`, `ProveReason`) as types and values, and `tests/support/pbt.ts`, `ledger-arbitraries.ts`, `bundle-arbitraries.ts`.
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 3.1, 4.1, 4.4, 5.1, 5.2, 5.3, 5.5_
 
@@ -39,27 +39,27 @@ Rules for every task:
     - Done when: `npx vitest run tests/ledger/mask.prop.test.ts tests/ui -t "mask_account|format_cents_roundtrip|tamper_input_validation|f11_f12_not_handled|alt_bindings_work"` passes (summary line quoted).
     - _Requirements: 2.1, 2.2, 2.3, 4.1, 4.4, 5.1, 5.2, 5.3, 5.5_
 
-  - [-] 1.3 Implement the grid, screens CTM000 to CTM300 skeleton and `update`, then Group checkpoint
+  - [x] 1.3 Implement the grid, screens CTM000 to CTM300 skeleton and `update`, then Group checkpoint
     - New files: `src/ui/model/messages.ts` (`MESSAGES`), `samples.ts` (`SAMPLES`, `SampleName`, `sampleByNumber`), `grid.ts` (`ROWS`, `COLS`, `renderGrid`, `renderStatusRow`, `inputFields`, `cursorCell`), `screens/ctm000.ts`, `ctm100.ts` (menu and selection field), `ctm200.ts` and `ctm300.ts` (skeleton: title, PF3 only), `screens/index.ts` (`SCREENS`, `layoutOf`), `navigation.ts` (`goTo`), `update.ts` (`initialState`, `update`, `settle`, field editing, Tab, Enter, PF dispatch, stale-action drop). No effect is emitted yet.
     - Group checkpoint: run `npm test` and `npm run typecheck`, run `git status --short`, stage by name the new `src/ledger/mask.ts`, `src/ui/model/*`, the new test and support files and `.kiro/specs/terminal-ui/tasks.md`, commit `feat(terminal-ui): mask, amount input, key handler and screen model core`, never push, then STOP for huynh and Claude review.
     - Done when: `npm test` passes with all 1.1 tests included, `npm run typecheck` exits 0, and `git log -1 --oneline` shows the commit message (outputs quoted).
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.4, 2.5, 2.6, 3.1_
 
-- [ ] 2. Group 2: CTM100 and CTM200 (sample loader, batch view, digest status, tamper mode)
+- [x] 2. Group 2: CTM100 and CTM200 (sample loader, batch view, digest status, tamper mode)
   - Needs from group 1: `src/ledger/mask.ts` (`maskAccount`), `src/ui/model/types.ts`, `amount-input.ts` (`parseAmountInput`, `formatCents`, `AMOUNT_INPUT_MESSAGES`), `keys.ts`, `messages.ts`, `samples.ts` (`SAMPLES`, `sampleByNumber`), `grid.ts` (`renderGrid`), `screens/index.ts` (`SCREENS`, `layoutOf`), `navigation.ts`, `update.ts` (`initialState`, `update`), and `tests/support/terminal-arbitraries.ts`. The skeleton `ctm200.ts` is replaced in this group. Existing `src/ledger` exports used: `parseBatch`, `isSignedDigestShape`, `verifyDigest`, `TRUSTED_SOURCE_KEYS`, `checkInvariants`.
   - _Requirements: 3.2, 3.3, 3.4, 3.5, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 5.4, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-  - [ ] 2.1 Write the failing tests for loading, batch view and tamper mode
+  - [x] 2.1 Write the failing tests for loading, batch view and tamper mode
     - Under `tests/ui/`: `batch_select_lists_samples`, `sample_load` (all four samples, fake fetch that serves the committed `public/samples` files and records URLs), `sample_load_failure` (one case per defect, sentinel text planted in served files and absent from the message), `digest_status` (four samples, unknown key id, `__proto__`, flipped signature byte, edit then compare: row 3 holds `(ORIGINAL BATCH)` and `TAMPERED`, text unchanged by the edit, no claim about the Working_Batch), `masked_accounts` (P9, 20264009, every page of the four samples before and after edits), `paging_covers_all_postings` (P10, 20264010), `totals_match_invariants` (P11, 20264011), `tamper_toggle`, `tamper_input_validation` atomic half (P15, 20264015, and one example per error class), `tamper_edits_accumulate` with the move-one-cent example (P16, 20264016), `tamper_status`, `tamper_keeps_digest` (P17, 20264017). Extend `tests/support/terminal-arbitraries.ts` with the fake `fetch`.
     - Done when: `npx vitest run tests/ui -t "batch_select_lists_samples|sample_load|digest_status|masked_accounts|paging_covers_all_postings|totals_match_invariants|tamper_toggle|tamper_edits_accumulate|tamper_status|tamper_keeps_digest"` fails because `src/ui/sample-loader`, `src/ui/model/digest-status` and `src/ui/model/tamper` cannot be imported (output quoted before any implementation exists).
     - _Requirements: 3.2, 3.3, 3.4, 4.2, 4.3, 4.4, 4.5, 4.6, 5.4, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-  - [ ] 2.2 Implement the sample loader, digest status and tamper helpers
+  - [x] 2.2 Implement the sample loader, digest status and tamper helpers
     - New files: `src/ui/sample-loader.ts` (`createSampleLoader`, `FetchLike`, the only `fetch` under `src/ui`, URLs `/samples/<name>.dat` and `/samples/<name>.digest.json` built from the `SAMPLES` table, fixed rejection with no text), `src/ui/model/digest-status.ts` (`checkSignature`, own-property key lookup, any throw gives `false`), `src/ui/model/tamper.ts` (`workingBatch`, `isTampered`, `pageSlots`, `applyAmountEdits`, atomic, original digest never touched).
     - Done when: `npx vitest run tests/ui -t "sample_load|sample_load_failure"` passes (summary line quoted). `digest_status` and the tamper tests pass in 2.3, once the screen exists.
     - _Requirements: 3.3, 3.4, 3.5, 4.5, 6.2, 6.4, 6.5_
 
-  - [ ] 2.3 Implement CTM100 loading and the CTM200 screen, then Group checkpoint
+  - [x] 2.3 Implement CTM100 loading and the CTM200 screen, then Group checkpoint
     - Edit `src/ui/model/screens/ctm100.ts` (Enter sets `pendingLoad`, status `LOADING SAMPLE`, emits `LOAD_SAMPLE`; stale `SAMPLE_LOADED` and `SAMPLE_FAILED` dropped by load id) and replace `screens/ctm200.ts` (batch id, count, page, digest status row with `TAMPERED` at column 40, 12 posting rows with `maskAccount`, totals through `formatCents`, PF7 and PF8 paging, PF12 tamper toggle with `amt:<slot>` fields at column 67, `NEW CENTS` header, Enter applies edits or moves to CTM300). Wire `update.ts` to `tamper.ts` and `goTo` keep and discard rules (design section "Screen flow"). `checkSignature` runs in the host (group 3), so tests set `signatureValid` through `SAMPLE_LOADED`.
     - Group checkpoint: run `npm test` and `npm run typecheck`, run `git status --short`, stage by name the new and changed `src/ui` files, the new test and support files and `.kiro/specs/terminal-ui/tasks.md`, commit `feat(terminal-ui): sample loading, batch view and tamper mode`, never push, then STOP for huynh and Claude review.
     - Done when: `npm test` passes with all 2.1 tests included, `npm run typecheck` exits 0, and `git log -1 --oneline` shows the commit message (outputs quoted).

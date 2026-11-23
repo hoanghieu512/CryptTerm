@@ -8,13 +8,19 @@
 //   userActionArb    PF, ENTER, TAB, BACKSPACE and CHAR actions
 //   sampleStateArb   a state that went CTM000 -> CTM100 -> SAMPLE_LOADED -> CTM200, then random actions
 //   reachableStateArb  states on every screen, with and without a loaded sample
+//   fakeFetch        a fetch that serves the committed public/samples files and records URLs
+//   editSlot         tamper edit through the model (page, PF12, typed text, Enter)
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import fc from 'fast-check';
 import type { Batch } from '../../src/ledger/batch';
 import type { SignedDigest } from '../../src/ledger/digest';
+import { parseBatch } from '../../src/ledger/parse';
 import type { KeyEventLike } from '../../src/ui/model/keys';
+import type { FetchLike } from '../../src/ui/sample-loader';
 import { initialState, update } from '../../src/ui/model/update';
 import type { Action, LoadedSample, PfNumber, ScreenId, TerminalState, UserAction } from '../../src/ui/model/types';
-import { batchArb } from './ledger-arbitraries';
+import { SENTINEL, batchArb } from './ledger-arbitraries';
 import { shapedDigest } from './prove-fixtures';
 
 /** The four screens in flow order. Tests also assert that `SCREENS` has exactly these keys. */
@@ -214,4 +220,68 @@ export const flowStepArb: fc.Arbitrary<FlowStep> = fc.oneof(
 export function loadAction(state: TerminalState, batch: Batch): Action {
   const loadId = state.pendingLoad ?? state.nextLoadId + 1000;
   return { type: 'SAMPLE_LOADED', loadId, sample: loadedSampleFor(batch) };
+}
+// ---------------------------------------------------------------------------------------------
+// Sample loading: a fake fetch over the committed signed samples (group 2)
+// ---------------------------------------------------------------------------------------------
+const SAMPLES_DIR = fileURLToPath(new URL('../../public/samples/', import.meta.url));
+const SERVED_NAME = /^[a-z-]+\.(dat|digest\.json)$/;
+/** What a test can plant for a URL: file text, a not-ok response, or a failing request. */
+export type FakeServed = string | { readonly notOk: true } | { readonly throws: true };
+export interface FakeFetch {
+  readonly fetch: FetchLike;
+  /** Every URL requested, in order. */
+  readonly urls: string[];
+}
+/**
+ * Serves `/samples/<name>.dat` and `/samples/<name>.digest.json` from the committed files.
+ * `overrides` replaces one URL. A planted failure carries the sentinel in its body or message, so
+ * a test can assert that no message of the model holds it.
+ */
+export function fakeFetch(overrides: Readonly<Record<string, FakeServed>> = {}): FakeFetch {
+  const urls: string[] = [];
+  const notOk = { ok: false, text: async () => `BODY ${SENTINEL}` };
+  const fetchFn: FetchLike = async (url) => {
+    urls.push(url);
+    if (Object.hasOwn(overrides, url)) {
+      const planted = overrides[url];
+      if (typeof planted === 'string') return { ok: true, text: async () => planted };
+      if (planted !== undefined && 'throws' in planted) throw new Error(`NETWORK ${SENTINEL}`);
+      return notOk;
+    }
+    const prefix = '/samples/';
+    const file = url.startsWith(prefix) ? url.slice(prefix.length) : '';
+    if (!SERVED_NAME.test(file)) return notOk;
+    return { ok: true, text: async () => readFileSync(`${SAMPLES_DIR}${file}`, 'utf8') };
+  };
+  return { fetch: fetchFn, urls };
+}
+/** The committed text and digest of a sample, read straight from disk. */
+export function committedSample(name: string): { readonly text: string; readonly batch: Batch; readonly digest: SignedDigest } {
+  const text = readFileSync(`${SAMPLES_DIR}${name}.dat`, 'utf8');
+  const digest = JSON.parse(readFileSync(`${SAMPLES_DIR}${name}.digest.json`, 'utf8')) as SignedDigest;
+  return { text, batch: parseBatch(text), digest };
+}
+// ---------------------------------------------------------------------------------------------
+// Tamper drivers (group 2). They go through the model, one real action at a time.
+// ---------------------------------------------------------------------------------------------
+/** The CTM200 page size under test, written as a literal on purpose. */
+export const PAGE_SIZE_UNDER_TEST = 12;
+/** PF7 or PF8 until the CTM200 page index is `page`. */
+export function pressUntilPage(state: TerminalState, page: number): TerminalState {
+  let s = state;
+  for (let i = 0; i < 20 && s.page !== page; i += 1) s = step(s, pf(s.page < page ? 8 : 7));
+  return s;
+}
+/** In tamper mode: put the typed texts into the `amt:<slot>` fields, then press Enter. */
+export function submitTyped(state: TerminalState, typed: Readonly<Record<number, string>>): TerminalState {
+  const fields: Record<string, string | undefined> = { ...state.fields };
+  for (const [slot, text] of Object.entries(typed)) fields[`amt:${slot}`] = text;
+  return step({ ...state, fields }, ENTER);
+}
+/** Edit one slot to `cents`: go to its page, switch tamper mode on if needed, type, Enter. */
+export function editSlot(state: TerminalState, slot: number, cents: bigint): TerminalState {
+  let s = pressUntilPage(state, Math.floor(slot / PAGE_SIZE_UNDER_TEST));
+  if (!s.tamper) s = step(s, pf(12));
+  return submitTyped(s, { [slot]: cents.toString() });
 }

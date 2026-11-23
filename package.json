@@ -19,7 +19,9 @@
     "gen:samples": "node --import ./scripts/register-ts.mjs scripts/gen-samples.ts",
     "gen:identity": "node --import ./scripts/register-ts.mjs scripts/gen-circuit-identity.ts",
     "check:dist-vk": "node scripts/check-dist-vk",
-    "test:proof": "vitest run --config vitest.proof.config.ts"
+    "test:proof": "vitest run --config vitest.proof.config.ts",
+    "preview:e2e": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@aztec-foundation/bb.js": "6.0.0",
@@ -31,6 +33,7 @@
     "react-dom": "19.3.1"
   },
   "devDependencies": {
+    "@playwright/test": "1.62.0",
     "@types/node": "24.19.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

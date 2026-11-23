@@ -85,31 +85,31 @@ Rules for every task:
     - Done when: `npm test` passes with all 3.1 tests included, `npm run typecheck` exits 0, and `git log -1 --oneline` shows the commit message (outputs quoted).
     - _Requirements: 7.2, 7.3, 7.4, 7.5, 8.1, 8.3, 8.4, 8.5_
 
-- [ ] 4. Group 4: React shell, scans, Playwright and production build checks
+- [x] 4. Group 4: React shell, scans, Playwright and production build checks
   - Needs from groups 1 to 3: `createTerminal`, `TerminalDeps`, `Terminal` (`src/ui/model/terminal.ts`), `renderGrid`, `cursorCell`, `ROWS`, `COLS` (`grid.ts`), `handleKey`, `pfAction` (`keys.ts`), `layoutOf` (`screens/index.ts`), `createSampleLoader` (`src/ui/sample-loader.ts`), `verifyLinkFor` (`links.ts`), `TerminalState`, and the existing `proveBatch`, `cancelProve` from `src/zk/prove-service.ts`. The cached Chromium (`~/Library/Caches/ms-playwright/chromium-1234`) is needed in 4.2. No task downloads a browser.
   - _Requirements: 8.4, 9.1, 9.2, 9.3, 9.4, 9.5, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8_
 
-  - [ ] 4.1 Write the failing scan, theme and build-check tests
+  - [x] 4.1 Write the failing scan, theme and build-check tests
     - Under `tests/ui/` (use `stripComments` from `tests/support/strip-comments.ts`, `createElement` and `renderToStaticMarkup`, no `.tsx` test files because vitest includes `tests/**/*.test.ts` only): `ui_static_scan` (names of Requirement 9.1, `.account` read only in `screens/ctm200.ts`, `fetch(` only in `sample-loader.ts`; expected to pass at once), `ui_wording_scan` (no IBM, no 3270, no external resource URL in `index.html`), `url_holds_only_bundle` (`TerminalView` rendered with sentinel data, every `href` is the verify link), `theme_contrast` (ratios computed from `THEME`, including the scanline case, and the `prefers-reduced-motion: reduce` block and `pointer-events: none` in `terminal.css`), `dist_clean` (fixture directories always; the real `dist` case runs only when `CHECK_DIST=1`, so `npm test` needs no build), `playwright_pin` (exact `1.62.0` without `^` or `~`, no `playwright install` in `package.json`, `playwright.config.ts`, `e2e`, `scripts`).
     - Done when: `npx vitest run tests/ui -t "ui_static_scan|ui_wording_scan|url_holds_only_bundle|theme_contrast|dist_clean|playwright_pin"` fails because `src/ui/theme`, `src/ui/terminal-view` and `terminal.css` do not exist and `@playwright/test` is not pinned, with `ui_static_scan` passing at once (output quoted).
     - _Requirements: 3.5, 9.1, 9.2, 9.3, 9.4, 9.5, 10.2, 10.8_
 
-  - [ ] 4.2 Add the pinned Playwright setup and write the e2e specs first
+  - [x] 4.2 Add the pinned Playwright setup and write the e2e specs first
     - Look up the Playwright 1.62.0 config and the Vite 8 `vite preview` options first (rule 5). Run `ls ~/Library/Caches/ms-playwright` and quote it. If `chromium-1234` is missing, STOP and ask huynh; never run `playwright install`. Install with `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install --save-exact --save-dev @playwright/test@1.62.0`. Edit `package.json` (scripts `preview:e2e` = `vite preview --host 127.0.0.1 --port 4173 --strictPort`, `test:e2e` = `playwright test`; leave `build`, `test`, `test:proof` as they are) and `tsconfig.json` (`include` gains `e2e` and `playwright.config.ts`). Create `playwright.config.ts` (design section J: `webServer` `npm run build && npm run preview:e2e` on `127.0.0.1:4173`, `reuseExistingServer: false`, no COOP/COEP, `existsSync(chromium.executablePath())` check that throws `CHROMIUM NOT CACHED: STOP AND ASK`). Create `e2e/prover.spec.ts`: `context.route('**/*')` guard before navigation that aborts and records non-local origins (`e2e_local_only`, list asserted empty), then `prover_clean_to_link`, `prover_unbalanced_no_worker`, `prover_f5_no_reload`, `prover_move_cent_makes_bundle`.
     - Done when: `npx vitest run tests/ui -t playwright_pin` passes, `npm run typecheck` exits 0, and `npm run test:e2e` (timeout 600000 ms) reports the four specs failing because the shell is not wired yet, summary line quoted (outputs quoted, together with the `ls ~/Library/Caches/ms-playwright` listing and `grep -n '"@playwright/test"' package.json` showing `1.62.0`).
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6_
 
-  - [ ] 4.3 Implement the theme, the view and the React shell
+  - [x] 4.3 Implement the theme, the view and the React shell
     - New files: `src/ui/theme.ts` (`THEME`, `contrastRatio`, `SCANLINE_ALPHA`, palette of design section I), `src/ui/terminal.css` (layout, `@media (prefers-reduced-motion: reduce)` with `animation: none`, effect layers `pointer-events: none`), `src/ui/terminal-view.tsx` (`TerminalView({ state, onPf })`, `<pre>` rows, cursor overlay, `data-testid="pf-N"` buttons with `tabIndex={-1}` and `onMouseDown` preventDefault, `role="status"` row, `<a data-testid="verify-link">` Link_Anchor when `done`), `src/ui/browser-deps.ts` (`writeClipboard`, `download`, `openLink`). Edit `src/ui/app.tsx` (`createTerminal` once, `useSyncExternalStore`, one `document` `keydown` listener using `handleKey`, `proveBatch` and `cancelProve` as `prove`, `createSampleLoader()`), `src/main.tsx` (import `terminal.css`) and `index.html` (title `CRYPTTERM`, `color-scheme` meta). No `console.*`, no storage, no external resource.
     - Done when: `npx vitest run tests/ui` passes (summary line quoted) and `npm run typecheck` exits 0.
     - _Requirements: 8.4, 9.1, 9.2, 9.3, 9.4, 9.5_
 
-  - [ ] 4.4 Run the Playwright specs against the built shell
+  - [x] 4.4 Run the Playwright specs against the built shell
     - Run `npm run test:e2e` and fix failures in the files this group owns (never in `src/zk` or `src/ledger`). If a spec exposes a real model bug, add a regression example test and an entry in `tests/PBT-LOG.md` when a property found it.
     - Done when: `npm run test:e2e` (timeout 600000 ms) reports `4 passed`, with the `e2e_local_only` non-local origin list asserted empty and no `Executable doesn't exist` error (summary line quoted).
     - _Requirements: 10.1, 10.3, 10.4, 10.5, 10.6_
 
-  - [ ] 4.5 Check the production build, then Group checkpoint
+  - [x] 4.5 Check the production build, then Group checkpoint
     - Run `npm run build`, then `npm run check:dist-vk`, then `CHECK_DIST=1 npx vitest run tests/ui -t dist_clean`, then `npx vitest run tests/ledger -t no_private_key_in_src` (it scans `dist`), then `find dist -path '*e2e*'`. Fix failures in files this group owns.
     - Group checkpoint: run `npm test` and `npm run typecheck`, run `git status --short`, stage by name `package.json`, `package-lock.json`, `tsconfig.json`, `index.html`, `playwright.config.ts`, `src/main.tsx`, `src/ui/*` new and changed files, `e2e/prover.spec.ts`, the new test files and `.kiro/specs/terminal-ui/tasks.md`, commit `feat(terminal-ui): React shell, scans and prover e2e`, never push, then STOP for huynh and Claude review with the evidence list (each command with its summary line, `git log --oneline -5`).
     - Done when: `npm run check:dist-vk` prints `check-dist-vk: PASS` after `npm run build`, `find dist -path '*e2e*'` prints nothing, `npm test` and `npm run typecheck` pass, and `git log -1 --oneline` shows the commit message (all outputs quoted).

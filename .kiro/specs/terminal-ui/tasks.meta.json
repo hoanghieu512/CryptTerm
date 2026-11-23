@@ -113,6 +113,98 @@
         "chatSessionId": "sess_2b8cf7e7-b855-4f79-8b3d-a30dc6b68502",
         "timestamp": 1795446758498
       }
+    ],
+    "4.1 Write the failing scan, theme and build-check tests": [
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795450598774
+      },
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795450603342
+      },
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795450928511
+      }
+    ],
+    "4.2 Add the pinned Playwright setup and write the e2e specs first": [
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795450598892
+      },
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795450932965
+      },
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795451248652
+      }
+    ],
+    "4.3 Implement the theme, the view and the React shell": [
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795450598971
+      },
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795451252303
+      },
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795451518159
+      }
+    ],
+    "4.4 Run the Playwright specs against the built shell": [
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795450599044
+      },
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795451518634
+      },
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795451705251
+      }
+    ],
+    "4.5 Check the production build, then Group checkpoint": [
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795450599121
+      },
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795451705467
+      },
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795451810904
+      }
+    ],
+    "4. Group 4: React shell, scans, Playwright and production build checks": [
+      {
+        "executionId": "1f2920f8-9129-4b51-87e8-a31ad3973c68",
+        "chatSessionId": "sess_adc4e406-f35d-4d2a-a7d0-326c8701481e",
+        "timestamp": 1795451810997
+      }
     ]
   }
 }

@@ -4,14 +4,14 @@
 
 These come from reading the code that CTM900 plugs into. Each one changes or confirms something in the requirements.
 
-1. **`src/zk` and `src/ledger` need no change, not even a new export.** Everything CTM900 needs is already exported: `verifyBundle`, `VerifyReport`, `VerifyStepName`, `VERIFY_DETAILS` (`src/zk/verifier.ts`), `CIRCUIT_VERSION` (`src/zk/circuit-identity.ts`), `decodeBundle` (`src/zk/bundle.ts`), `TRUSTED_SOURCE_KEYS` (`src/ledger/trusted-keys.ts`) and `LIMIT_CENTS` (`src/ledger/invariants.ts`). The step order is not exported as a value, so `verify-flow.ts` declares `VERIFY_STEP_ORDER` itself and a test pins it to the keys of `VERIFY_DETAILS`.
+1. **`src/zk` and `src/ledger` change in one place only: the `export` keyword on `MAX_INPUT_CHARS` in `src/zk/bundle.ts` (Finding 8).** Everything else CTM900 needs is already exported: `verifyBundle`, `VerifyReport`, `VerifyStepName`, `VERIFY_DETAILS` (`src/zk/verifier.ts`), `CIRCUIT_VERSION` (`src/zk/circuit-identity.ts`), `decodeBundle` (`src/zk/bundle.ts`), `TRUSTED_SOURCE_KEYS` (`src/ledger/trusted-keys.ts`) and `LIMIT_CENTS` (`src/ledger/invariants.ts`). The step order is not exported as a value, so `verify-flow.ts` declares `VERIFY_STEP_ORDER` itself and a test pins it to the keys of `VERIFY_DETAILS`.
 2. **`src/ui/terminal-view.tsx` does not change.** Requirement note 9 lists it as expected. The view reads only `renderGrid(state)`, `layoutOf(state)`, `state.screen` (for an `aria-label`) and `state.prove`, so a new screen id needs nothing there. Its one `href` stays the CTM300 link and CTM900 draws no anchor.
 3. **`goTo` is exhaustive over `ScreenId`.** Adding `'CTM900'` to the union breaks the `switch` in `navigation.ts` at compile time. CTM900 is never entered by `goTo` (it is a start screen chosen by the route), so the parameter type becomes `Exclude<ScreenId, 'CTM900'>`. That is a type-only edit.
 4. **The initial state has no cursor.** `createTerminal(deps, initial)` stores `initial` as given, and only `update` calls `settle`. A CTM900 start state therefore calls `settle` itself, or the first typed digit would be dropped.
 5. **The limit field has no clear key.** `settle` puts the cursor at offset 0, and `typeChar` overwrites the character under the cursor. Typing `500000` over `1000000` gives `5000000`. `Tab` moves the cursor to the end of the field text (`tab` in `update.ts`), and `Backspace` then deletes. The e2e test clears the field that way.
 6. **PF11 opens the link with `window.open(href, '_blank', 'noopener')`** (`openLink` in `browser-deps.ts`). The `href` is the relative `/verify#b=...` of `verifyLinkFor`. The result is a new tab at the same origin, with no handle back to the prover page.
 7. **The Verify_Worker is opened on first use.** `verifyBundle` creates its proof checker lazily (`browserVerifyProof` in `verifier.ts`), so importing it into the UI starts no worker.
-8. **The bundle size limit is not exported.** `src/zk/bundle.ts` holds `const MAX_INPUT_CHARS = 1_048_576` (module-private, checked by `decodeBundle`, which returns `TOO_LARGE`). The file-size check of a drop (see `onFilesDropped`) needs the same number. This design does not change `src/zk`. `verify-flow.ts` declares `MAX_BUNDLE_FILE_BYTES = 1_048_576` with a comment that names `MAX_INPUT_CHARS` in `src/zk/bundle.ts` as its origin, and the test `verify_file_limit_pinned` fails if the two drift apart (see Testing Strategy). The code should reuse `MAX_INPUT_CHARS` if it is ever exported. Exporting it is a new export in an existing `src/zk` file, which Requirement 6.5 allows, but it is not part of this design and needs approval first.
+8. **`MAX_INPUT_CHARS` is now exported and is the one size limit.** `src/zk/bundle.ts` holds `const MAX_INPUT_CHARS = 1_048_576`, which `decodeBundle` compares with the text length in characters (it returns `TOO_LARGE`). The only change to that file is the `export` keyword on this line. It changes no behavior, it is an added export (allowed by Requirement 6.5), and huynh approved it. There is no barrel: `src/zk` has no `index.ts`, and no other file re-exports from `bundle.ts`, so no re-export is needed and none is added. `src/ui/model/verify-flow.ts` imports it directly, the way `prove-flow.ts` and `links.ts` already import from `bundle.ts`: `import { MAX_INPUT_CHARS } from '../../zk/bundle';` (direction `ui -> zk`). The UI's dropped-file check uses the same number as a limit in bytes. For text, a file's byte size is at least its character count (every UTF-16 code unit of the decoded text comes from at least one byte), so a file within the byte limit is within the character limit, and the shared number cannot be looser than the decoder. If a barrel is ever added and the import is wanted through it, that is a new export and needs approval first.
 
 ## Overview
 
@@ -57,7 +57,7 @@ stateDiagram-v2
 | File | Contents |
 |------|----------|
 | `src/ui/model/screens/ctm900.ts` (new) | `ctm900: ScreenDef`: layout rows, the PF3 entry, `submit = startVerify` |
-| `src/ui/model/verify-flow.ts` (new) | `EMPTY_VERIFY`, `VERIFY_STEP_ORDER`, `MAX_BUNDLE_FILE_BYTES`, `startVerify`, `onVerifyDone`, `onVerifyFailed`, `onPasteText`, `onFilesDropped`, `onFileRead`, `onFileReadFailed`, `leaveVerify`, `normalizeReport`, `verifyShown` |
+| `src/ui/model/verify-flow.ts` (new) | `EMPTY_VERIFY`, `VERIFY_STEP_ORDER`, `startVerify`, `onVerifyDone`, `onVerifyFailed`, `onPasteText`, `onFilesDropped`, `onFileRead`, `onFileReadFailed`, `leaveVerify`, `normalizeReport`, `verifyShown`. It imports `MAX_INPUT_CHARS` from `../../zk/bundle` and declares no size constant of its own |
 | `src/ui/model/start.ts` (new) | `startStateFrom(loc)`: route choice and the one read of the fragment |
 | `src/ui/model/source-key-id.ts` (new) | `sourceKeyIdOf(text, keys)`: the key id for the SIGNATURE row, by own-property lookup |
 | `src/ui/browser-input.ts` (new) | `installBundleInput(target, terminal)`: the `paste`, `dragover` and `drop` listeners |
@@ -66,7 +66,7 @@ stateDiagram-v2
 
 ### Existing `src/` files that change
 
-Each was read. Nothing else under `src/` changes.
+Each was read. Nothing else under `src/` changes, apart from the one export in `src/zk/bundle.ts` listed below the table.
 
 | File | Change | Reason |
 |------|--------|--------|
@@ -82,7 +82,13 @@ Each was read. Nothing else under `src/` changes.
 | `src/ui/model/screens/common.ts` | `SCREEN_NAMES` gains `CTM900: 'VERIFY'` | `headerFields` builds the title row from this table. |
 | `src/ui/model/screens/index.ts` | `SCREENS` gains `CTM900: ctm900` | `layoutOf` and `enter` read this table. |
 
-Checked and unchanged: `src/ui/terminal-view.tsx`, `src/ui/model/grid.ts`, `keys.ts`, `amount-input.ts`, `links.ts`, `digest-status.ts`, `sample-loader.ts`, `theme.ts`, `terminal.css`, and every file in `src/zk` and `src/ledger`.
+The one allowed change outside `src/ui` and `src/main.tsx`:
+
+| File | Change | Reason |
+|------|--------|--------|
+| `src/zk/bundle.ts` | add the word `export` to `const MAX_INPUT_CHARS = 1_048_576`. Nothing else in the file changes and no behavior changes. | `verify-flow.ts` uses it as the dropped-file byte limit (Finding 8). It is an added export, allowed by Requirement 6.5 and approved by huynh. `src/zk` has no barrel, so no re-export is added. |
+
+Checked and unchanged: `src/ui/terminal-view.tsx`, `src/ui/model/grid.ts`, `keys.ts`, `amount-input.ts`, `links.ts`, `digest-status.ts`, `sample-loader.ts`, `theme.ts`, `terminal.css`, and every other file in `src/zk` and `src/ledger`.
 
 Outside `src/`: `e2e/prover.spec.ts` changes to import the helpers that move to `e2e/helpers.ts` (no behavior change). `tests/support/terminal-host.ts` passes the two new deps. `tests/support/terminal-arbitraries.ts` adds `'CTM900'` to `SCREEN_IDS` and a `stateOn` case, which the existing screen properties then cover.
 
@@ -185,7 +191,7 @@ export function verifyShown(state): VerifyShown | null;        // what the layou
 **`onFilesDropped`** (Requirement 3.4, 3.5): checks run in this order, and the first failure ends the function.
 
 1. The drop must hold exactly one file whose `name` ends in `.json` after `toLowerCase()`. Otherwise the state keeps its text and source and the status becomes `DROP ONE .JSON FILE`.
-2. The file's `size` (bytes, read from `file.size` before any read of the content) must be a non-negative safe integer that is at most `MAX_BUNDLE_FILE_BYTES` (1,048,576). Otherwise the state keeps its text and source and the status becomes `FILE TOO LARGE`. No `READ_FILE` effect is emitted, so `file.text()` is never called for such a file. A `size` that is not a non-negative safe integer is refused the same way (fail closed). A file of exactly 1,048,576 bytes passes this check, and a file of 1,048,577 bytes does not.
+2. The file's `size` (bytes, read from `file.size` before any read of the content) must be a non-negative safe integer that is at most `MAX_INPUT_CHARS` (1,048,576, imported from `../../zk/bundle`; `size <= MAX_INPUT_CHARS` is accepted). Otherwise the state keeps its text and source and the status becomes `FILE TOO LARGE`. No `READ_FILE` effect is emitted, so `file.text()` is never called for such a file. A `size` that is not a non-negative safe integer is refused the same way (fail closed). A file of exactly `MAX_INPUT_CHARS` bytes (1,048,576) passes this check, and a file of `MAX_INPUT_CHARS + 1` bytes (1,048,577) does not.
 3. A file that passes both checks sets `pendingRead = state.nextLoadId`, increments `nextLoadId`, and returns `{ type: 'READ_FILE', readId, file }`.
 
 A refused drop (step 1 or 2) changes only the status line. It leaves `pendingRead`, `bundleSeq`, `bundleText` and `source` as they were, so an older accepted read that is still pending stays current. The model never calls `file.text()`. The size check bounds a file by bytes, and `decodeBundle` bounds the text by characters, so a file that passes the byte check never has more characters than the limit. The check refuses a large file early and does not replace the `TOO_LARGE` check inside the Verifier (see Finding 8).
@@ -303,7 +309,7 @@ New `MESSAGES` (each at most 70 characters, none built from input):
 - **Nothing from a rejected bundle is echoed.** The grid can show only: fixed texts, the six step names, `OK`, `FAIL` or `NOT RUN`, the `VERIFY_DETAILS` strings chosen by position, the verifier's own `CIRCUIT_VERSION`, and one key id that is an own key of `TRUSTED_SOURCE_KEYS`, with `DEMO KEY` beside it. The `detail` of a returned report is never read, the circuit version of a bundle is never shown, and no thrown value is bound or kept.
 - **Fail closed.** `VERIFIED` needs `normalizeReport` to return 6, which needs six named steps in order, all `ok === true`. A rejected promise, a `null`, an empty `steps`, a short `VERIFIED` and a getter that throws all end in `REJECTED: VERIFIER ERROR`.
 - **The decode in `sourceKeyIdOf` is a second read of the string, not a second copy.** See decision 2. The key id is shown only if `Object.hasOwn(TRUSTED_SOURCE_KEYS, id)`, and a failed decode shows nothing and writes no error text.
-- **A dropped file is size-checked before it is read.** A file over 1,048,576 bytes (`file.size`) is refused with `FILE TOO LARGE` and no `READ_FILE` effect, so an oversized file is never loaded into memory by the app.
+- **A dropped file is size-checked before it is read.** A file over `MAX_INPUT_CHARS` (1,048,576) bytes (`file.size`) is refused with `FILE TOO LARGE` and no `READ_FILE` effect, so an oversized file is never loaded into memory by the app.
 - **No key material.** CTM900 imports the public key table only. The demo private key stays under `scripts/`, and `no-private-key-in-src` already guards that.
 
 ## Correctness Properties
@@ -350,7 +356,7 @@ For any hash string, `startStateFrom` on `/verify` gives source `LINK` and `bund
 
 ### Property 7: Paste and drop acceptance rules
 
-For any text, `PASTE_TEXT` replaces the Bundle_Text with it and sets source `PASTE` if and only if the text is a non-empty string, and otherwise changes nothing. For any list of dropped files (each with any name and any `size`), the model emits one `READ_FILE` effect if and only if the list holds exactly one file whose name ends in `.json` in any letter case and whose `size` is a non-negative safe integer of at most 1,048,576. Otherwise it keeps the Bundle_Text and the source, emits no effect, and writes the status line as follows: `DROP ONE .JSON FILE` when the list holds no file, more than one file, or one file whose name does not end in `.json`, and `FILE TOO LARGE` when it holds exactly one `.json` file whose `size` is above 1,048,576 or is not a non-negative safe integer. The generators include sizes 0, 1,048,575, 1,048,576, 1,048,577, 2^53, `NaN`, `Infinity`, `-1` and `1.5`.
+For any text, `PASTE_TEXT` replaces the Bundle_Text with it and sets source `PASTE` if and only if the text is a non-empty string, and otherwise changes nothing. For any list of dropped files (each with any name and any `size`), the model emits one `READ_FILE` effect if and only if the list holds exactly one file whose name ends in `.json` in any letter case and whose `size` is a non-negative safe integer of at most `MAX_INPUT_CHARS` (1,048,576). Otherwise it keeps the Bundle_Text and the source, emits no effect, and writes the status line as follows: `DROP ONE .JSON FILE` when the list holds no file, more than one file, or one file whose name does not end in `.json`, and `FILE TOO LARGE` when it holds exactly one `.json` file whose `size` is above `MAX_INPUT_CHARS` (1,048,576) or is not a non-negative safe integer. The generators include sizes 0, 1,048,575, 1,048,576 (`MAX_INPUT_CHARS`), 1,048,577 (`MAX_INPUT_CHARS + 1`), 2^53, `NaN`, `Infinity`, `-1` and `1.5`.
 
 **Validates: Requirements 3.3, 3.4, 3.5**
 
@@ -413,11 +419,11 @@ For any string that is not a valid bundle encoding, pasted into the terminal and
 | Result of a run whose input changed | Dropped. `INPUT CHANGED, PRESS ENTER`. |
 | Result with a run id that is not the active one | Dropped. Same state object. |
 | Drop of no file, several files or a file not named `*.json` | `DROP ONE .JSON FILE`. Text and source are kept. |
-| Drop of one `.json` file with `size` above 1,048,576 bytes (or a `size` that is not a non-negative safe integer) | `FILE TOO LARGE`. Checked before any read. No `READ_FILE` effect. Text, source and any pending read are kept. |
+| Drop of one `.json` file with `size` above `MAX_INPUT_CHARS` (1,048,576) bytes (or a `size` that is not a non-negative safe integer) | `FILE TOO LARGE`. Checked before any read. No `READ_FILE` effect. Text, source and any pending read are kept. |
 | Decode of the bundle text fails after a passing SIGNATURE step | No source key row and no message. The step rows and the verdict are unaffected. |
 | `File.text()` rejects | `FILE READ FAILED`. Text and source are kept. |
 | Paste of empty text | Ignored. |
-| Bundle text over 1,048,576 characters (paste or link) | Not limited by the UI. `decodeBundle` returns `TOO_LARGE`, and the verifier reports `REJECTED AT FORMAT`. Only a dropped file is size-checked by the UI, before its read. |
+| Bundle text over `MAX_INPUT_CHARS` (1,048,576) characters (paste or link) | Not limited by the UI. `decodeBundle` returns `TOO_LARGE`, and the verifier reports `REJECTED AT FORMAT`. Only a dropped file is size-checked by the UI, before its read. |
 | Verify_Worker fails or times out (60 s) | `createProofVerifier` resolves `false`, so the report is `REJECTED AT PROOF`. |
 | PF3 | `location.assign('/')`. If it throws, the host ignores it, as for `OPEN_LINK`. |
 
@@ -434,8 +440,7 @@ PBT applies to the model: it is a pure state machine with large input spaces (li
 | `verify_pf_inactive` | Property 3 | property |
 | `verify_limit_field_rules` | Properties 4, 5 and Requirement 2.1 | property, plus the prefill example |
 | `verify_hash_source` | Property 6 | property, plus the `#x=abc`, `#B=abc`, `#b`, `#b=` and hash-change examples |
-| `verify_paste_and_drop` | Property 7 | property for the model; examples with fake events for `preventDefault` and the `.json` read; size examples: a `.json` file of 1,048,576 bytes is accepted for reading (one `READ_FILE` effect, `pendingRead` set), a `.json` file of 1,048,577 bytes is refused with `FILE TOO LARGE`, emits no `READ_FILE` effect, never has `text()` called (the fake file records calls), and leaves `bundleText`, `source`, `bundleSeq` and `pendingRead` unchanged |
-| `verify_file_limit_pinned` | Finding 8 | example: `MAX_BUNDLE_FILE_BYTES` equals 1,048,576, and `decodeBundle` of a 1,048,576-character text does not return `TOO_LARGE` while one of 1,048,577 characters does, so the constant cannot drift from `MAX_INPUT_CHARS` in `src/zk/bundle.ts` |
+| `verify_paste_and_drop` | Property 7 | property for the model; examples with fake events for `preventDefault` and the `.json` read; size examples, with the boundaries taken from the imported `MAX_INPUT_CHARS`: a `.json` file of `MAX_INPUT_CHARS` bytes (1,048,576) is accepted for reading (one `READ_FILE` effect, `pendingRead` set), a `.json` file of `MAX_INPUT_CHARS + 1` bytes (1,048,577) is refused with `FILE TOO LARGE`, emits no `READ_FILE` effect, never has `text()` called (the fake file records calls), and leaves `bundleText`, `source`, `bundleSeq` and `pendingRead` unchanged |
 | `verify_single_run_and_stale_drop` | Properties 8, 10, 11 | properties; one example for Requirement 4.3 |
 | `verify_text_not_drawn`, `verify_text_held_once` | Property 9 | property, plus the 5 MB example (state walk and `renderToStaticMarkup`) |
 | `verify_fails_closed` | Property 12 | property, plus the four listed examples |
@@ -445,7 +450,7 @@ PBT applies to the model: it is a pure state machine with large input spaces (li
 | `ui_static_scan`, `ui_wording_scan`, `url_holds_only_bundle` | Requirements 6.1, 6.3, 6.4 | existing tests; the last gains CTM900 markup and a paste of a sentinel text |
 | `verify_step_order_pinned` | finding 1 | example: `VERIFY_STEP_ORDER` equals the keys of `VERIFY_DETAILS` |
 
-Done-when for Requirement 6.5 is `git diff --name-only -- src/zk src/ledger`, which must print nothing.
+Done-when for Requirement 6.5 is `git diff --name-only -- src/zk src/ledger`, which must print only `src/zk/bundle.ts`, and `git diff -- src/zk/bundle.ts`, which must show the added word `export` on the `MAX_INPUT_CHARS` line and no other change.
 
 ### E2E design (`e2e/verifier.spec.ts`)
 
@@ -522,7 +527,7 @@ The three bundle cases that need a proof run `proveSample` with `PROOF_WAIT_MS` 
 
 ## Decisions
 
-These are choices the design had to make where the requirements text can be read two ways. Items 1 to 3 are decided. None needs a change in `src/zk` or `src/ledger`.
+These are choices the design had to make where the requirements text can be read two ways. Items 1 to 3 are decided. None needs a change in `src/zk` or `src/ledger` beyond the one export described in Finding 8.
 
 1. **Decided: a result with a run id that is not the active one (Requirement 4.4).** The text says to drop the result, show no report, end the run and write `INPUT CHANGED, PRESS ENTER`. Ending the active run on a foreign id would free the slot while the real call is still unsettled, and Requirement 4.2 says the screen keeps answering `VERIFY IN PROGRESS` until it settles. The design therefore returns the same state object for a foreign id, and ends the run and writes the message only for the active run that settles over changed input. Property 11 pins this reading. A result with a foreign run id leaves the state unchanged (the same state object).
 2. **Decided: reading the bundle text for the key id (Requirement 3.8).** Requirement 3.8 says the only use of the text is the argument of the verifier call. The `SIGNATURE` row needs the key id, and the report does not carry it, so after a passing `SIGNATURE` step the host decodes the bundle text again with `decodeBundle` and keeps only the key id, and only if `Object.hasOwn(TRUSTED_SOURCE_KEYS, id)` is true. If the decode fails, or the id is not an own key of the table, nothing is shown and no error text is written. No second copy of the text is made or stored, and Property 9 counts long strings in the state. `src/zk/verifier.ts` does not change.

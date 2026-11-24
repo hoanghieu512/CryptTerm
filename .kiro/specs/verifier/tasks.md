@@ -8,7 +8,7 @@ Evidence rule: a task is marked completed only after its Done-when command was r
 
 Constraints that apply to every task:
 
-- No existing file in `src/zk` or `src/ledger` changes, except for a new export, and any new export needs huynh's approval first (stop and ask). Exporting `MAX_INPUT_CHARS` from `src/zk/bundle.ts` is NOT approved: use `MAX_BUNDLE_FILE_BYTES` in `verify-flow.ts` and the `verify_file_limit_pinned` test.
+- The single allowed change in `src/zk` or `src/ledger` is adding the `export` keyword to `const MAX_INPUT_CHARS = 1_048_576` in `src/zk/bundle.ts`, approved by huynh and done in Group 1. Nothing else in `src/zk` or `src/ledger` changes. Any other change there stops the work and asks huynh first.
 - No `console.*`, network API or storage API under `src/ui` or in `src/main.tsx`. `ui_static_scan` and `ui_wording_scan` stay green.
 - Property tests use `runProperty` from `tests/support/pbt.ts` with a fixed seed in the file's source (seed `202649NN` for Property NN, `NN` from 01 to 15) and at least 200 runs. Each test carries the tag `Feature: verifier, Property <n>: <text>`.
 - E2E runs only against the local preview build, with the `guardLocalOnly` route guard of `e2e/prover.spec.ts` and `nonLocalOrigins` equal to `[]`. No deploy.
@@ -24,25 +24,25 @@ Constraints that apply to every task:
   - [ ] 1.1 Write the Group 1 tests (red first)
     - Create `tests/ui/verify-route-hash.prop.test.ts`: `verify_route_choice` (Property 1, plus the six path examples) and `verify_hash_source` (Property 6, plus the `#x=abc`, `#B=abc`, `#b`, `#b=` and hash-change examples, with a fake location that counts reads).
     - Create `tests/ui/verify-screen.prop.test.ts`: `verify_pf_inactive` (Property 3), `verify_pf3_navigates` (example, recording host, no `history` call), and `verify_limit_field_rules` for the prefill, the key parity with CTM300 (Property 4) and the refusal half of Property 5 (status text, cursor kept, no effect, sentinel digits in no row).
-    - Create `tests/ui/verify-input.prop.test.ts`: `verify_paste_and_drop` (Property 7, with the size examples 0, 1,048,575, 1,048,576, 1,048,577, 2^53, `NaN`, `Infinity`, `-1`, `1.5`, and a fake file that records `text()` calls), the Property 8 read-order test titled `verify_single_run_and_stale_drop (Property 8 part)`, `verify_text_not_drawn` and `verify_text_held_once` (Property 9, 5 MB paste, state walk and `renderToStaticMarkup`).
-    - Create `tests/ui/verify-file-limit.test.ts`: `verify_file_limit_pinned` (`MAX_BUNDLE_FILE_BYTES` is 1,048,576, and `decodeBundle` returns `TOO_LARGE` at 1,048,577 characters and not at 1,048,576).
+    - Create `tests/ui/verify-input.prop.test.ts`: `verify_paste_and_drop` (Property 7). It imports `MAX_INPUT_CHARS` with `import { MAX_INPUT_CHARS } from '../../zk/bundle';` and uses `MAX_INPUT_CHARS` and `MAX_INPUT_CHARS + 1` as the size boundaries, with the other size examples 0, `MAX_INPUT_CHARS - 1`, 2^53, `NaN`, `Infinity`, `-1`, `1.5`, and a fake file that records `text()` calls. Also the Property 8 read-order test titled `verify_single_run_and_stale_drop (Property 8 part)`, `verify_text_not_drawn` and `verify_text_held_once` (Property 9, 5 MB paste, state walk and `renderToStaticMarkup`).
     - Edit `tests/support/terminal-arbitraries.ts` (add `'CTM900'` to `SCREEN_IDS` and a `stateOn` case, so `screen_grid_shape`, `pf_bar_matches_handlers` and `pf_bar_buttons_match_keys` cover Property 2) and `tests/support/terminal-host.ts` (pass a recording `navigate` dep).
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.4, 2.5, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
     - _Properties: 1, 2, 3, 4, 5 (refusal half), 6, 7, 8, 9_
-    - Done when: `npx vitest run tests/ui/verify-route-hash.prop.test.ts tests/ui/verify-screen.prop.test.ts tests/ui/verify-input.prop.test.ts tests/ui/verify-file-limit.test.ts` exits non-zero because the new modules do not exist yet, and the output is quoted.
+    - Done when: `npx vitest run tests/ui/verify-route-hash.prop.test.ts tests/ui/verify-screen.prop.test.ts tests/ui/verify-input.prop.test.ts` exits non-zero because the new modules do not exist yet, and the output is quoted.
 
   - [ ] 1.2 Implement the Group 1 model
-    - New files: `src/ui/model/screens/ctm900.ts` (rows 1 to 8, 20, 23 and 24, PF3 BACK entry, limit field prefilled with `LIMIT_CENTS`), `src/ui/model/verify-flow.ts` (`EMPTY_VERIFY`, `MAX_BUNDLE_FILE_BYTES` with a comment naming `MAX_INPUT_CHARS` in `src/zk/bundle.ts`, `onPasteText`, `onFilesDropped`, `onFileRead`, `onFileReadFailed`, `leaveVerify`, and the refusal path of `startVerify`; an accepted limit returns the state unchanged until task 2.2 completes `startVerify`), `src/ui/model/start.ts` (`startStateFrom`, which calls `settle`).
-    - Edit existing files: `src/ui/model/types.ts` (`ScreenId` gains `'CTM900'`, `BundleSource`, `DroppedFile`, `VerifyRun`, `VerifyOutcome`, `VerifyState`, `TerminalState.verify`, the actions `PASTE_TEXT`, `FILES_DROPPED`, `FILE_READ`, `FILE_READ_FAILED`, the effects `READ_FILE`, `NAVIGATE`), `src/ui/model/update.ts` (`initialState` gets `verify`, one `reduce` case per new action), `src/ui/model/terminal.ts` (`TerminalDeps.navigate`, `READ_FILE` and `NAVIGATE` effects), `src/ui/model/messages.ts` (the Group 1 texts), `src/ui/model/navigation.ts` (`goTo` takes `Exclude<ScreenId, 'CTM900'>`), `src/ui/model/prove-flow.ts` (export `limitRefused`), `src/ui/model/screens/common.ts` (`CTM900: 'VERIFY'`), `src/ui/model/screens/index.ts` (`CTM900: ctm900`), `src/ui/browser-deps.ts` (`navigate` calls `location.assign`), `src/ui/app.tsx` (pass `navigate` in the deps only). Do not edit `src/ui/terminal-view.tsx`, and do not touch `src/zk` or `src/ledger`.
-    - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.4, 2.5, 3.1, 3.2, 3.5, 3.6, 3.7, 3.8, 6.1_
+    - New files: `src/ui/model/screens/ctm900.ts` (rows 1 to 8, 20, 23 and 24, PF3 BACK entry, limit field prefilled with `LIMIT_CENTS`), `src/ui/model/verify-flow.ts` (`EMPTY_VERIFY`, the import `import { MAX_INPUT_CHARS } from '../../zk/bundle';` and no size constant of its own, `onPasteText`, `onFilesDropped`, `onFileRead`, `onFileReadFailed`, `leaveVerify`, and the refusal path of `startVerify`; an accepted limit returns the state unchanged until task 2.2 completes `startVerify`), `src/ui/model/start.ts` (`startStateFrom`, which calls `settle`).
+    - Edit existing files: `src/ui/model/types.ts` (`ScreenId` gains `'CTM900'`, `BundleSource`, `DroppedFile`, `VerifyRun`, `VerifyOutcome`, `VerifyState`, `TerminalState.verify`, the actions `PASTE_TEXT`, `FILES_DROPPED`, `FILE_READ`, `FILE_READ_FAILED`, the effects `READ_FILE`, `NAVIGATE`), `src/ui/model/update.ts` (`initialState` gets `verify`, one `reduce` case per new action), `src/ui/model/terminal.ts` (`TerminalDeps.navigate`, `READ_FILE` and `NAVIGATE` effects), `src/ui/model/messages.ts` (the Group 1 texts), `src/ui/model/navigation.ts` (`goTo` takes `Exclude<ScreenId, 'CTM900'>`), `src/ui/model/prove-flow.ts` (export `limitRefused`), `src/ui/model/screens/common.ts` (`CTM900: 'VERIFY'`), `src/ui/model/screens/index.ts` (`CTM900: ctm900`), `src/ui/browser-deps.ts` (`navigate` calls `location.assign`), `src/ui/app.tsx` (pass `navigate` in the deps only). Do not edit `src/ui/terminal-view.tsx`.
+    - Edit `src/zk/bundle.ts`: add the word `export` to `const MAX_INPUT_CHARS = 1_048_576`. Nothing else in that file changes, and nothing else in `src/zk` or `src/ledger` changes. No barrel exists, so no re-export is added.
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.4, 2.5, 3.1, 3.2, 3.5, 3.6, 3.7, 3.8, 6.1, 6.5_
     - _Properties: 1, 2, 3, 4, 5 (refusal half), 6, 7, 8, 9_
-    - Done when: `npx vitest run tests/ui && npx tsc --noEmit` exits 0, and the vitest summary line (0 failed) is quoted.
+    - Done when: `npx vitest run tests/ui && npx tsc --noEmit` exits 0 (vitest summary line quoted, 0 failed), and `git diff --name-only -- src/zk src/ledger` prints only `src/zk/bundle.ts` while `git diff -- src/zk/bundle.ts` shows only the added `export` on the `MAX_INPUT_CHARS` line (both outputs quoted).
 
   - [ ] 1.3 Group 1 checks, commit by name, stop for review
-    - Run `git diff --name-only -- src/zk src/ledger` (must print nothing) and `npx vitest run tests/ui/ui-static-scan.test.ts tests/ui/ui-wording-scan.test.ts`.
-    - Stage by name: `tests/ui/verify-route-hash.prop.test.ts`, `tests/ui/verify-screen.prop.test.ts`, `tests/ui/verify-input.prop.test.ts`, `tests/ui/verify-file-limit.test.ts`, `tests/support/terminal-arbitraries.ts`, `tests/support/terminal-host.ts`, `src/ui/model/screens/ctm900.ts`, `src/ui/model/verify-flow.ts`, `src/ui/model/start.ts`, `src/ui/model/types.ts`, `src/ui/model/update.ts`, `src/ui/model/terminal.ts`, `src/ui/model/messages.ts`, `src/ui/model/navigation.ts`, `src/ui/model/prove-flow.ts`, `src/ui/model/screens/common.ts`, `src/ui/model/screens/index.ts`, `src/ui/browser-deps.ts`, `src/ui/app.tsx`, and `.kiro/specs/verifier/tasks.md` if its checkboxes changed. Commit with `feat(verifier): CTM900 model, start state and input paths`. Do not push.
+    - Run `git diff --name-only -- src/zk src/ledger` (must print only `src/zk/bundle.ts`) and `npx vitest run tests/ui/ui-static-scan.test.ts tests/ui/ui-wording-scan.test.ts`.
+    - Stage by name: `tests/ui/verify-route-hash.prop.test.ts`, `tests/ui/verify-screen.prop.test.ts`, `tests/ui/verify-input.prop.test.ts`, `tests/support/terminal-arbitraries.ts`, `tests/support/terminal-host.ts`, `src/zk/bundle.ts`, `src/ui/model/screens/ctm900.ts`, `src/ui/model/verify-flow.ts`, `src/ui/model/start.ts`, `src/ui/model/types.ts`, `src/ui/model/update.ts`, `src/ui/model/terminal.ts`, `src/ui/model/messages.ts`, `src/ui/model/navigation.ts`, `src/ui/model/prove-flow.ts`, `src/ui/model/screens/common.ts`, `src/ui/model/screens/index.ts`, `src/ui/browser-deps.ts`, `src/ui/app.tsx`, and `.kiro/specs/verifier/tasks.md` if its checkboxes changed. Commit with `feat(verifier): CTM900 model, start state and input paths`. Do not push.
     - STOP after the commit. Stop for Claude's review. Each group runs in its own fresh chat.
-    - Done when: `git log -1 --oneline` is run and its output quoted, and the two checks above printed nothing and passed.
+    - Done when: `git log -1 --oneline` is run and its output quoted, and the first check printed only `src/zk/bundle.ts` and the scans passed.
 
 - [ ] 2. Group 2: verify run and rendering
   - [ ] 2.1 Write the Group 2 tests (red first)
@@ -63,7 +63,7 @@ Constraints that apply to every task:
     - Done when: `npx vitest run tests/ui && npx tsc --noEmit` exits 0, and the vitest summary line (0 failed) is quoted.
 
   - [ ] 2.3 Group 2 checks, commit by name, stop for review
-    - Run `git diff --name-only -- src/zk src/ledger` (must print nothing) and `npx vitest run tests/ui/ui-static-scan.test.ts tests/ui/ui-wording-scan.test.ts`.
+    - Run `git diff --name-only -- src/zk src/ledger` (must print nothing: the one export was committed in Group 1) and `npx vitest run tests/ui/ui-static-scan.test.ts tests/ui/ui-wording-scan.test.ts`.
     - Stage by name: `tests/support/fake-verify.ts`, `tests/support/verify-arbitraries.ts`, `tests/support/terminal-host.ts`, `tests/ui/verify-run.test.ts`, `tests/ui/verify-run.prop.test.ts`, `tests/ui/verify-render.prop.test.ts`, `tests/ui/verify-bad-inputs.prop.test.ts`, `src/ui/model/source-key-id.ts`, `src/ui/model/verify-flow.ts`, `src/ui/model/screens/ctm900.ts`, `src/ui/model/types.ts`, `src/ui/model/update.ts`, `src/ui/model/terminal.ts`, `src/ui/model/messages.ts`, `src/ui/app.tsx`, and `.kiro/specs/verifier/tasks.md` if its checkboxes changed. Commit with `feat(verifier): verify run, fail-closed result and step rendering`. Do not push.
     - STOP after the commit. Stop for Claude's review. Each group runs in its own fresh chat.
     - Done when: `git log -1 --oneline` is run and its output quoted, and the two checks above printed nothing and passed.
@@ -84,17 +84,17 @@ Constraints that apply to every task:
     - Done when: `npm run build && npx vitest run && npm run test:e2e` exits 0, and the vitest and Playwright summary lines (0 failed) are quoted.
 
   - [ ] 3.3 Group 3 checks, commit by name, stop for review
-    - Run `git diff --name-only -- src/zk src/ledger` (must print nothing), `npx vitest run tests/ui/ui-static-scan.test.ts tests/ui/ui-wording-scan.test.ts tests/ui/url-holds-only-bundle.test.ts`, and `git status --short` to confirm that only the listed files changed.
+    - Run `git diff --name-only <task 0 commit> -- src/zk src/ledger` (the commit made by task 0, the commit before Group 1; it must print only `src/zk/bundle.ts`, the one allowed export), `npx vitest run tests/ui/ui-static-scan.test.ts tests/ui/ui-wording-scan.test.ts tests/ui/url-holds-only-bundle.test.ts`, and `git status --short` to confirm that only the listed files changed.
     - Stage by name: `src/ui/browser-input.ts`, `src/main.tsx`, `src/ui/app.tsx`, `tests/ui/browser-input.test.ts`, `tests/ui/url-holds-only-bundle.test.ts`, `e2e/helpers.ts`, `e2e/prover.spec.ts`, `e2e/verifier.spec.ts`, and `.kiro/specs/verifier/tasks.md` if its checkboxes changed. Commit with `feat(verifier): CTM900 browser wiring and e2e`. Do not push.
     - STOP after the commit. Stop for Claude's review. Each group runs in its own fresh chat.
-    - Done when: `git log -1 --oneline` is run and its output quoted, and the three checks above printed nothing unexpected and passed.
+    - Done when: `git log -1 --oneline` is run and its output quoted, and the three checks above passed, with the first printing only `src/zk/bundle.ts`.
 
 ## Notes
 
 - Test sub-tasks are required here, not optional: each group's tests are written first and must fail before its implementation exists.
 - Every sub-task names the requirements and design properties it covers, so each acceptance criterion traces to a test.
 - Property 2 is covered by extending the existing screen-shape and PF-bar properties through `tests/support/terminal-arbitraries.ts`.
-- Requirement 6.5 is checked in each group's commit task with `git diff --name-only -- src/zk src/ledger`, which must print nothing.
+- Requirement 6.5 is checked in task 1.2 and in each group's commit task with `git diff --name-only -- src/zk src/ledger`. It prints only `src/zk/bundle.ts` in Group 1 and nothing in Group 2. In Group 3 the diff against the task 0 commit prints only `src/zk/bundle.ts`.
 
 ## Task Dependency Graph
 

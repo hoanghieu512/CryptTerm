@@ -73,6 +73,12 @@ test.describe('narrow screen', () => {
     await expect(page.locator('pre').filter({ hasText: 'PROOF GENERATED' }).first()).toBeVisible();
     await expectNarrowLayout(page, true);
 
+    // The OPEN VERIFIER anchor reads at the grid font size, not a small link font.
+    const anchorFontPx = await page
+      .getByTestId('verify-link')
+      .evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+    expect(anchorFontPx).toBeGreaterThanOrEqual(MIN_FONT_PX);
+
     // Verify screen.
     await page.goto('/verify');
     await expect(page.locator('pre').filter({ hasText: /CTM900\s+VERIFY/ }).first()).toBeVisible();

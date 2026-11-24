@@ -81,11 +81,9 @@ export function TerminalView({ state, onPf }: TerminalViewProps) {
           {(rows[STATUS_ROW - 1] ?? '').trimEnd()}
         </pre>
         {link === null ? null : (
-          <div className="ct-link-box">
-            <a data-testid="verify-link" className="ct-link" href={link} rel="noopener">
-              OPEN VERIFIER
-            </a>
-          </div>
+          <a data-testid="verify-link" className="ct-link" href={link} rel="noopener">
+            OPEN VERIFIER
+          </a>
         )}
       </div>
       <div className="ct-scanlines" aria-hidden="true" />

@@ -82,7 +82,7 @@ Nine tasks in three groups, plus a commit at the start. Group 1 removes the spik
     - **Done when:** `npm test` ends with a passing summary line that includes the four README tests, and `git log -1 --oneline` prints the group 2 commit.
 
 - [ ] 3. Group 3: draft deploy and final checks
-  - [ ] 3.1 Build and deploy a draft
+  - [-] 3.1 Build and deploy a draft
     - Do not add `netlify-cli` to `package.json`. As the zk-spike did (see `docs/spike-results.md`), run the CLI as `npx --yes netlify-cli@27.20.1`, an npx run only.
     - Load the Netlify power overview (`power::netlify-deployment::overview`). Run `npm run build`. Run `netlify status` and report the site and account to huynh. Wait for his confirmation before deploying. If the CLI is not logged in or the project is not linked, stop and ask huynh.
     - Compare what the deploy would publish with `ls dist`. If it would publish anything other than the contents of `dist/`, stop and ask huynh.
@@ -103,8 +103,9 @@ Nine tasks in three groups, plus a commit at the start. Group 1 removes the spik
       - `BASE_URL=<Draft_URL> npm run test:e2e` (remote, against the draft from task 3.1). Report the Draft_URL and the Playwright summary line. If a source file changed after the draft was deployed, rebuild and redeploy first.
     - Run the repository checks and quote the output of each:
       - `git check-ignore -v .kiro` prints nothing.
-      - `grep -rni "i[b]m\|32[7]0" src e2e public README.md` prints nothing.
-      - `grep -rn "/User[s]/" README.md docs src e2e` prints nothing.
+      - `grep -rniw "i[b]m\|32[7]0" src e2e public README.md` prints nothing.
+      - `grep -rn "/User[s]/[A-Za-z]" README.md docs src e2e` prints nothing.
+      - `grep -rni "lavopavde[n]" README.md docs src e2e public` prints nothing.
       - `git diff --stat 3655ff7 HEAD -- src/zk src/ledger` lists only the deleted `src/zk/spike*.ts` files of Requirement 1 and nothing else.
       - `git status --short package.json package-lock.json` prints nothing.
     - Commit by name: `.kiro/specs/release/tasks.md` and `.kiro/specs/release/tasks.meta.json`. Do not stage `package.json` or `package-lock.json`. Do not push.

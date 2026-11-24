@@ -1,13 +1,22 @@
 // The terminal state machine: update(state, action) -> { state, effects } (terminal-ui design,
 // section A). Pure: no React, DOM or network. Effects are data: LOAD_SAMPLE from CTM100 and the
-// prove-flow effects (PROVE, CANCEL_PROVE, CLIPBOARD_WRITE, DOWNLOAD, OPEN_LINK) from CTM300.
+// prove-flow effects (PROVE, CANCEL_PROVE, CLIPBOARD_WRITE, DOWNLOAD, OPEN_LINK) from CTM300, and
+// the verify-flow effects (VERIFY, READ_FILE, NAVIGATE) from CTM900.
 import { inputFields } from './grid';
 import { MESSAGES } from './messages';
 import { goTo } from './navigation';
 import { onClipboardDone, onProveDone, onProveFailed, onProveProgress } from './prove-flow';
 import { SCREENS, layoutOf } from './screens/index';
 import type { Action, PfNumber, TerminalState, Update } from './types';
-import { EMPTY_VERIFY, onFileRead, onFileReadFailed, onFilesDropped, onPasteText } from './verify-flow';
+import {
+  EMPTY_VERIFY,
+  onFileRead,
+  onFileReadFailed,
+  onFilesDropped,
+  onPasteText,
+  onVerifyDone,
+  onVerifyFailed,
+} from './verify-flow';
 
 export function initialState(): TerminalState {
   return {
@@ -148,6 +157,12 @@ function reduce(state: TerminalState, action: Action): Update {
       return onFileRead(state, action);
     case 'FILE_READ_FAILED':
       return onFileReadFailed(state, action);
+    // Verify results. Both handlers drop a result whose run id is not the active run (same state
+    // object), and both map anything that is not a well-formed report to the error outcome.
+    case 'VERIFY_DONE':
+      return onVerifyDone(state, action);
+    case 'VERIFY_FAILED':
+      return onVerifyFailed(state, action);
   }
 }
 

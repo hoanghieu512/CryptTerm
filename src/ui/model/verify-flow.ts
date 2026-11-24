@@ -1,9 +1,9 @@
 // CTM900 verify flow (verifier design, "Pure flow"). Pure: every function maps a state to an
 // Update. Effects are data; the host (terminal.ts) runs them.
 //
-// This file holds the input side of the screen: the bundle text from a paste or a dropped file,
-// the refusal of a bad limit, and PF3. The run itself (the verifier call and its result) is added
-// by task 2.2, so an accepted limit returns the state unchanged here.
+// This file holds the input side of the screen (the bundle text from a paste or a dropped file,
+// PF3) and the run: Enter starts one verifier call, and the result is mapped, fail closed, to a
+// count of passed steps. Only that count reaches the screen, never the report itself.
 //
 // The bundle text is held in exactly one field, `verify.bundleText`. It is never drawn and never
 // copied into a message. `bundleSeq` is a number that changes with every replacement, so a run can
@@ -12,7 +12,8 @@ import { MAX_INPUT_CHARS } from '../../zk/bundle';
 import { parseAmountInput } from './amount-input';
 import { MESSAGES } from './messages';
 import { limitRefused } from './prove-flow';
-import type { DroppedFile, SystemAction, TerminalState, Update, VerifyState } from './types';
+import type { VerifyStepName } from '../../zk/verifier';
+import type { DroppedFile, SystemAction, TerminalState, Update, VerifyOutcome, VerifyState } from './types';
 
 export const EMPTY_VERIFY: VerifyState = Object.freeze({
   bundleText: '',
@@ -27,11 +28,35 @@ function stay(state: TerminalState, status?: string): Update {
   return { state: status === undefined ? state : { ...state, status }, effects: [] };
 }
 
-/** Enter on CTM900. A refused limit text ends here. An accepted one is completed by task 2.2. */
+/** The six steps in the order the verifier runs them. A test pins it to the keys of VERIFY_DETAILS. */
+export const VERIFY_STEP_ORDER: readonly VerifyStepName[] = Object.freeze([
+  'FORMAT',
+  'SIGNATURE',
+  'DIGEST_MATCH',
+  'POLICY',
+  'CIRCUIT',
+  'PROOF',
+] as const);
+
+/**
+ * Enter on CTM900. While a run is active the answer is VERIFY IN PROGRESS and no second call is
+ * made. A refused limit text ends in the matching message. An accepted one starts one run.
+ */
 export function startVerify(state: TerminalState, values: Readonly<Record<string, string>>): Update {
-  const limit = parseAmountInput(values['limit'] ?? '');
+  if (state.verify.run !== null) return stay(state, MESSAGES.VERIFY_IN_PROGRESS);
+  const limitText = values['limit'] ?? '';
+  const limit = parseAmountInput(limitText);
   if (!limit.ok) return limitRefused(state, limit.error);
-  return { state, effects: [] };
+  const runId = state.nextRunId;
+  return {
+    state: {
+      ...state,
+      status: MESSAGES.VERIFYING,
+      nextRunId: runId + 1,
+      verify: { ...state.verify, run: { runId, limitText, bundleSeq: state.verify.bundleSeq }, result: null },
+    },
+    effects: [{ type: 'VERIFY', runId, text: state.verify.bundleText, limitCents: limit.value }],
+  };
 }
 
 /** The Bundle_Text is replaced: new text, new source, a new version, and no older read pending. */
@@ -102,4 +127,85 @@ export function onFileReadFailed(state: TerminalState, action: Extract<SystemAct
 /** PF3 on CTM900: a plain page navigation to the logon route. The state does not change. */
 export function leaveVerify(state: TerminalState): Update {
   return { state, effects: [{ type: 'NAVIGATE', href: '/' }] };
+}
+
+/**
+ * The fail-closed gate. Returns the number of passed steps (0 to 6) for a well-formed report and
+ * `null` for anything else, a getter that throws included. A well-formed report has a verdict of
+ * VERIFIED or REJECTED and 1 to 6 steps. Step i is named VERIFY_STEP_ORDER[i] and has a boolean
+ * `ok`. A VERIFIED report has six passing steps. A REJECTED report has passing steps and then one
+ * failing last step. The `detail` of a step is never read.
+ */
+export function normalizeReport(report: unknown): number | null {
+  try {
+    if (typeof report !== 'object' || report === null) return null;
+    const { verdict, steps } = report as { readonly verdict?: unknown; readonly steps?: unknown };
+    if (verdict !== 'VERIFIED' && verdict !== 'REJECTED') return null;
+    if (!Array.isArray(steps) || steps.length < 1 || steps.length > VERIFY_STEP_ORDER.length) return null;
+    const last = steps.length - 1;
+    for (let i = 0; i <= last; i += 1) {
+      const step: unknown = steps[i];
+      if (typeof step !== 'object' || step === null) return null;
+      const { name, ok } = step as { readonly name?: unknown; readonly ok?: unknown };
+      if (name !== VERIFY_STEP_ORDER[i] || typeof ok !== 'boolean') return null;
+      const mustPass = i < last || verdict === 'VERIFIED';
+      if (ok !== mustPass) return null;
+    }
+    if (verdict === 'VERIFIED') return steps.length === VERIFY_STEP_ORDER.length ? steps.length : null;
+    return last;
+  } catch {
+    return null;
+  }
+}
+
+/** The run-id drop. True only on CTM900, for the run that is active. */
+function isCurrentVerify(state: TerminalState, runId: number): boolean {
+  return state.screen === 'CTM900' && state.verify.run !== null && state.verify.run.runId === runId;
+}
+
+/** A settled run. `passed` is null for an error. A result for changed input is not stored. */
+function settleRun(state: TerminalState, passed: number | null, keyId: string | null): Update {
+  const run = state.verify.run;
+  if (run === null) return stay(state);
+  const ended = { ...state.verify, run: null };
+  if (run.bundleSeq !== state.verify.bundleSeq || run.limitText !== (state.fields.limit ?? '')) {
+    return { state: { ...state, verify: ended, status: MESSAGES.INPUT_CHANGED }, effects: [] };
+  }
+  // A key id can never show for a failed or skipped SIGNATURE step: it is kept for passed >= 2 only.
+  const outcome: VerifyOutcome =
+    passed === null
+      ? { kind: 'error' }
+      : { kind: 'report', passed, keyId: passed >= 2 && typeof keyId === 'string' ? keyId : null };
+  return {
+    state: {
+      ...state,
+      verify: { ...ended, result: { outcome, limitText: run.limitText, bundleSeq: run.bundleSeq } },
+      status: passed === null ? MESSAGES.VERIFIER_ERROR : MESSAGES.VERIFY_DONE,
+    },
+    effects: [],
+  };
+}
+
+/** VERIFY_DONE. A result with another run id is dropped: the same state object comes back. */
+export function onVerifyDone(state: TerminalState, action: Extract<SystemAction, { type: 'VERIFY_DONE' }>): Update {
+  if (!isCurrentVerify(state, action.runId)) return stay(state);
+  return settleRun(state, normalizeReport(action.report), action.keyId);
+}
+
+/** VERIFY_FAILED: a rejection or a throw ends in the same error outcome as a malformed report. */
+export function onVerifyFailed(state: TerminalState, action: Extract<SystemAction, { type: 'VERIFY_FAILED' }>): Update {
+  if (!isCurrentVerify(state, action.runId)) return stay(state);
+  return settleRun(state, null, null);
+}
+
+/**
+ * What the layout may draw: the stored outcome, only while it still belongs to the input on screen.
+ * Editing the limit or replacing the bundle hides it at once. Derived, so it adds no state.
+ */
+export function verifyShown(state: TerminalState): VerifyOutcome | null {
+  const result = state.verify.result;
+  if (result === null) return null;
+  return result.limitText === (state.fields.limit ?? '') && result.bundleSeq === state.verify.bundleSeq
+    ? result.outcome
+    : null;
 }

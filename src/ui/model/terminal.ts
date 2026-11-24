@@ -13,8 +13,11 @@ import type { SignedDigest } from '../../ledger/digest';
 import type { ProofBundle } from '../../zk/bundle';
 import { PROVE_ERROR_MESSAGES, ProveError } from '../../zk/prove-service';
 import type { ProveReason, ProveService } from '../../zk/prove-service';
+import { TRUSTED_SOURCE_KEYS } from '../../ledger/trusted-keys';
+import type { Cents } from '../../ledger/posting';
 import { checkSignature } from './digest-status';
 import type { SampleName } from './samples';
+import { sourceKeyIdOf } from './source-key-id';
 import { initialState, update } from './update';
 import type { Action, Effect, LoadedSample, TerminalState } from './types';
 
@@ -25,6 +28,12 @@ export interface TerminalDeps {
   readonly writeClipboard: (text: string) => Promise<void>;
   readonly download: (filename: string, text: string) => void;
   readonly openLink: (href: string) => void;
+  /**
+   * The verifier (`verifyBundle` in `src/zk/verifier.ts`). The result type is `unknown` on purpose:
+   * the model accepts only a well-formed report (`normalizeReport`), so a test can inject a fake
+   * that resolves with `null` or a malformed value.
+   */
+  readonly verify: (text: string, policy: { readonly limitCents: Cents }) => Promise<unknown>;
   /** A plain page navigation (PF3 on CTM900). */
   readonly navigate: (href: string) => void;
   /** Defaults to the trusted source keys of `checkSignature`. */
@@ -42,6 +51,23 @@ function start<T>(fn: () => Promise<T>): Promise<T> {
   return new Promise<T>((resolve) => {
     resolve(fn());
   });
+}
+
+/**
+ * True when the report holds a step named SIGNATURE with `ok === true`. A guarded read: any throw
+ * is false. It only decides whether to look up the key id. Display is decided by `normalizeReport`.
+ */
+function signatureOk(report: unknown): boolean {
+  try {
+    const steps: unknown = (report as { readonly steps?: unknown } | null)?.steps;
+    if (!Array.isArray(steps)) return false;
+    return steps.some((s: unknown) => {
+      const step = s as { readonly name?: unknown; readonly ok?: unknown } | null;
+      return step?.name === 'SIGNATURE' && step.ok === true;
+    });
+  } catch {
+    return false;
+  }
 }
 
 /** A rejection becomes a known reason only for a `ProveError` with an own, listed reason. */
@@ -118,6 +144,23 @@ export function createTerminal(deps: TerminalDeps, initial: TerminalState = init
       .then(undefined, ignore);
   }
 
+  // The fail-closed mapping to REJECTED: VERIFIER ERROR starts here and ends in verify-flow.ts. A
+  // rejection or a throw becomes VERIFY_FAILED, and the rejection value is never bound. A value
+  // that resolves goes to VERIFY_DONE as it is, and `normalizeReport` turns anything that is not a
+  // well-formed report into the same error outcome.
+  function runVerify(effect: Extract<Effect, { type: 'VERIFY' }>): void {
+    const { runId, text, limitCents } = effect;
+    start(() => deps.verify(text, { limitCents }))
+      .then(
+        (report: unknown) => {
+          const keys = deps.trustedKeys ?? TRUSTED_SOURCE_KEYS;
+          const keyId = signatureOk(report) ? sourceKeyIdOf(text, keys) : null;
+          dispatch({ type: 'VERIFY_DONE', runId, report, keyId });
+        },
+        () => dispatch({ type: 'VERIFY_FAILED', runId }),
+      )
+      .then(undefined, ignore);
+  }
   function runReadFile(effect: Extract<Effect, { type: 'READ_FILE' }>): void {
     const { readId, file } = effect;
     start(() => file.text())
@@ -160,6 +203,9 @@ export function createTerminal(deps: TerminalDeps, initial: TerminalState = init
         } catch {
           // No status change is defined for a failed open.
         }
+        return;
+      case 'VERIFY':
+        runVerify(effect);
         return;
       case 'READ_FILE':
         runReadFile(effect);

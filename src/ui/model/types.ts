@@ -152,7 +152,10 @@ export type SystemAction =
   | { readonly type: 'PASTE_TEXT'; readonly text: string }
   | { readonly type: 'FILES_DROPPED'; readonly files: readonly DroppedFile[] }
   | { readonly type: 'FILE_READ'; readonly readId: number; readonly text: string }
-  | { readonly type: 'FILE_READ_FAILED'; readonly readId: number };
+  | { readonly type: 'FILE_READ_FAILED'; readonly readId: number }
+  /** `report` is whatever the verifier resolved with: `normalizeReport` decides what it is. */
+  | { readonly type: 'VERIFY_DONE'; readonly runId: number; readonly report: unknown; readonly keyId: string | null }
+  | { readonly type: 'VERIFY_FAILED'; readonly runId: number };
 
 export type Action = UserAction | SystemAction;
 
@@ -170,5 +173,6 @@ export type Effect =
   | { readonly type: 'CLIPBOARD_WRITE'; readonly text: string }
   | { readonly type: 'DOWNLOAD'; readonly filename: string; readonly text: string }
   | { readonly type: 'OPEN_LINK'; readonly href: string }
+  | { readonly type: 'VERIFY'; readonly runId: number; readonly text: string; readonly limitCents: Cents }
   | { readonly type: 'READ_FILE'; readonly readId: number; readonly file: DroppedFile }
   | { readonly type: 'NAVIGATE'; readonly href: string };

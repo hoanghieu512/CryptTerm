@@ -3,6 +3,7 @@
 // `keydown` listener. PF buttons and keys dispatch the same action (`pfAction`).
 import { useCallback, useLayoutEffect, useState, useSyncExternalStore } from 'react';
 import { cancelProve, proveBatch } from '../zk/prove-service';
+import { verifyBundle } from '../zk/verifier';
 import { download, navigate, openLink, writeClipboard } from './browser-deps';
 import { handleKey, pfAction } from './model/keys';
 import { createTerminal } from './model/terminal';
@@ -20,6 +21,7 @@ export function App() {
       download,
       openLink,
       navigate,
+      verify: verifyBundle,
     }),
   );
   // `subscribe` and `getState` belong to the host, so they are the same functions on every render.

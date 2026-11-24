@@ -20,7 +20,7 @@ Constraints that apply to every task:
   - Stage `.kiro/specs/verifier/requirements.md`, `design.md`, `tasks.md`, `.config.kiro`, and `tasks.meta.json` only if it exists, by name. Commit with the message `docs(verifier): add verifier spec`.
   - Done when: `git log -1 --oneline` is run and its output quoted, showing the `docs(verifier): add verifier spec` commit.
 
-- [ ] 1. Group 1: model and input paths
+- [x] 1. Group 1: model and input paths
   - [x] 1.1 Write the Group 1 tests (red first)
     - Create `tests/ui/verify-route-hash.prop.test.ts`: `verify_route_choice` (Property 1, plus the six path examples) and `verify_hash_source` (Property 6, plus the `#x=abc`, `#B=abc`, `#b`, `#b=` and hash-change examples, with a fake location that counts reads).
     - Create `tests/ui/verify-screen.prop.test.ts`: `verify_pf_inactive` (Property 3), `verify_pf3_navigates` (example, recording host, no `history` call), and `verify_limit_field_rules` for the prefill, the key parity with CTM300 (Property 4) and the refusal half of Property 5 (status text, cursor kept, no effect, sentinel digits in no row).
@@ -38,14 +38,14 @@ Constraints that apply to every task:
     - _Properties: 1, 2, 3, 4, 5 (refusal half), 6, 7, 8, 9_
     - Done when: `npx vitest run tests/ui && npx tsc --noEmit` exits 0 (vitest summary line quoted, 0 failed), and `git diff --name-only -- src/zk src/ledger` prints only `src/zk/bundle.ts` while `git diff -- src/zk/bundle.ts` shows only the added `export` on the `MAX_INPUT_CHARS` line (both outputs quoted).
 
-  - [-] 1.3 Group 1 checks, commit by name, stop for review
+  - [x] 1.3 Group 1 checks, commit by name, stop for review
     - Run `git diff --name-only -- src/zk src/ledger` (must print only `src/zk/bundle.ts`) and `npx vitest run tests/ui/ui-static-scan.test.ts tests/ui/ui-wording-scan.test.ts`.
     - Stage by name: `tests/ui/verify-route-hash.prop.test.ts`, `tests/ui/verify-screen.prop.test.ts`, `tests/ui/verify-input.prop.test.ts`, `tests/support/terminal-arbitraries.ts`, `tests/support/terminal-host.ts`, `src/zk/bundle.ts`, `src/ui/model/screens/ctm900.ts`, `src/ui/model/verify-flow.ts`, `src/ui/model/start.ts`, `src/ui/model/types.ts`, `src/ui/model/update.ts`, `src/ui/model/terminal.ts`, `src/ui/model/messages.ts`, `src/ui/model/navigation.ts`, `src/ui/model/prove-flow.ts`, `src/ui/model/screens/common.ts`, `src/ui/model/screens/index.ts`, `src/ui/browser-deps.ts`, `src/ui/app.tsx`, and `.kiro/specs/verifier/tasks.md` if its checkboxes changed. Commit with `feat(verifier): CTM900 model, start state and input paths`. Do not push.
     - STOP after the commit. Stop for Claude's review. Each group runs in its own fresh chat.
     - Done when: `git log -1 --oneline` is run and its output quoted, and the first check printed only `src/zk/bundle.ts` and the scans passed.
 
-- [ ] 2. Group 2: verify run and rendering
-  - [ ] 2.1 Write the Group 2 tests (red first)
+- [x] 2. Group 2: verify run and rendering
+  - [x] 2.1 Write the Group 2 tests (red first)
     - Create `tests/support/fake-verify.ts` (records its arguments, settles on demand) and `tests/support/verify-arbitraries.ts` (malformed reports, well-formed report shapes, edit and settle interleavings, limit texts including values within 4 of `2^53`). Edit `tests/support/terminal-host.ts` to pass a `verify` dep.
     - Create `tests/ui/verify-run.test.ts`: `verify_run_start` (example, Requirement 4.1) and `verify_step_order_pinned` (`VERIFY_STEP_ORDER` equals the keys of `VERIFY_DETAILS`).
     - Create `tests/ui/verify-run.prop.test.ts`: `verify_limit_field_rules` acceptance half (Property 5, `limitCents === BigInt(text)`, called once), `verify_single_run_and_stale_drop` (Properties 10 and 11, plus the 4.3 example) and `verify_fails_closed` (Property 12, plus the four listed examples).
@@ -55,14 +55,14 @@ Constraints that apply to every task:
     - _Properties: 5 (acceptance half), 10, 11, 12, 13, 14, 15_
     - Done when: `npx vitest run tests/ui/verify-run.test.ts tests/ui/verify-run.prop.test.ts tests/ui/verify-render.prop.test.ts tests/ui/verify-bad-inputs.prop.test.ts` exits non-zero with failures in the new files only, and the output is quoted.
 
-  - [ ] 2.2 Implement the verify run and the rendering
+  - [x] 2.2 Implement the verify run and the rendering
     - New files: `src/ui/model/source-key-id.ts` (`sourceKeyIdOf`, own-property lookup, `null` shows nothing). Extend `src/ui/model/verify-flow.ts` with `VERIFY_STEP_ORDER`, the full `startVerify`, `onVerifyDone`, `onVerifyFailed`, `normalizeReport` and `verifyShown`. Extend `src/ui/model/screens/ctm900.ts` with the six Step_Rows, the Verdict_Row, the `SOURCE KEY <id>  DEMO KEY` row and the `VERIFIER CIRCUIT <CIRCUIT_VERSION>` row.
     - Edit existing files: `src/ui/model/types.ts` (actions `VERIFY_DONE` and `VERIFY_FAILED`, effect `VERIFY`), `src/ui/model/update.ts` (the two `reduce` cases), `src/ui/model/terminal.ts` (`TerminalDeps.verify`, the `VERIFY` effect with the guarded `signatureOk` and `sourceKeyIdOf`, and no binding of a rejection value), `src/ui/model/messages.ts` (the remaining texts), `src/ui/app.tsx` (pass `verify: verifyBundle` in the deps only).
     - _Requirements: 2.3, 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
     - _Properties: 5, 10, 11, 12, 13, 14, 15_
     - Done when: `npx vitest run tests/ui && npx tsc --noEmit` exits 0, and the vitest summary line (0 failed) is quoted.
 
-  - [ ] 2.3 Group 2 checks, commit by name, stop for review
+  - [x] 2.3 Group 2 checks, commit by name, stop for review
     - Run `git diff --name-only -- src/zk src/ledger` (must print nothing: the one export was committed in Group 1) and `npx vitest run tests/ui/ui-static-scan.test.ts tests/ui/ui-wording-scan.test.ts`.
     - Stage by name: `tests/support/fake-verify.ts`, `tests/support/verify-arbitraries.ts`, `tests/support/terminal-host.ts`, `tests/ui/verify-run.test.ts`, `tests/ui/verify-run.prop.test.ts`, `tests/ui/verify-render.prop.test.ts`, `tests/ui/verify-bad-inputs.prop.test.ts`, `src/ui/model/source-key-id.ts`, `src/ui/model/verify-flow.ts`, `src/ui/model/screens/ctm900.ts`, `src/ui/model/types.ts`, `src/ui/model/update.ts`, `src/ui/model/terminal.ts`, `src/ui/model/messages.ts`, `src/ui/app.tsx`, and `.kiro/specs/verifier/tasks.md` if its checkboxes changed. Commit with `feat(verifier): verify run, fail-closed result and step rendering`. Do not push.
     - STOP after the commit. Stop for Claude's review. Each group runs in its own fresh chat.

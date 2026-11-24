@@ -50,6 +50,64 @@
         "chatSessionId": "sess_0bcfb89a-6b8c-4b72-b8d4-3225258308e5",
         "timestamp": 1795493085284
       }
+    ],
+    "3.1 Write the Group 3 tests (red first)": [
+      {
+        "executionId": "621f7e69-201a-4e10-93e3-d1db8e0e3339",
+        "chatSessionId": "sess_4671e73e-e406-43ef-9f3f-6c01c7635391",
+        "timestamp": 1795496299562
+      },
+      {
+        "executionId": "621f7e69-201a-4e10-93e3-d1db8e0e3339",
+        "chatSessionId": "sess_4671e73e-e406-43ef-9f3f-6c01c7635391",
+        "timestamp": 1795496303292
+      },
+      {
+        "executionId": "621f7e69-201a-4e10-93e3-d1db8e0e3339",
+        "chatSessionId": "sess_4671e73e-e406-43ef-9f3f-6c01c7635391",
+        "timestamp": 1795496778512
+      }
+    ],
+    "3.2 Wire the browser and make the e2e pass": [
+      {
+        "executionId": "621f7e69-201a-4e10-93e3-d1db8e0e3339",
+        "chatSessionId": "sess_4671e73e-e406-43ef-9f3f-6c01c7635391",
+        "timestamp": 1795496299710
+      },
+      {
+        "executionId": "621f7e69-201a-4e10-93e3-d1db8e0e3339",
+        "chatSessionId": "sess_4671e73e-e406-43ef-9f3f-6c01c7635391",
+        "timestamp": 1795496781197
+      },
+      {
+        "executionId": "621f7e69-201a-4e10-93e3-d1db8e0e3339",
+        "chatSessionId": "sess_4671e73e-e406-43ef-9f3f-6c01c7635391",
+        "timestamp": 1795497004439
+      }
+    ],
+    "3.3 Group 3 checks, commit by name, stop for review": [
+      {
+        "executionId": "621f7e69-201a-4e10-93e3-d1db8e0e3339",
+        "chatSessionId": "sess_4671e73e-e406-43ef-9f3f-6c01c7635391",
+        "timestamp": 1795496299785
+      },
+      {
+        "executionId": "621f7e69-201a-4e10-93e3-d1db8e0e3339",
+        "chatSessionId": "sess_4671e73e-e406-43ef-9f3f-6c01c7635391",
+        "timestamp": 1795497004622
+      },
+      {
+        "executionId": "621f7e69-201a-4e10-93e3-d1db8e0e3339",
+        "chatSessionId": "sess_4671e73e-e406-43ef-9f3f-6c01c7635391",
+        "timestamp": 1795497039386
+      }
+    ],
+    "3. Group 3: browser wiring and e2e": [
+      {
+        "executionId": "621f7e69-201a-4e10-93e3-d1db8e0e3339",
+        "chatSessionId": "sess_4671e73e-e406-43ef-9f3f-6c01c7635391",
+        "timestamp": 1795497039469
+      }
     ]
   }
 }

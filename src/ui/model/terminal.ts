@@ -25,6 +25,8 @@ export interface TerminalDeps {
   readonly writeClipboard: (text: string) => Promise<void>;
   readonly download: (filename: string, text: string) => void;
   readonly openLink: (href: string) => void;
+  /** A plain page navigation (PF3 on CTM900). */
+  readonly navigate: (href: string) => void;
   /** Defaults to the trusted source keys of `checkSignature`. */
   readonly trustedKeys?: Readonly<Record<string, string>>;
 }
@@ -116,6 +118,16 @@ export function createTerminal(deps: TerminalDeps, initial: TerminalState = init
       .then(undefined, ignore);
   }
 
+  function runReadFile(effect: Extract<Effect, { type: 'READ_FILE' }>): void {
+    const { readId, file } = effect;
+    start(() => file.text())
+      .then(
+        (text) => dispatch({ type: 'FILE_READ', readId, text }),
+        () => dispatch({ type: 'FILE_READ_FAILED', readId }),
+      )
+      .then(undefined, ignore);
+  }
+
   function run(effect: Effect): void {
     switch (effect.type) {
       case 'LOAD_SAMPLE':
@@ -147,6 +159,16 @@ export function createTerminal(deps: TerminalDeps, initial: TerminalState = init
           deps.openLink(effect.href);
         } catch {
           // No status change is defined for a failed open.
+        }
+        return;
+      case 'READ_FILE':
+        runReadFile(effect);
+        return;
+      case 'NAVIGATE':
+        try {
+          deps.navigate(effect.href);
+        } catch {
+          // No status change is defined for a failed navigation.
         }
         return;
     }

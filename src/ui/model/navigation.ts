@@ -10,7 +10,8 @@
 import { LIMIT_CENTS } from '../../ledger/invariants';
 import type { ScreenId, TerminalState } from './types';
 
-export function goTo(state: TerminalState, screen: ScreenId): TerminalState {
+/** CTM900 is a start screen chosen by the route, never entered by `goTo`. */
+export function goTo(state: TerminalState, screen: Exclude<ScreenId, 'CTM900'>): TerminalState {
   const moved: TerminalState = { ...state, screen, fields: {}, cursor: null, status: '' };
   switch (screen) {
     case 'CTM000':

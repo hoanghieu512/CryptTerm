@@ -18,6 +18,8 @@ export interface Harness {
   readonly clipboard: string[];
   readonly downloads: { filename: string; text: string }[];
   readonly links: string[];
+  /** Every href passed to the `navigate` dep (PF3 on CTM900), in order. */
+  readonly navigations: string[];
 }
 
 export interface HarnessOptions {
@@ -37,6 +39,7 @@ export function makeHarness(options: HarnessOptions = {}): Harness {
   const clipboard: string[] = [];
   const downloads: { filename: string; text: string }[] = [];
   const links: string[] = [];
+  const navigations: string[] = [];
   const deps: TerminalDeps = {
     prove: fake.service,
     loadSample: createSampleLoader(fetcher.fetch),
@@ -50,8 +53,11 @@ export function makeHarness(options: HarnessOptions = {}): Harness {
     openLink: (href) => {
       links.push(href);
     },
+    navigate: (href) => {
+      navigations.push(href);
+    },
     ...options.deps,
   };
   const terminal = createTerminal(deps, options.initial ?? initialState());
-  return { terminal, fake, fetcher, clipboard, downloads, links };
+  return { terminal, fake, fetcher, clipboard, downloads, links, navigations };
 }

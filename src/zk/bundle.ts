@@ -183,7 +183,7 @@ export function rootToDigestHex(root: bigint): string {
   return `0x${root.toString(16).padStart(64, '0')}`;
 }
 
-const MAX_INPUT_CHARS = 1_048_576;
+export const MAX_INPUT_CHARS = 1_048_576;
 const URL_FORM = /^[A-Za-z0-9_-]+$/;
 const EDGE_WHITESPACE = /^[ \t\r\n]+|[ \t\r\n]+$/g;
 const ANY_WHITESPACE = /[ \t\r\n]/g;

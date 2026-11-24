@@ -6,6 +6,7 @@ export const SCREEN_NAMES: Readonly<Record<ScreenId, string>> = Object.freeze({
   CTM100: 'BATCH SELECT',
   CTM200: 'BATCH VIEW',
   CTM300: 'PROVE',
+  CTM900: 'VERIFY',
 });
 
 export const DEMO_LABEL = 'DEMO DATA';

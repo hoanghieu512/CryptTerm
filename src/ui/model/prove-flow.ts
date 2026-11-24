@@ -47,7 +47,7 @@ function limitText(state: TerminalState): string {
   return state.fields.limit ?? '';
 }
 
-function limitRefused(state: TerminalState, error: keyof typeof AMOUNT_INPUT_MESSAGES): Update {
+export function limitRefused(state: TerminalState, error: keyof typeof AMOUNT_INPUT_MESSAGES): Update {
   return {
     state: {
       ...state,

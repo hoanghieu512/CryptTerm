@@ -7,6 +7,7 @@ import { goTo } from './navigation';
 import { onClipboardDone, onProveDone, onProveFailed, onProveProgress } from './prove-flow';
 import { SCREENS, layoutOf } from './screens/index';
 import type { Action, PfNumber, TerminalState, Update } from './types';
+import { EMPTY_VERIFY, onFileRead, onFileReadFailed, onFilesDropped, onPasteText } from './verify-flow';
 
 export function initialState(): TerminalState {
   return {
@@ -20,6 +21,7 @@ export function initialState(): TerminalState {
     page: 0,
     pendingLoad: null,
     prove: { kind: 'idle' },
+    verify: EMPTY_VERIFY,
     nextLoadId: 1,
     nextRunId: 1,
   };
@@ -137,6 +139,15 @@ function reduce(state: TerminalState, action: Action): Update {
       return onProveFailed(state, action);
     case 'CLIPBOARD_DONE':
       return onClipboardDone(state, action);
+    // CTM900 input. Each handler in verify-flow.ts drops what is not current (same state object).
+    case 'PASTE_TEXT':
+      return onPasteText(state, action);
+    case 'FILES_DROPPED':
+      return onFilesDropped(state, action);
+    case 'FILE_READ':
+      return onFileRead(state, action);
+    case 'FILE_READ_FAILED':
+      return onFileReadFailed(state, action);
   }
 }
 

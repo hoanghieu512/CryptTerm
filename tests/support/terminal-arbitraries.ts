@@ -18,13 +18,14 @@ import type { SignedDigest } from '../../src/ledger/digest';
 import { parseBatch } from '../../src/ledger/parse';
 import type { KeyEventLike } from '../../src/ui/model/keys';
 import type { FetchLike } from '../../src/ui/sample-loader';
-import { initialState, update } from '../../src/ui/model/update';
+import { LIMIT_CENTS } from '../../src/ledger/invariants';
+import { initialState, settle, update } from '../../src/ui/model/update';
 import type { Action, LoadedSample, PfNumber, ScreenId, TerminalState, UserAction } from '../../src/ui/model/types';
 import { SENTINEL, batchArb } from './ledger-arbitraries';
 import { shapedDigest } from './prove-fixtures';
 
-/** The four screens in flow order. Tests also assert that `SCREENS` has exactly these keys. */
-export const SCREEN_IDS: readonly ScreenId[] = ['CTM000', 'CTM100', 'CTM200', 'CTM300'];
+/** The five screens in flow order. Tests also assert that `SCREENS` has exactly these keys. */
+export const SCREEN_IDS: readonly ScreenId[] = ['CTM000', 'CTM100', 'CTM200', 'CTM300', 'CTM900'];
 
 export const PF_NUMBERS: readonly PfNumber[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
@@ -192,6 +193,10 @@ export function stateOn(screen: ScreenId, batch: Batch): TerminalState {
       return loadedState(batch);
     case 'CTM300':
       return step(loadedState(batch), ENTER);
+    case 'CTM900':
+      // The state `startStateFrom` gives for `/verify` with no fragment: no bundle, the limit field
+      // prefilled with the default, the cursor put in it by `settle`. `batch` is not used.
+      return settle({ ...initialState(), screen: 'CTM900', fields: { limit: LIMIT_CENTS.toString() } });
   }
 }
 
@@ -200,7 +205,7 @@ export function sampleStateArb(batch: Batch): fc.Arbitrary<TerminalState> {
   return fc.array(userActionArb, { maxLength: 12 }).map((actions) => applyAll(loadedState(batch), actions));
 }
 
-/** A state on one of the four screens, with 0 to 12 random user actions applied on top. */
+/** A state on one of the five screens, with 0 to 12 random user actions applied on top. */
 export const reachableStateArb: fc.Arbitrary<TerminalState> = fc
   .tuple(fc.constantFrom(...SCREEN_IDS), batchArb, fc.array(userActionArb, { maxLength: 12 }))
   .map(([screen, batch, actions]) => applyAll(stateOn(screen, batch), actions));

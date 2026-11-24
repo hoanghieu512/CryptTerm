@@ -24,3 +24,8 @@ export function download(filename: string, text: string): void {
 export function openLink(href: string): void {
   window.open(href, '_blank', 'noopener');
 }
+
+/** A plain same-origin page navigation (PF3 on CTM900). */
+export function navigate(href: string): void {
+  location.assign(href);
+}

@@ -25,6 +25,7 @@ const SCREEN_NAMES = {
   CTM100: 'BATCH SELECT',
   CTM200: 'BATCH VIEW',
   CTM300: 'PROVE',
+  CTM900: 'VERIFY',
 } as const;
 
 describe('logon_to_select', () => {

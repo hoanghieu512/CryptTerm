@@ -109,7 +109,7 @@ export async function proveSample(page: Page, sampleNo?: string): Promise<string
   await expect(statusRow(page)).toContainText('PROOF GENERATED', { timeout: PROOF_WAIT_MS });
   const anchor = page.getByTestId('verify-link');
   await expect(anchor).toBeVisible();
-  return ((await anchor.textContent()) ?? '').trim();
+  return (await anchor.getAttribute('href')) ?? '';
 }
 
 // Presses PF11 on the prover page and returns the tab that opens. PF11 runs `window.open(href,
@@ -147,6 +147,25 @@ export async function verdictOf(page: Page): Promise<string | null> {
     if (m !== null && m[1] !== undefined) return m[1];
   }
   return null;
+}
+
+// Computed text and background colors of a body row (1-based) of the grid.
+export async function rowColors(page: Page, row: number): Promise<{ color: string; background: string }> {
+  return page.locator('.ct-grid pre').nth(row - 1).evaluate((el) => {
+    const style = getComputedStyle(el);
+    return { color: style.color, background: style.backgroundColor };
+  });
+}
+
+// Asserts that body row `row` has the same computed colors as the title row (row 1), and that
+// those colors are the inverse video ones: the text color differs from the row's background.
+export async function expectVerdictRowInverse(page: Page, row: number): Promise<void> {
+  const title = await rowColors(page, 1);
+  const verdict = await rowColors(page, row);
+  expect(verdict).toEqual(title);
+  expect(verdict.color).not.toBe(verdict.background);
+  const plain = await rowColors(page, 2);
+  expect(plain).not.toEqual(title);
 }
 
 // Clears the CTM900 limit field with the screen's own keys, types the digits and confirms the

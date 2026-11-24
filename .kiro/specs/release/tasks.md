@@ -50,8 +50,8 @@ Nine tasks in three groups, plus a commit at the start. Group 1 removes the spik
     - _Requirements: 2.3, 2.5, 2.6, 2.7, 6.1, 6.2_
     - **Done when:** `npm run test:e2e` ends with a passing Playwright summary line that includes `csp_no_violation`, the Favicon note in `design.md` records the outcome, and `git log -1 --oneline` prints the group 1 commit.
 
-- [ ] 2. Group 2: UI polish, narrow screen and README
-  - [ ] 2.1 Change the verify anchor text and add the inverse verdict row
+- [x] 2. Group 2: UI polish, narrow screen and README
+  - [x] 2.1 Change the verify anchor text and add the inverse verdict row
     - Change `src/ui/terminal-view.tsx` so the text of the `<a data-testid="verify-link">` anchor is `OPEN VERIFIER` and the full Verify_Link is only its `href`. The existing LINK preview row (`linkRow` in `ctm300.ts`) stays unchanged.
     - Add `verdictRowOf(state): number | null` to `ctm300.ts` and `ctm900.ts`. It returns 8 (CTM300 `done`), 9 (CTM300 `failed`), 17 (CTM900 with a verdict text) or `null`. `terminal-view.tsx` applies the existing title-row class to that body row. No new colour rule.
     - Write the property test **Property 1: The full Verify_Link never appears on a body row** over generated bundles, reusing the arbitraries in `tests/support/`. It asserts that no body row contains the full link, the anchor text is exactly `OPEN VERIFIER`, and the `href` equals the link.
@@ -65,13 +65,13 @@ Nine tasks in three groups, plus a commit at the start. Group 1 removes the spik
     - _Requirements: 3.1, 3.2, 3.3, 3.4_
     - **Done when:** `npx vitest run tests/ui` and `npx playwright test e2e/prover.spec.ts e2e/verifier.spec.ts` both end with passing summary lines.
 
-  - [ ] 2.2 Add the narrow-screen layout and its spec
+  - [x] 2.2 Add the narrow-screen layout and its spec
     - In `src/ui/terminal.css`, add a media query for narrow viewports: font size floor of 11 px, `.ct-frame` as its own horizontal scroll container with `max-width: 100vw`, and PF buttons at least 24 by 24 CSS pixels that stay inside the viewport.
     - Write `e2e/narrow-screen.spec.ts` (`narrow_screen`) at 375 by 812: `document.documentElement.scrollWidth <= 375` on CTM000, on the Prove_Screen after a proof and on the Verify_Screen, grid font size of at least 11 px, frame scroll when the grid is wider than the viewport, every PF_Bar button inside the viewport and at least 24 by 24.
     - _Requirements: 4.1, 4.2, 4.3_
     - **Done when:** `npx playwright test e2e/narrow-screen.spec.ts` ends with a passing summary line.
 
-  - [ ] 2.3 Rewrite the README and make the group 2 commit
+  - [x] 2.3 Rewrite the README and make the group 2 commit
     - Replace the scaffold text with these second-level sections in order: what CryptTerm is, trust model, the two tamper cases, run locally, regenerate samples and circuit identity, stack and versions, how Kiro was used, license.
     - Trust model: keep the bullets of the product steering file and state that the demo signing key is `DEMO ONLY` and public by design.
     - Run locally: `npm ci`, `npm run dev`, `npm test`, `npm run test:circuit` with `nargo 1.0.0`, `npm run test:proof`, `npm run test:e2e`. Regenerate: `npm run gen:samples`, `npm run gen:identity`.

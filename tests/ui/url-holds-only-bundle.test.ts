@@ -73,14 +73,14 @@ describe('url_holds_only_bundle', () => {
     }
   });
 
-  it('url_holds_only_bundle: the Link_Anchor holds the verify link of the bundle and the same text', () => {
+  it('url_holds_only_bundle: the Link_Anchor holds the verify link of the bundle as href and the text OPEN VERIFIER', () => {
     const state = withDone(ctm300(GOOD_BATCH), BUNDLE);
     const link = verifyLinkFor(BUNDLE);
     const markup = markupOf(state);
     expect(link.startsWith(VERIFY_LINK_PREFIX)).toBe(true);
     expect(hrefsOf(markup)).toEqual([link]);
     expect(markup).toContain('data-testid="verify-link"');
-    expect(markup).toContain(`>${link}</a>`);
+    expect(markup).toContain('>OPEN VERIFIER</a>');
     expect(markup).toContain('rel="noopener"');
   });
 

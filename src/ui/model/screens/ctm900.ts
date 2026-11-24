@@ -39,13 +39,19 @@ function stepRow(i: number, passed: number): string {
 }
 
 /** The Verdict_Row text. VERIFIED only for six passed steps. */
-function verdictText(state: TerminalState, outcome: VerifyOutcome | null): string | null {
+export function verdictText(state: TerminalState, outcome: VerifyOutcome | null): string | null {
   if (state.verify.run !== null) return MESSAGES.VERIFYING;
   if (outcome === null) return null;
   if (outcome.kind === 'error') return MESSAGES.VERIFIER_ERROR;
   if (outcome.passed === VERIFY_STEP_ORDER.length) return 'VERIFIED';
   const failed = VERIFY_STEP_ORDER[outcome.passed];
   return failed === undefined ? MESSAGES.VERIFIER_ERROR : `REJECTED AT ${failed}`;
+}
+
+/** The body row of the verdict in inverse video. `VERIFYING` is not a verdict, so it has none. */
+export function verdictRowOf(state: TerminalState): number | null {
+  if (state.verify.run !== null) return null;
+  return verdictText(state, verifyShown(state)) === null ? null : VERDICT_ROW;
 }
 
 /** The step rows, the verdict and the key row for what is on screen. */

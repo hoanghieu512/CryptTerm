@@ -82,6 +82,22 @@ function resultFields(prove: ProveState): Field[] {
   }
 }
 
+/**
+ * The body row that holds the verdict, drawn in inverse video: row 8 once a proof exists, row 9
+ * (the failure text) when it failed. Idle and proving have no verdict, and neither has the
+ * `PROOF NOT GENERATED` row 8.
+ */
+export function verdictRowOf(state: TerminalState): number | null {
+  switch (state.prove.kind) {
+    case 'done':
+      return RESULT_ROW;
+    case 'failed':
+      return RESULT_ROW + 1;
+    default:
+      return null;
+  }
+}
+
 export const ctm300: ScreenDef = {
   layout(state): ScreenLayout {
     const pf: PfEntry[] = [

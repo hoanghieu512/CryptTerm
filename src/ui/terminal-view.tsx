@@ -4,11 +4,11 @@
 //
 // Rows 1 to 22 are `<pre>` lines, row 23 is the PF_Bar (one button per handled PF key, from the
 // same list the handlers use) and row 24 is the status line. When a proof exists, the full
-// Verify_Link is a real anchor under the grid. It is the only `href` in the view and it holds only
+// Verify_Link is the `href` of a real anchor under the grid (text OPEN VERIFIER). It is the only `href` in the view and it holds only
 // the public bundle (Requirement 9.2).
 import type { CSSProperties } from 'react';
 import { BODY_ROWS, STATUS_ROW, cursorCell, inputFields, renderGrid } from './model/grid';
-import { layoutOf } from './model/screens/index';
+import { layoutOf, verdictRowFor } from './model/screens/index';
 import type { PfNumber, TerminalState } from './model/types';
 import { SCANLINE_ALPHA, THEME } from './theme';
 
@@ -38,6 +38,7 @@ export function TerminalView({ state, onPf }: TerminalViewProps) {
   const layout = layoutOf(state);
   const cursor = cursorCell(state);
   const fields = inputFields(state);
+  const verdictRow = verdictRowFor(state);
   const link = state.prove.kind === 'done' ? state.prove.link : null;
   return (
     <div className="ct-root" style={ROOT_VARIABLES}>
@@ -53,7 +54,7 @@ export function TerminalView({ state, onPf }: TerminalViewProps) {
           ))}
           {rows.slice(0, BODY_ROWS).map((text, i) => (
             // The rows are fixed by position, so the index is the identity of a row.
-            <pre key={i} className={i === 0 ? 'ct-row ct-row-title' : 'ct-row'}>
+            <pre key={i} className={i === 0 || i === (verdictRow ?? 0) - 1 ? 'ct-row ct-row-title' : 'ct-row'}>
               {text}
             </pre>
           ))}
@@ -82,7 +83,7 @@ export function TerminalView({ state, onPf }: TerminalViewProps) {
         {link === null ? null : (
           <div className="ct-link-box">
             <a data-testid="verify-link" className="ct-link" href={link} rel="noopener">
-              {link}
+              OPEN VERIFIER
             </a>
           </div>
         )}

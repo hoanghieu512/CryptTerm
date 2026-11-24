@@ -3,6 +3,7 @@ import { decodeBundle } from '../src/zk/bundle';
 import {
   PROOF_WAIT_MS,
   amountText,
+  expectVerdictRowInverse,
   gridText,
   guardLocalOnly,
   loadSample,
@@ -23,6 +24,7 @@ const LINK_PREFIX = '/verify#b=';
 
 test.describe('prover', () => {
   test('prover_clean_to_link', async ({ page, context }) => {
+    test.setTimeout(240_000);
     const nonLocalOrigins = await guardLocalOnly(context);
     await loadSample(page, '1');
     await openProveScreen(page);
@@ -31,13 +33,27 @@ test.describe('prover', () => {
 
     const anchor = page.getByTestId('verify-link');
     await expect(anchor).toBeVisible();
-    const link = ((await anchor.textContent()) ?? '').trim();
+    const link = (await anchor.getAttribute('href')) ?? '';
     expect(link.startsWith(LINK_PREFIX)).toBe(true);
-    expect(await anchor.getAttribute('href')).toBe(link);
+    expect(((await anchor.textContent()) ?? '').trim()).toBe('OPEN VERIFIER');
+    // The anchor is the only element with an href, and the full link is shown nowhere as text.
+    await expect(page.locator('a[href]')).toHaveCount(1);
+    await expect(page.locator('a[href]').first()).toHaveAttribute('data-testid', 'verify-link');
+    expect(await page.locator('body').innerText()).not.toContain(link);
     const bundle = decodeBundle(link.slice(LINK_PREFIX.length));
     expect(bundle.limitCents).toBe(LIMIT_CENTS);
     expect(bundle.recordCount).toBe(12);
     expect(await statusRow(page).textContent()).not.toContain('VERIFIED');
+    // Verdict_Row of CTM300 (body row 8) has the colors of the title row.
+    await expect(page.locator('.ct-grid pre').nth(7)).toHaveText('PROOF GENERATED');
+    await expectVerdictRowInverse(page, 8);
+
+    // The same on CTM900: open the link, verify, and compare the verdict row (body row 17).
+    await page.goto(link);
+    await expect(page.locator('pre').filter({ hasText: /CTM900\s+VERIFY/ }).first()).toBeVisible();
+    await press(page, 'Enter');
+    await expect(page.locator('.ct-grid pre').nth(16)).toHaveText('VERIFIED', { timeout: PROOF_WAIT_MS });
+    await expectVerdictRowInverse(page, 17);
 
     expect(nonLocalOrigins, 'e2e_local_only: non-local origins').toEqual([]);
   });
@@ -52,6 +68,8 @@ test.describe('prover', () => {
     await openProveScreen(page);
     await press(page, 'F5');
     await expect(statusRow(page)).toContainText('REJECTED: UNBALANCED');
+    await expect(page.locator('.ct-grid pre').nth(8)).toHaveText('REJECTED: UNBALANCED');
+    await expectVerdictRowInverse(page, 9);
     expect(workers).toBe(0);
     await expect(page.getByTestId('verify-link')).toHaveCount(0);
 
@@ -117,7 +135,7 @@ test.describe('prover', () => {
     await expect(statusRow(page)).toContainText('PROOF GENERATED', { timeout: PROOF_WAIT_MS });
     await expect(statusRow(page)).toContainText('TAMPERED');
 
-    const link = ((await page.getByTestId('verify-link').textContent()) ?? '').trim();
+    const link = (await page.getByTestId('verify-link').getAttribute('href')) ?? '';
     expect(link.startsWith(LINK_PREFIX)).toBe(true);
     decodeBundle(link.slice(LINK_PREFIX.length));
 

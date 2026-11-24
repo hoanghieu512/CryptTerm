@@ -14,17 +14,6 @@ const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const SCANNED_DIRS = [join(REPO_ROOT, 'src', 'zk'), join(REPO_ROOT, 'src', 'ledger')];
 const BUNDLE_FILE = join(REPO_ROOT, 'src', 'zk', 'bundle.ts');
 
-// The spike files the scan skips, by name. They go in a later task (Task 7), and a name that no
-// longer exists is harmless. Every entry must start with `spike`.
-const SKIPPED_SPIKE_FILES: readonly string[] = [
-  'spike.ts',
-  'spike-classify.ts',
-  'spike-protocol.ts',
-  'spike-report.ts',
-  'spike-view.ts',
-  'spike-witness.ts',
-  'spike-worker.ts',
-];
 
 // The two files whose same-origin loaders may call `fetch` (the guard lives in them).
 const FETCH_ALLOWED: readonly string[] = [
@@ -62,7 +51,7 @@ function listTs(dir: string): string[] {
 }
 
 function scannedFiles(): string[] {
-  return SCANNED_DIRS.flatMap(listTs).filter((file) => !SKIPPED_SPIKE_FILES.includes(file.split('/').pop() ?? ''));
+  return SCANNED_DIRS.flatMap(listTs);
 }
 
 function violations(file: string, code: string): string[] {
@@ -72,8 +61,7 @@ function violations(file: string, code: string): string[] {
 }
 
 describe('zk_static_scan', () => {
-  it('zk_static_scan: the skip list holds only files that start with spike', () => {
-    expect(SKIPPED_SPIKE_FILES.every((name) => name.startsWith('spike'))).toBe(true);
+  it('zk_static_scan: the fetch exemption holds only the two same-origin loaders', () => {
     expect(FETCH_ALLOWED.map((file) => file.split('/').pop())).toStrictEqual(['artifact.ts', 'srs.ts']);
   });
 

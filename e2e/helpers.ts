@@ -1,19 +1,20 @@
 import { expect } from '@playwright/test';
 import type { BrowserContext, Page } from '@playwright/test';
+import { isLocalOrigin, resolveBaseUrl } from './base-url';
 
 // Helpers shared by the Playwright specs (prover and verifier). This is not a `*.spec.ts` file, so
 // Playwright does not run it as a test. The screen is driven with the keyboard and the PF buttons
 // (`data-testid="pf-N"`). The grid rows are `<pre>` lines and row 24 is the `status` role. Samples
 // are synthetic and the only data read from the page is what the screen shows.
 
-export const ORIGIN = 'http://127.0.0.1:4173';
+export const ORIGIN = resolveBaseUrl();
 export const PROOF_WAIT_MS = 90_000;
 // A cold Verify_Worker: SRS, verification key and WASM start before the first proof check.
 export const VERIFY_WAIT_MS = 90_000;
 
-// A request is local when it goes to the preview server, or is a blob: or data: URL.
+// A request is local when it goes to the configured origin, or is a blob: or data: URL.
 function isLocal(url: string): boolean {
-  return url.startsWith('blob:') || url.startsWith('data:') || new URL(url).origin === ORIGIN;
+  return isLocalOrigin(url, ORIGIN);
 }
 
 function originOf(url: string): string {

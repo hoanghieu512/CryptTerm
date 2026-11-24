@@ -14,13 +14,13 @@ Nine tasks in three groups, plus a commit at the start. Group 1 removes the spik
 
 ## Tasks
 
-- [ ] 0. Commit the spec files
+- [x] 0. Commit the spec files
   - Run `git add .kiro/specs/release/requirements.md .kiro/specs/release/design.md .kiro/specs/release/tasks.md .kiro/specs/release/tasks.meta.json .kiro/specs/release/.config.kiro`.
   - Commit with the message `Add release spec`.
   - **Done when:** `git log -1 --oneline` prints the `Add release spec` commit and `git status --short .kiro/specs/release` prints nothing.
 
-- [ ] 1. Group 1: spike removal and security headers
-  - [ ] 1.1 Remove the spike files and their references
+- [x] 1. Group 1: spike removal and security headers
+  - [x] 1.1 Remove the spike files and their references
     - Delete `spike.html`, `src/zk/spike*.ts`, `tests/zk/spike-*.test.ts`, `tests/zk/proof/proof-smoke.test.ts` and `scripts/check-spike-dist`.
     - Remove the `build:spike` and `check:spike-dist` entries from `package.json` and the spike mode from `vite.config.ts`.
     - Point the two references to removed files in `tests/zk/proof-isolation.test.ts` at files that exist and keep its assertions.
@@ -31,8 +31,8 @@ Nine tasks in three groups, plus a commit at the start. Group 1 removes the spik
     - _Requirements: 1.1, 1.2, 1.3, 1.4_
     - **Done when:** `git ls-files | grep -i spike` lists only `docs/spike-results.md` and the `.kiro/specs/zk-spike/` files, `grep -rn "spike" src scripts e2e vite.config.ts package.json` prints nothing, and `npm test` ends with a passing summary line.
 
-  - [ ] 1.2 Add the headers file, its parser and the preview headers
-    - Write `public/_headers` for `/*` with the CSP of the design (`default-src 'self'`, `connect-src 'self'`, `script-src 'self' 'wasm-unsafe-eval'`, `worker-src 'self'`, `object-src 'none'`, `base-uri 'none'`, `frame-ancestors 'none'`, `form-action 'none'`, plus `style-src` and `img-src`), `X-Content-Type-Options: nosniff` and `Referrer-Policy: no-referrer`. No COOP or COEP header.
+  - [x] 1.2 Add the headers file, its parser and the preview headers
+    - Write `public/_headers` for `/*` with the CSP of the design (`default-src 'self'`, `connect-src 'self' data:`, `script-src 'self' 'wasm-unsafe-eval'`, `worker-src 'self'`, `object-src 'none'`, `base-uri 'none'`, `frame-ancestors 'none'`, `form-action 'none'`, plus `style-src` and `img-src`), `X-Content-Type-Options: nosniff` and `Referrer-Policy: no-referrer`. No COOP or COEP header.
     - Inspect `dist/` after a build and set `style-src` to what the build needs. Start with `img-src 'none'`. Task 1.3 decides whether it stays.
     - Write `scripts/parse-headers.ts` exporting `headersFor(path, text)`. Make `vite.config.ts` build `preview.headers` from `public/_headers` and throw at load time if the file is missing or has no `/*` block. Keep no second copy of the header text.
     - Write the Vitest examples `headers_file_policy`, `preview_headers_from_file` and `csp_matches_build` (the last runs only with `CHECK_DIST=1`). `csp_matches_build` fails only when the build needs a source that the CSP does not grant. A granted source that nothing uses does not fail it.
@@ -40,7 +40,7 @@ Nine tasks in three groups, plus a commit at the start. Group 1 removes the spik
     - _Requirements: 2.1, 2.2, 2.4, 2.5_
     - **Done when:** `ls public/_headers scripts/parse-headers.ts` lists both files and `npm run build && CHECK_DIST=1 npx vitest run tests/ui` ends with a passing summary line that includes the three new tests.
 
-  - [ ] 1.3 Add the BASE_URL resolver, the CSP e2e check and the group 1 commit
+  - [x] 1.3 Add the BASE_URL resolver, the CSP e2e check and the group 1 commit
     - Write `e2e/base-url.ts` with `resolveBaseUrl(env)` and `isLocalOrigin(url, origin)`. Treat an unparseable URL as not local.
     - Make `playwright.config.ts` use `resolveBaseUrl()` and define `webServer` only when `BASE_URL` is unset. Make `e2e/helpers.ts` take `ORIGIN` from `resolveBaseUrl()` and wrap `isLocalOrigin` in its guard.
     - Add the Vitest example `guard_base_url` and the property test for the route guard, **Property 2: The route guard is exact about the configured origin**, over generated base origins and URLs (same origin, foreign origin, `blob:`, `data:`, unparseable).

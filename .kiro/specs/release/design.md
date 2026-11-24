@@ -26,18 +26,22 @@ flowchart LR
 The file sets, for `/*`:
 
 ```
-Content-Security-Policy: default-src 'self'; connect-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'; style-src 'self'; img-src 'none'
+Content-Security-Policy: default-src 'self'; connect-src 'self' data:; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'; style-src 'self'; img-src 'none'
 X-Content-Type-Options: nosniff
 Referrer-Policy: no-referrer
 ```
 
 No `Cross-Origin-Opener-Policy` or `Cross-Origin-Embedder-Policy` line, because the prover stays single-threaded (tech.md).
 
+`connect-src 'self' data:` carries `data:` because bb.js 6.0.0 fetches its embedded WASM from an inline `data:application/gzip;base64` URL, so the prover does not start without it (approved by huynh). A `data:` URL is inline content and cannot contact any origin, so the rule that the page reaches only its own origin still holds. `headers_file_policy` pins `connect-src` to exactly `'self'` and `data:`: no http, https, ws or wss origin, no wildcard, no `blob:`.
+
 `style-src 'self'` is not a guess. The terminal draws its cell positions with React's `style` prop, which sets the DOM `style` IDL property directly rather than writing an HTML `style="..."` attribute or a `<style>` tag, so it needs no `'unsafe-inline'`. Inspecting the built output (`dist/index.html`, the built CSS, the built JS) today finds no `<style>` tag, no `style="..."` text, no `url(...)`, no `data:` or `blob:` image reference and no `<img>` element. A Vitest check gated on `CHECK_DIST=1` (following the pattern of `tests/ui/dist-clean.test.ts` and `scripts/check-dist-vk`) re-derives the needed source list from `dist/` on every build and fails ONLY when the Built_Output needs a source that the headers do not grant. A granted source that nothing uses does not fail the check.
 
 #### Favicon
 
-The headers file starts with `img-src 'none'`. `index.html` has no icon link, so the browser may still request `/favicon.ico`. If that request raises a `securitypolicyviolation` event or a console error, observed by `csp_no_violation` in the e2e or by a check in a real browser, the rule is: change `img-src` to `'self'` and record the reason in this section, without asking huynh. The outcome is not known yet. It is recorded here when task 1.3 runs.
+The headers file starts with `img-src 'none'`. `index.html` has no icon link, so the browser may still request `/favicon.ico`. If that request raises a `securitypolicyviolation` event or a console error, observed by `csp_no_violation` in the e2e or by a check in a real browser, the rule is: change `img-src` to `'self'` and record the reason in this section, without asking huynh. 
+
+**Outcome (task 1.3):** `csp_no_violation` ran on the built page against the committed `public/_headers` (`img-src 'none'`, `connect-src 'self' data:`), served by the preview server from that file. Headless Chromium made no `/favicon.ico` request (`FAVICON REQUESTS SEEN: 0`), and the run raised no `securitypolicyviolation` event and no console error. `img-src 'none'` held, so `public/_headers` keeps it. A real browser that does request `/favicon.ico` would be blocked silently by `img-src 'none'` or show a console error; if that is seen, switch to `'self'` under the same rule.
 
 ### BASE_URL: one resolver, two readers
 

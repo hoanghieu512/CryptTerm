@@ -126,10 +126,10 @@ describe('proof isolation: real repo', () => {
   const testFiles: SourceFile[] = [];
   walkTsFiles(`${REPO_ROOT}tests`, 'tests', testFiles);
 
-  it('scans the test files (sanity: the walk finds this file and the proof smoke test)', () => {
+  it('scans the test files (sanity: the walk finds this file and the zk-core proof test)', () => {
     const paths = testFiles.map((file) => file.path);
     expect(paths).toContain(SELF_PATH);
-    expect(paths).toContain('tests/zk/proof/proof-smoke.test.ts');
+    expect(paths).toContain('tests/zk/proof/zk-core-proof.test.ts');
     expect(paths).toContain(ZK_ENV_PATH);
   });
 
@@ -141,8 +141,8 @@ describe('proof isolation: real repo', () => {
     expect(checkProofFileNames(testFiles)).toEqual([]);
   });
 
-  it('rule 2 detail: the real proof smoke test does not import fast-check', () => {
-    const smoke = testFiles.find((file) => file.path === 'tests/zk/proof/proof-smoke.test.ts');
+  it('rule 2 detail: the real zk-core proof test does not import fast-check', () => {
+    const smoke = testFiles.find((file) => file.path === 'tests/zk/proof/zk-core-proof.test.ts');
     expect(smoke).toBeDefined();
     expect(FAST_CHECK_IMPORT.test(smoke?.text ?? '')).toBe(false);
   });

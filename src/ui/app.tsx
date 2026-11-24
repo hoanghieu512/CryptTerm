@@ -4,25 +4,29 @@
 import { useCallback, useLayoutEffect, useState, useSyncExternalStore } from 'react';
 import { cancelProve, proveBatch } from '../zk/prove-service';
 import { verifyBundle } from '../zk/verifier';
+import { installBundleInput } from './browser-input';
 import { download, navigate, openLink, writeClipboard } from './browser-deps';
 import { handleKey, pfAction } from './model/keys';
 import { createTerminal } from './model/terminal';
-import type { PfNumber } from './model/types';
+import type { PfNumber, TerminalState } from './model/types';
 import { createSampleLoader } from './sample-loader';
 import { TerminalView } from './terminal-view';
 
-export function App() {
+export function App({ start }: { readonly start: TerminalState }) {
   // One host for the life of the page. The initializer has no effect: nothing runs until a key.
   const [terminal] = useState(() =>
-    createTerminal({
-      prove: { proveBatch, cancelProve },
-      loadSample: createSampleLoader(),
-      writeClipboard,
-      download,
-      openLink,
-      navigate,
-      verify: verifyBundle,
-    }),
+    createTerminal(
+      {
+        prove: { proveBatch, cancelProve },
+        loadSample: createSampleLoader(),
+        writeClipboard,
+        download,
+        openLink,
+        navigate,
+        verify: verifyBundle,
+      },
+      start,
+    ),
   );
   // `subscribe` and `getState` belong to the host, so they are the same functions on every render.
   const state = useSyncExternalStore(terminal.subscribe, terminal.getState);
@@ -36,7 +40,11 @@ export function App() {
       if (result.action !== null) terminal.dispatch(result.action);
     };
     document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
+    const removeBundleInput = installBundleInput(document, terminal);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      removeBundleInput();
+    };
   }, [terminal]);
 
   const onPf = useCallback((pf: PfNumber): void => terminal.dispatch(pfAction(pf)), [terminal]);

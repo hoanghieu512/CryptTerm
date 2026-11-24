@@ -69,7 +69,7 @@ Constraints that apply to every task:
     - Done when: `git log -1 --oneline` is run and its output quoted, and the two checks above printed nothing and passed.
 
 - [ ] 3. Group 3: browser wiring and e2e
-  - [ ] 3.1 Write the Group 3 tests (red first)
+  - [x] 3.1 Write the Group 3 tests (red first)
     - Create `tests/ui/browser-input.test.ts`: `verify_paste_and_drop` fake-event examples (`preventDefault` on `paste`, `dragover` and `drop` only while the screen is CTM900, a dropped `.json` file reaches `FILES_DROPPED`, the returned function removes the three listeners, no `location`, `history` or storage call).
     - Edit `tests/ui/url-holds-only-bundle.test.ts`: add CTM900 markup and a paste of a sentinel text (`url_holds_only_bundle`).
     - Create `e2e/helpers.ts` by moving `ORIGIN`, `guardLocalOnly`, `statusRow`, `gridText`, `press`, `loadSample`, `openProveScreen`, `postingRows`, `amountText` and `PROOF_WAIT_MS` out of `e2e/prover.spec.ts` (export them), and add `VERIFY_WAIT_MS`, `proveSample`, `openVerifyTab` (listener registered before the PF11 click, `context.waitForEvent('page')`, `bringToFront`), `stepsOf`, `verdictOf` and `setLimit` (Tab, 13 Backspace presses, confirm the empty field, type, confirm the field, then Enter). Edit `e2e/prover.spec.ts` to import them with no change in behavior.
@@ -77,13 +77,13 @@ Constraints that apply to every task:
     - _Requirements: 3.3, 3.4, 6.2, 6.3, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
     - Done when: `npx vitest run tests/ui/browser-input.test.ts` exits non-zero because `src/ui/browser-input.ts` does not exist, and `npx playwright test --list` is run and its output quoted, listing the five verifier tests and all prover tests.
 
-  - [ ] 3.2 Wire the browser and make the e2e pass
+  - [x] 3.2 Wire the browser and make the e2e pass
     - New file: `src/ui/browser-input.ts` (`installBundleInput` with the `paste`, `dragover` and `drop` listeners, active only while `getState().screen === 'CTM900'`, returns the remover). Edit `src/main.tsx` (call `startStateFrom(location)` once, pass the result as `start`) and `src/ui/app.tsx` (accept the `start` prop, pass it to `createTerminal`, call `installBundleInput(document, terminal)` in the existing layout effect). Do not edit `src/ui/terminal-view.tsx`.
     - Build and run the suites against the local preview build only: no deploy, no `netlify` command.
     - _Requirements: 1.1, 3.1, 3.3, 3.4, 6.1, 6.2, 6.3, 6.4, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
     - Done when: `npm run build && npx vitest run && npm run test:e2e` exits 0, and the vitest and Playwright summary lines (0 failed) are quoted.
 
-  - [ ] 3.3 Group 3 checks, commit by name, stop for review
+  - [-] 3.3 Group 3 checks, commit by name, stop for review
     - Run `git diff --name-only <task 0 commit> -- src/zk src/ledger` (the commit made by task 0, the commit before Group 1; it must print only `src/zk/bundle.ts`, the one allowed export), `npx vitest run tests/ui/ui-static-scan.test.ts tests/ui/ui-wording-scan.test.ts tests/ui/url-holds-only-bundle.test.ts`, and `git status --short` to confirm that only the listed files changed.
     - Stage by name: `src/ui/browser-input.ts`, `src/main.tsx`, `src/ui/app.tsx`, `tests/ui/browser-input.test.ts`, `tests/ui/url-holds-only-bundle.test.ts`, `e2e/helpers.ts`, `e2e/prover.spec.ts`, `e2e/verifier.spec.ts`, and `.kiro/specs/verifier/tasks.md` if its checkboxes changed. Commit with `feat(verifier): CTM900 browser wiring and e2e`. Do not push.
     - STOP after the commit. Stop for Claude's review. Each group runs in its own fresh chat.

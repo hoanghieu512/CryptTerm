@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import fc from 'fast-check';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TerminalView } from '../../src/ui/terminal-view';
 import { verifyLinkFor, VERIFY_LINK_PREFIX } from '../../src/ui/model/links';
 import { initialState } from '../../src/ui/model/update';
@@ -9,7 +9,11 @@ import type { PfNumber, TerminalState } from '../../src/ui/model/types';
 import type { ProofBundle } from '../../src/zk/bundle';
 import { proofBundleArb } from '../support/bundle-arbitraries';
 import { GOOD_BATCH, ctm300, withDone } from '../support/prove-state';
-import { loadedState, onSelectScreen, pf, step } from '../support/terminal-arbitraries';
+import { loadedState, onSelectScreen, pf, stateOn, step } from '../support/terminal-arbitraries';
+import { makeHarness } from '../support/terminal-host';
+
+// A sentinel text that stands for a pasted bundle (verifier Requirement 6.3).
+const PASTED_SENTINEL = 'PASTED-B7NDL3-S3NT1N3L-0042-'.repeat(8);
 
 // Test url_holds_only_bundle (terminal-ui Requirement 9.2, example, one run).
 //
@@ -50,6 +54,8 @@ function screens(): Readonly<Record<string, TerminalState>> {
     'CTM200 tamper': step(loadedState(GOOD_BATCH), pf(12)),
     CTM300: ctm300(GOOD_BATCH),
     'CTM300 done': withDone(ctm300(GOOD_BATCH), BUNDLE),
+    CTM900: stateOn('CTM900', GOOD_BATCH),
+    'CTM900 pasted': step(stateOn('CTM900', GOOD_BATCH), { type: 'PASTE_TEXT', text: PASTED_SENTINEL }),
   };
 }
 
@@ -94,5 +100,47 @@ describe('url_holds_only_bundle', () => {
       const markup = markupOf(state);
       expect(/<(?:form|input|img|iframe|script)\b/i.test(markup), name).toBe(false);
     }
+  });
+
+  it('url_holds_only_bundle: a pasted text is in no href, no target and no markup on CTM900', () => {
+    const markup = markupOf(step(stateOn('CTM900', GOOD_BATCH), { type: 'PASTE_TEXT', text: PASTED_SENTINEL }));
+    expect([...hrefsOf(markup), ...navigationAttributes(markup)]).toEqual([]);
+    expect(markup.includes(PASTED_SENTINEL.slice(0, 20))).toBe(false);
+    expect(markup).toContain('CTM900');
+  });
+
+  describe('url_holds_only_bundle: a paste on CTM900 leaves location, history and storage alone', () => {
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it('url_holds_only_bundle: no location, history or storage access while a text is pasted and drawn', () => {
+      const touched: string[] = [];
+      const trap = (name: string): object =>
+        new Proxy(
+          {},
+          {
+            get: (_t, prop) => {
+              touched.push(`${name}.${String(prop)}`);
+              return undefined;
+            },
+            set: (_t, prop) => {
+              touched.push(`${name}.${String(prop)}=`);
+              return true;
+            },
+          },
+        );
+      // Built before the stubs, so the harness setup is not counted as an access.
+      const harness = makeHarness({ initial: stateOn('CTM900', GOOD_BATCH) });
+      for (const name of ['location', 'history', 'localStorage', 'sessionStorage', 'indexedDB', 'caches']) {
+        vi.stubGlobal(name, trap(name));
+      }
+      harness.terminal.dispatch({ type: 'PASTE_TEXT', text: PASTED_SENTINEL });
+      markupOf(harness.terminal.getState());
+      expect(harness.terminal.getState().verify.source).toBe('PASTE');
+      expect(touched).toEqual([]);
+      expect(harness.navigations).toEqual([]);
+      expect(harness.links).toEqual([]);
+    });
   });
 });

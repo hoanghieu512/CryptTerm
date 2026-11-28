@@ -20,7 +20,7 @@ One commit task and four implementation sub-tasks, in this order: tests first (1
   - Commit with the message `Add verify-error spec`.
   - **Done when:** `git log -1 --oneline` prints the `Add verify-error spec` commit and `git status --short .kiro/specs/verify-error` prints nothing.
 
-- [ ] 1. Fix the false PROOF INVALID verdict
+- [x] 1. Fix the false PROOF INVALID verdict
   - [x] 1.1 Write the failing tests and the mechanical test-helper updates
     - Write `tests/zk/verify-client-outcomes.prop.test.ts` (`verify_client_outcomes`, **Property 1: Proof_Client outcomes are deterministic, exhaustive and sticky**). Drive `createProofVerifier` with a fake `WorkerPort` and randomized trigger sequences: a `verified` event with `valid` true or false, a `failed` event, a port error, a `post` throw and a timeout, over several concurrent runs and a randomized injected `timeoutMs`. Assert every run resolves to exactly one of the strings `'valid'`, `'invalid'`, `'not_completed'` by strict equality, that a later trigger for a settled run changes nothing, and that nothing else is carried.
     - In the same file add the examples: `VERIFY_TIMEOUT_MS` equals `120_000`, and under fake timers a run made with the default timeout is still pending at 119,999 ms and resolves `'not_completed'` at 120,000 ms.
@@ -52,7 +52,7 @@ One commit task and four implementation sub-tasks, in this order: tests first (1
     - _Requirements: 2.7, 2.8, 2.9, 2.10_
     - **Done when:** `npx vitest run tests/ui tests/zk` ends with a passing summary line that includes `ctm900-verifier-error-row` and the unchanged `verdict_row_inverse`, and `npm run typecheck` exits 0.
 
-  - [-] 1.4 Rebuild, deploy a draft, run the final checks and make the final commit
+  - [x] 1.4 Rebuild, deploy a draft, run the final checks and make the final commit
     - Run `npm run build`.
     - If `.netlify/netlify.toml` exists, delete it. Then run `npx --yes netlify-cli@27.20.1 status`. It must show the project `cryptterm`. If it shows any other project, or none, STOP and ask huynh. Do not write the account name or email from this output into any file.
     - Run `npx --yes netlify-cli@27.20.1 deploy --dir dist --no-build`. Never add `--prod` or `--build`. Report the new Draft_URL.

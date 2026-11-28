@@ -15,13 +15,13 @@ One commit task and four implementation sub-tasks, in this order: tests first (1
 
 ## Tasks
 
-- [-] 0. Commit the spec files
+- [x] 0. Commit the spec files
   - Run `git add .kiro/specs/verify-error/requirements.md .kiro/specs/verify-error/design.md .kiro/specs/verify-error/tasks.md .kiro/specs/verify-error/tasks.meta.json .kiro/specs/verify-error/.config.kiro`.
   - Commit with the message `Add verify-error spec`.
   - **Done when:** `git log -1 --oneline` prints the `Add verify-error spec` commit and `git status --short .kiro/specs/verify-error` prints nothing.
 
 - [ ] 1. Fix the false PROOF INVALID verdict
-  - [~] 1.1 Write the failing tests and the mechanical test-helper updates
+  - [x] 1.1 Write the failing tests and the mechanical test-helper updates
     - Write `tests/zk/verify-client-outcomes.prop.test.ts` (`verify_client_outcomes`, **Property 1: Proof_Client outcomes are deterministic, exhaustive and sticky**). Drive `createProofVerifier` with a fake `WorkerPort` and randomized trigger sequences: a `verified` event with `valid` true or false, a `failed` event, a port error, a `post` throw and a timeout, over several concurrent runs and a randomized injected `timeoutMs`. Assert every run resolves to exactly one of the strings `'valid'`, `'invalid'`, `'not_completed'` by strict equality, that a later trigger for a settled run changes nothing, and that nothing else is carried.
     - In the same file add the examples: `VERIFY_TIMEOUT_MS` equals `120_000`, and under fake timers a run made with the default timeout is still pending at 119,999 ms and resolves `'not_completed'` at 120,000 ms.
     - Write `tests/zk/proof-step-not-completed.prop.test.ts` (`proof_step_not_completed`, **Property 2: PROOF step detail comes only from the fixed set, keyed by outcome**). Use five stand-ins: answers `'valid'`, answers `'invalid'`, throws, rejects, and resolves a value that is neither string. Throws and rejections carry a random sentinel string. Assert `proofStep` returns `'valid'`, `'invalid'`, `'not_completed'`, `'not_completed'`, `'not_completed'`, that the `PROOF` step has `ok` and `detail` of `PROOF VALID`, `PROOF INVALID` or `PROOF CHECK NOT COMPLETED` as keyed by the outcome, that the verdict is `REJECTED` whenever `ok` is false, and that the sentinel appears nowhere in the report. Add an example that `NOT_COMPLETED_DETAIL` equals the literal `PROOF CHECK NOT COMPLETED` and is the `notCompleted` text of `VERIFY_DETAILS.PROOF`.
@@ -36,7 +36,7 @@ One commit task and four implementation sub-tasks, in this order: tests first (1
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.1, 2.2, 2.3, 2.4, 2.5, 2.7, 2.8, 2.10, 3.1, 3.2, 3.3_
     - **Done when:** `ls tests/zk/verify-client-outcomes.prop.test.ts tests/zk/proof-step-not-completed.prop.test.ts tests/ui/ctm900-verifier-error-row.prop.test.ts` lists all three files, `git status --short src` prints nothing, and `npx vitest run tests/zk/verify-client-outcomes.prop.test.ts tests/zk/proof-step-not-completed.prop.test.ts tests/ui/ctm900-verifier-error-row.prop.test.ts` exits non-zero with assertion failures that name the new tests, and not with an import or syntax error.
 
-  - [~] 1.2 Implement the three-way outcome in `verify-client.ts` and `verifier.ts`
+  - [x] 1.2 Implement the three-way outcome in `verify-client.ts` and `verifier.ts`
     - In `src/zk/verifier.ts` add `export type ProofOutcome = 'valid' | 'invalid' | 'not_completed'`, change `ProofVerifier` to resolve `ProofOutcome`, and export `NOT_COMPLETED_DETAIL = 'PROOF CHECK NOT COMPLETED'`. Add the optional `notCompleted` text to the shared `VERIFY_DETAILS` record type and set it on `PROOF` only.
     - Make `proofStep` return a `ProofOutcome`: wrap the call in `try`/`catch`, return the answer only when it is exactly `'valid'` or `'invalid'`, and return `'not_completed'` for a throw, a rejection or any other value.
     - Take `PROOF` out of the generic `checks` loop in `createVerifier`. Keep `SIGNATURE`, `DIGEST_MATCH`, `POLICY` and `CIRCUIT` in the loop with their order and results unchanged. Record `PROOF` from the outcome: `ok` only for `'valid'`, `detail` from `NOT_COMPLETED_DETAIL` for `'not_completed'` and from `VERIFY_DETAILS.PROOF` otherwise. Keep the outer `try`/`catch` that falls back to a rejected report.
@@ -45,14 +45,14 @@ One commit task and four implementation sub-tasks, in this order: tests first (1
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 3.1, 3.2, 3.3_
     - **Done when:** `npx vitest run tests/zk` ends with a passing summary line that includes `verify-client-outcomes`, `proof-step-not-completed`, `verifier-order`, `verifier-compare` and `verify-never-throws`, and `git status --short src` lists only `src/zk/verifier.ts` and `src/zk/verify-client.ts`.
 
-  - [~] 1.3 Map a not-completed proof check to the CTM900 verifier error
+  - [x] 1.3 Map a not-completed proof check to the CTM900 verifier error
     - In `src/ui/model/verify-flow.ts` import `NOT_COMPLETED_DETAIL` from `src/zk/verifier` and change `normalizeReport`: when the verdict is `REJECTED` and the last step is named `PROOF` with `detail === NOT_COMPLETED_DETAIL`, return `null`. Every other `REJECTED` report keeps its existing return path, so a `PROOF INVALID` report still gives `REJECTED AT PROOF`. Compare with `===` only, and never copy or display the text.
     - Update the header comment of `normalizeReport`, which says the `detail` of a step is never read, to name this one exception.
     - Leave `src/ui/model/screens/ctm900.ts` unchanged. Its `outcome.kind === 'error'` branch already shows `MESSAGES.VERIFIER_ERROR`. If `ctm900_verifier_error_row` shows that a change there is needed, make the smallest one and say so in the report.
     - _Requirements: 2.7, 2.8, 2.9, 2.10_
     - **Done when:** `npx vitest run tests/ui tests/zk` ends with a passing summary line that includes `ctm900-verifier-error-row` and the unchanged `verdict_row_inverse`, and `npm run typecheck` exits 0.
 
-  - [~] 1.4 Rebuild, deploy a draft, run the final checks and make the final commit
+  - [-] 1.4 Rebuild, deploy a draft, run the final checks and make the final commit
     - Run `npm run build`.
     - If `.netlify/netlify.toml` exists, delete it. Then run `npx --yes netlify-cli@27.20.1 status`. It must show the project `cryptterm`. If it shows any other project, or none, STOP and ask huynh. Do not write the account name or email from this output into any file.
     - Run `npx --yes netlify-cli@27.20.1 deploy --dir dist --no-build`. Never add `--prod` or `--build`. Report the new Draft_URL.

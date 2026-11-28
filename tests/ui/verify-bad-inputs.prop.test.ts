@@ -22,7 +22,7 @@ const STEP_ROW_FIRST = 9; // row 10, 0-based
 const VERDICT_ROW = 16; // row 17
 
 let key: EphemeralKey;
-const stub = recordingVerifier(true);
+const stub = recordingVerifier('valid');
 
 beforeAll(async () => {
   [key] = (await makeEphemeralKeys(1)) as [EphemeralKey];

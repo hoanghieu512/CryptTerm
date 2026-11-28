@@ -37,8 +37,8 @@ export interface ProofCall {
   readonly inputs: readonly string[];
 }
 
-// A ProofVerifier that records what it was given and answers `result`.
-export function recordingVerifier(result = true): { verifyProof: ProofVerifier; calls: ProofCall[] } {
+// A ProofVerifier that records what it was given and answers `result` ('valid' or 'invalid').
+export function recordingVerifier(result: 'valid' | 'invalid' = 'valid'): { verifyProof: ProofVerifier; calls: ProofCall[] } {
   const calls: ProofCall[] = [];
   const verifyProof: ProofVerifier = async (proof, inputs) => {
     calls.push({ proof, inputs: [...inputs] });

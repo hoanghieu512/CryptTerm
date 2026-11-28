@@ -13,7 +13,9 @@ import { POLICY_LIMIT, signedBundle, testDeps } from '../support/signed-bundle';
 // Feature: zk-core, Property 7: the verifier never throws and reports fixed text (verify_never_throws).
 // Validates: Requirements 6.6, 8.3, 8.5, 9.4. Every input ends in a report with a named step.
 const STEP_NAMES = ['FORMAT', 'SIGNATURE', 'DIGEST_MATCH', 'POLICY', 'CIRCUIT', 'PROOF'];
-const ALL_DETAILS = new Set(Object.values(VERIFY_DETAILS).flatMap((d) => [d.ok, d.fail]));
+const ALL_DETAILS = new Set(
+  Object.values(VERIFY_DETAILS).flatMap((d) => [d.ok, d.fail, ...(d.notCompleted === undefined ? [] : [d.notCompleted])]),
+);
 
 let key: EphemeralKey;
 
@@ -40,9 +42,9 @@ const VERIFIER_KINDS = ['true', 'false', 'throw', 'reject', 'nonBoolean'] as con
 function proofVerifierOf(kind: (typeof VERIFIER_KINDS)[number]): ProofVerifier {
   switch (kind) {
     case 'true':
-      return async () => true;
+      return async () => 'valid';
     case 'false':
-      return async () => false;
+      return async () => 'invalid';
     case 'throw':
       return () => {
         throw new Error('HOSTILE VERIFIER');

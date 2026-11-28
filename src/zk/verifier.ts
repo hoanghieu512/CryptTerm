@@ -38,8 +38,15 @@ export interface VerifyPolicy {
   readonly limitCents: Cents;
 }
 
-// Checks a proof against the shipped key. Resolves true only for a valid proof.
-export type ProofVerifier = (proof: Uint8Array, publicInputs: readonly [string, string, string]) => Promise<boolean>;
+// The result of a proof check. `not_completed` means the check did not finish (a timeout, a worker
+// error, a throw), which says nothing about the proof itself.
+export type ProofOutcome = 'valid' | 'invalid' | 'not_completed';
+
+// Checks a proof against the shipped key. Never throws and never rejects.
+export type ProofVerifier = (
+  proof: Uint8Array,
+  publicInputs: readonly [string, string, string],
+) => Promise<ProofOutcome>;
 
 export interface VerifierDeps {
   readonly trustedKeys: Readonly<Record<string, string>>;
@@ -49,13 +56,17 @@ export interface VerifierDeps {
 }
 
 // The only texts a report can hold. A thrown error, a codec code or an input value is never copied.
-export const VERIFY_DETAILS: Readonly<Record<VerifyStepName, { readonly ok: string; readonly fail: string }>> = {
+export const NOT_COMPLETED_DETAIL = 'PROOF CHECK NOT COMPLETED';
+
+export const VERIFY_DETAILS: Readonly<
+  Record<VerifyStepName, { readonly ok: string; readonly fail: string; readonly notCompleted?: string }>
+> = {
   FORMAT: { ok: 'BUNDLE FORMAT VALID', fail: 'BUNDLE FORMAT INVALID' },
   SIGNATURE: { ok: 'SIGNATURE VALID', fail: 'SIGNATURE INVALID' },
   DIGEST_MATCH: { ok: 'PUBLIC INPUTS MATCH SIGNED DIGEST', fail: 'PUBLIC INPUTS DO NOT MATCH SIGNED DIGEST' },
   POLICY: { ok: 'LIMIT MATCHES POLICY', fail: 'LIMIT DOES NOT MATCH POLICY' },
   CIRCUIT: { ok: 'CIRCUIT VERSION AND KEY HASH MATCH', fail: 'CIRCUIT VERSION OR KEY HASH DOES NOT MATCH' },
-  PROOF: { ok: 'PROOF VALID', fail: 'PROOF INVALID' },
+  PROOF: { ok: 'PROOF VALID', fail: 'PROOF INVALID', notCompleted: NOT_COMPLETED_DETAIL },
 };
 
 // SIGNATURE: the key is looked up by own property in the trusted table. An id such as
@@ -91,10 +102,17 @@ function circuitStep(deps: VerifierDeps, bundle: ProofBundle): boolean {
 /**
  * PROOF: the inputs are built here from the signed root, the signed count and the verifier's own
  * policy. The `publicInputs` of the bundle are not read. Only the proof bytes come from the bundle.
+ * Only an answer of exactly 'valid' or 'invalid' is kept. A throw, a rejection or any other value
+ * means the check did not finish.
  */
-export async function proofStep(deps: VerifierDeps, bundle: ProofBundle, policy: VerifyPolicy): Promise<boolean> {
-  const inputs = [bundle.merkleRoot.toString(10), String(bundle.recordCount), policy.limitCents.toString(10)] as const;
-  return (await deps.verifyProof(bundle.proof, inputs)) === true;
+export async function proofStep(deps: VerifierDeps, bundle: ProofBundle, policy: VerifyPolicy): Promise<ProofOutcome> {
+  try {
+    const inputs = [bundle.merkleRoot.toString(10), String(bundle.recordCount), policy.limitCents.toString(10)] as const;
+    const result: unknown = await deps.verifyProof(bundle.proof, inputs);
+    return result === 'valid' || result === 'invalid' ? result : 'not_completed';
+  } catch {
+    return 'not_completed';
+  }
 }
 
 // Runs one step. Only an answer of exactly `true` passes. A throw or a rejection is a failure.
@@ -138,11 +156,16 @@ export function createVerifier(deps: VerifierDeps): (input: unknown, policy: Ver
         ['DIGEST_MATCH', digestMatchStep],
         ['POLICY', (b) => policyStep(b, policy)],
         ['CIRCUIT', (b) => circuitStep(deps, b)],
-        ['PROOF', (b) => proofStep(deps, b, policy)],
       ];
       for (const [name, check] of checks) {
         if (!record(name, await runStep(() => check(bundle)))) return rejected(steps);
       }
+      // PROOF has three outcomes, so its detail is not a function of `ok` alone.
+      const outcome = await proofStep(deps, bundle, policy);
+      const ok = outcome === 'valid';
+      const detail = outcome === 'not_completed' ? NOT_COMPLETED_DETAIL : VERIFY_DETAILS.PROOF[ok ? 'ok' : 'fail'];
+      steps.push({ name: 'PROOF', ok, detail });
+      if (!ok) return rejected(steps);
       return { verdict: 'VERIFIED', steps };
     } catch {
       return rejected(steps);

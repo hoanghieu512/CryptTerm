@@ -12,6 +12,7 @@ import { MAX_INPUT_CHARS } from '../../zk/bundle';
 import { parseAmountInput } from './amount-input';
 import { MESSAGES } from './messages';
 import { limitRefused } from './prove-flow';
+import { NOT_COMPLETED_DETAIL } from '../../zk/verifier';
 import type { VerifyStepName } from '../../zk/verifier';
 import type { DroppedFile, SystemAction, TerminalState, Update, VerifyOutcome, VerifyState } from './types';
 
@@ -134,7 +135,10 @@ export function leaveVerify(state: TerminalState): Update {
  * `null` for anything else, a getter that throws included. A well-formed report has a verdict of
  * VERIFIED or REJECTED and 1 to 6 steps. Step i is named VERIFY_STEP_ORDER[i] and has a boolean
  * `ok`. A VERIFIED report has six passing steps. A REJECTED report has passing steps and then one
- * failing last step. The `detail` of a step is never read.
+ * failing last step. The `detail` of a step is never read, with one exception: a REJECTED report
+ * whose last step is PROOF with `detail === NOT_COMPLETED_DETAIL` (the proof check did not finish)
+ * gives `null`, so the screen shows the verifier error and not REJECTED AT PROOF. The text is only
+ * compared with `===`. It is never copied or shown.
  */
 export function normalizeReport(report: unknown): number | null {
   try {
@@ -152,6 +156,8 @@ export function normalizeReport(report: unknown): number | null {
       if (ok !== mustPass) return null;
     }
     if (verdict === 'VERIFIED') return steps.length === VERIFY_STEP_ORDER.length ? steps.length : null;
+    const lastStep = steps[last] as { readonly name?: unknown; readonly detail?: unknown };
+    if (lastStep.name === 'PROOF' && lastStep.detail === NOT_COMPLETED_DETAIL) return null;
     return last;
   } catch {
     return null;

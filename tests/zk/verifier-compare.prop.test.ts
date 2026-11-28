@@ -88,9 +88,9 @@ describe('policy_compares_public_inputs_and_bundle_limit', () => {
 // Property 12: the proof check gets the proof bytes and inputs built from the signed root, the
 // signed count and the policy. The bundle's own public_inputs (random here) are never passed on.
 async function checkProofInputs(bundle: ProofBundle, policy: bigint): Promise<void> {
-  const recorder = recordingVerifier(true);
+  const recorder = recordingVerifier('valid');
   const passed = await proofStep(testDeps(key, recorder.verifyProof), bundle, { limitCents: policy });
-  expect(passed).toBe(true);
+  expect(passed).toBe('valid');
   expect(recorder.calls).toHaveLength(1);
   expect(recorder.calls[0]?.proof).toStrictEqual(bundle.proof);
   const built = [bundle.merkleRoot.toString(10), String(bundle.recordCount), policy.toString(10)];

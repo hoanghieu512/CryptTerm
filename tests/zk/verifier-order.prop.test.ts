@@ -45,7 +45,7 @@ function expectedSteps(faults: ReadonlySet<Fault>): readonly Fault[] {
 async function checkOrder(base: ProofBundle, faultList: readonly Fault[]): Promise<void> {
   const faults = new Set(faultList);
   const bundle = await signedBundle(key, base);
-  const proof = recordingVerifier(!faults.has('PROOF'));
+  const proof = recordingVerifier(faults.has('PROOF') ? 'invalid' : 'valid');
   const verify = createVerifier(testDeps(key, proof.verifyProof));
   const report = await verify(faultyText(bundle, faults), { limitCents: POLICY_LIMIT });
   const names = expectedSteps(faults);

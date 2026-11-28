@@ -16,6 +16,7 @@ The app is a static site. Proof generation and verification run in a Web Worker,
 - The demo private key is committed in the generator folder and labelled `DEMO ONLY`, so judges can reproduce the samples. The README and pitch state plainly that this key is public by design. In production it lives in the core system or an HSM.
 - Consequence: an edited batch cannot be re-signed in the browser. The tamper demo depends on this.
 - **Policy limit:** the limit is the verifier's policy, not the prover's choice. The verifier holds the expected `limit_cents` (default 1,000,000 cents, editable on CTM900) and rejects any bundle whose public `limit_cents` differs. The prover's CTM300 field is prefilled with the same default. A looser limit produces a bundle that the verifier rejects at the policy step.
+- **Netlify badge:** on the free plan, Netlify adds its "Powered by Netlify" badge script (`/.netlify/scripts/hud`) to the production page. The app CSP blocks the inline style and script of that badge frame, so the browser console shows two CSP messages from it on every load. The app makes no other request.
 
 The demo signing key is `DEMO ONLY` and public by design. It is not a protected secret. The samples and the demo data are demo data.
 

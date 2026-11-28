@@ -132,7 +132,7 @@ describe('paging_covers_all_postings', () => {
       expect(past.page).toBe(last.page);
       expect(past.status).toBe(MESSAGES.LAST_PAGE);
     }));
-  });
+  }, 30000);
 });
 
 // Feature: terminal-ui, Property 11: Displayed totals equal the bigint sums

@@ -86,6 +86,37 @@
         "chatSessionId": "sess_c5865d0c-4045-43c0-bb43-9f44415eb4d4",
         "timestamp": 1795512610169
       }
+    ],
+    "3.1 Build and deploy a draft": [
+      {
+        "executionId": "dd2f72d5-6a45-49c0-8bbf-031492854151",
+        "chatSessionId": "sess_ab8e0156-807d-4784-9ee8-0a0179881d76",
+        "timestamp": 1795534625743
+      },
+      {
+        "executionId": "ebf7c51f-2cf6-4e23-bab4-5ba8f305b317",
+        "chatSessionId": "sess_ab8e0156-807d-4784-9ee8-0a0179881d76",
+        "timestamp": 1795874029525
+      }
+    ],
+    "3.2 Run the final checks and make the group 3 commit": [
+      {
+        "executionId": "ebf7c51f-2cf6-4e23-bab4-5ba8f305b317",
+        "chatSessionId": "sess_ab8e0156-807d-4784-9ee8-0a0179881d76",
+        "timestamp": 1795874033738
+      },
+      {
+        "executionId": "ebf7c51f-2cf6-4e23-bab4-5ba8f305b317",
+        "chatSessionId": "sess_ab8e0156-807d-4784-9ee8-0a0179881d76",
+        "timestamp": 1795875274055
+      }
+    ],
+    "3. Group 3: draft deploy and final checks": [
+      {
+        "executionId": "ebf7c51f-2cf6-4e23-bab4-5ba8f305b317",
+        "chatSessionId": "sess_ab8e0156-807d-4784-9ee8-0a0179881d76",
+        "timestamp": 1795875274174
+      }
     ]
   }
 }

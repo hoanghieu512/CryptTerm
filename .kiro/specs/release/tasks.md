@@ -81,8 +81,8 @@ Nine tasks in three groups, plus a commit at the start. Group 1 removes the spik
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6_
     - **Done when:** `npm test` ends with a passing summary line that includes the four README tests, and `git log -1 --oneline` prints the group 2 commit.
 
-- [ ] 3. Group 3: draft deploy and final checks
-  - [-] 3.1 Build and deploy a draft
+- [x] 3. Group 3: draft deploy and final checks
+  - [x] 3.1 Build and deploy a draft
     - Do not add `netlify-cli` to `package.json`. As the zk-spike did (see `docs/spike-results.md`), run the CLI as `npx --yes netlify-cli@27.20.1`, an npx run only.
     - Load the Netlify power overview (`power::netlify-deployment::overview`). Run `npm run build`. Run `netlify status` and report the site and account to huynh. Wait for his confirmation before deploying. If the CLI is not logged in or the project is not linked, stop and ask huynh.
     - Compare what the deploy would publish with `ls dist`. If it would publish anything other than the contents of `dist/`, stop and ask huynh.
@@ -90,7 +90,7 @@ Nine tasks in three groups, plus a commit at the start. Group 1 removes the spik
     - _Requirements: 6.3, 6.4, 6.5, 6.7_
     - **Done when:** the report quotes the `netlify status` output, huynh's confirmation, the exact deploy command line and the Draft_URL, and `git status --short package.json package-lock.json` prints nothing.
 
-  - [ ] 3.2 Run the final checks and make the group 3 commit
+  - [x] 3.2 Run the final checks and make the group 3 commit
     - Run each command and quote its summary line and exit status. Stop at the first non-zero exit.
       - `npm run typecheck`
       - `npm test`
